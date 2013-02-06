@@ -44,6 +44,7 @@ public class Controleur {
         this.creerBarrePhasesJeu();
         this.creerMap();
     }
+    
     private void creerMap() {
         ArrayList<GroupeZone> listeVueContinents = new ArrayList<>();
         
