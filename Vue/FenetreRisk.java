@@ -166,7 +166,6 @@ public class FenetreRisk extends JFrame implements Observeur {
                     maZone.setNbUnite(nbUnites);
                     System.out.println(maZone.rendNom() + " : " + maZone.rendNbUnite()+ " units");
                 }
-
             }
         }
     }
