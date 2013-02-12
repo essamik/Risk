@@ -658,17 +658,17 @@ public class CarteTerre {
         };
         
         Territoire afriqueSud = new Territoire("Afrique du sud", xAfriqueSud, yAfriqueSud,new Point(526, 379));
-
-        //////////MADAGASCAR//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        int xMagagascar[] = {618, 620, 614, 608, 602, 596, 595, 600, 601, 601, 600, 602, 607,
-            613, 615, 615}; 
-        
-        int yMagagascar[] = {347, 354, 375, 394, 396, 392, 383, 376, 372, 369, 363, 362, 360,
-            354, 351, 352, };
-        
-        Territoire madagascar = new Territoire("Madagascar", xMagagascar, yMagagascar, new Point(605, 377));
-
-        afrique.addTerritoire(madagascar);
+//
+//        //////////MADAGASCAR//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//        int xMagagascar[] = {618, 620, 614, 608, 602, 596, 595, 600, 601, 601, 600, 602, 607,
+//            613, 615, 615}; 
+//        
+//        int yMagagascar[] = {347, 354, 375, 394, 396, 392, 383, 376, 372, 369, 363, 362, 360,
+//            354, 351, 352, };
+//        
+//        Territoire madagascar = new Territoire("Madagascar", xMagagascar, yMagagascar, new Point(605, 377));
+//
+//        afrique.addTerritoire(madagascar);
         afrique.addTerritoire(afriqueNord);
         afrique.addTerritoire(egypte);
         afrique.addTerritoire(afriqueEst);
@@ -769,9 +769,9 @@ public class CarteTerre {
         afriqueEst.addVoisin(egypte);
         afriqueEst.addVoisin(congo);
         afriqueEst.addVoisin(afriqueSud);
-        afriqueEst.addVoisin(madagascar);
+//        afriqueEst.addVoisin(madagascar);
         congo.addVoisin(afriqueSud);
-        afriqueSud.addVoisin(madagascar);
+//        afriqueSud.addVoisin(madagascar);
         afriqueEst.addVoisin(moyenOrient);
         
         groenland.addVoisin(quebec);

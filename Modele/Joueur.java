@@ -16,7 +16,6 @@ public class Joueur {
 
     private String nom;
     private Color couleur;
-    private int ordreJeu;
     private ArrayList<Territoire> mesTerritoires;
     
     public Joueur(String nomJoueur, Color couleurJoueur) {
@@ -32,12 +31,12 @@ public class Joueur {
         return this.couleur;
     }
     
-    public void setOrdre(int ordreJoueur) {
-        this.ordreJeu = ordreJoueur;
-    }
-    public int rendOrdre() {
-        return this.ordreJeu;
-    }
+//    public void setOrdre(int ordreJoueur) {
+//        this.ordreJeu = ordreJoueur;
+//    }
+//    public int rendOrdre() {
+//        return this.ordreJeu;
+//    }
     
     public boolean addTerritoire(Territoire territoryCaptured) {
         boolean aEteAJoute = false;

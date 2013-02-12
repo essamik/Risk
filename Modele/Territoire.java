@@ -68,6 +68,9 @@ public class Territoire {
         return this.couleur;
     }
 
+    public void setCouleur(Color nouvelleCouleur) {
+        this.couleur = nouvelleCouleur;
+    }
     public Point rendPointCentral() {
         return this.pointCentral;
     }

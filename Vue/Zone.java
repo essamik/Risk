@@ -88,5 +88,9 @@ public class Zone extends Polygon {
         Point pt = this.pointCentral;
         return pt;
     }
+    
+    public void setCouleur(Color nouvelleCouleur) {
+        this.couleur = nouvelleCouleur;
+    }
 
 }

@@ -20,8 +20,9 @@ public class JeuRisk {
             @Override
             public void run() {
                 Modele.JeuRisk modeleRisk = new Modele.JeuRisk();
-                Controleur controleur = new Controleur(modeleRisk);
-                FenetreRisk fenetreRisk = new FenetreRisk(controleur);
+                FenetreRisk fenetreRisk = new FenetreRisk();
+                Controleur controleur = new Controleur(modeleRisk, fenetreRisk);
+
 //                CreateurMap extracteur = new CreateurMap();
             }
         });

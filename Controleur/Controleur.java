@@ -4,22 +4,20 @@
  */
 package Controleur;
 
-import Action.ActionDeployer;
+import Action.ActionLancerPartie;
+import Action.ActionAjouterJoueur;
+import Action.ActionStart;
 import Modele.Continent;
 import Modele.JeuRisk;
 import Modele.Joueur;
 import Modele.Territoire;
-import Vue.FenetreRisk;
-import Vue.GroupeZone;
-import Vue.Zone;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import Vue.*;
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import javax.swing.JButton;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
 /**
  *
@@ -30,44 +28,176 @@ public class Controleur {
     private JeuRisk modele;
     private FenetreRisk vue;
     private HashMap<GroupeZone, Continent> mapCarte;
+    private EtatJeu etat;
+    private ArrayList<PanneauAjoutJoueur> listePanneauJoueurs;
+    private final int NB_JOUEUR_MAX = 3;
 
-    public Controleur(JeuRisk modeleRisk) {
+    public Controleur(JeuRisk modeleRisk, FenetreRisk vueRisk) {
         this.modele = modeleRisk;
+        this.vue = vueRisk;
+        this.modele.addObserver(this.vue);
         this.mapCarte = new HashMap();
+        this.listePanneauJoueurs = new ArrayList<>();
+        //test
+        this.etat = new EtatInitialisation(this);
+
+        //Ajout des 2 premiers joueurs requis
+        this.modele.ajouterJoueurs("Joueur 1", Color.RED);
+        this.modele.ajouterJoueurs("Joueur 2", Color.BLUE);
+
 
     }
 
-    public void ajouterVue(FenetreRisk maFenetre) {
-        this.vue = maFenetre;
-        this.modele.addObserver(vue);
-        this.creerMenu();
-        this.creerBarrePhasesJeu();
-        this.creerMap();
+//    public void ajouterVue(FenetreRisk maFenetre) {
+//        this.vue = maFenetre;
+//        this.modele.addObserver(vue);
+//    }
+    public void lancerEcranDemarrage() {
+        JPanel fondAccueil = new JPanel();
+        fondAccueil.setPreferredSize(new Dimension(1280, 720));
+        fondAccueil.setBackground(Color.BLACK);
+        fondAccueil.setVisible(true);
+        this.vue.add(fondAccueil);
+
+        JPanel espaceHaut = new JPanel();
+        espaceHaut.setPreferredSize(new Dimension(1280, 78));
+        espaceHaut.setVisible(true);
+        espaceHaut.setOpaque(false);
+        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
+
+        JPanel ecranAccueil = new JPanel();
+        ecranAccueil.setPreferredSize(new Dimension(1000, 485));
+        ecranAccueil.setBackground(Color.WHITE);
+        ecranAccueil.setVisible(true);
+        ecranAccueil.setLayout(new BorderLayout());
+        fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
+
+        JLabel titreIntroduction = new JLabel("RISK");
+        titreIntroduction.setFont(new Font("verdana", Font.BOLD, 100));
+        titreIntroduction.setPreferredSize(new Dimension(1000, 150));
+        titreIntroduction.setHorizontalAlignment(JLabel.CENTER);
+
+        JLabel sousTitreIntro = new JLabel("The Java Game");
+        sousTitreIntro.setFont(new Font("verdana", Font.PLAIN, 60));
+        sousTitreIntro.setPreferredSize(new Dimension(1000, 100));
+
+        sousTitreIntro.setHorizontalAlignment(JLabel.CENTER);
+
+        JButton startButton = new JButton("START");
+        startButton.setFont(new Font("verdana", Font.PLAIN, 40));
+        startButton.setPreferredSize(new Dimension(400, 100));
+        startButton.addActionListener(new ActionStart(this));
+
+
+        ecranAccueil.add(titreIntroduction, BorderLayout.NORTH);
+        ecranAccueil.add(sousTitreIntro, BorderLayout.CENTER);
+        ecranAccueil.add(startButton, BorderLayout.SOUTH);
+
+        this.vue.pack();
     }
-    
-    private void creerMap() {
-        ArrayList<GroupeZone> listeVueContinents = new ArrayList<>();
-        
-        for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-            GroupeZone groupeZone = new GroupeZone(monContinent.rendNom());
-            for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-                //Création de la zone en fonction du modèle
-                Zone maZone = new Zone(monTerritoire.rendNom(), monTerritoire.rendCouleur(),
-                monTerritoire.rendCoordonnesX(), monTerritoire.rendCoordonnesY(), monTerritoire.rendPointCentral());
-                //Ajout des voisins
-                for(Territoire voisin : monTerritoire.rendListeVoisins()) {
-                    maZone.ajouterVoisin(new Zone(voisin.rendNom(), voisin.rendCouleur(),
-                    voisin.rendCoordonnesX(), voisin.rendCoordonnesY(), monTerritoire.rendPointCentral()));
-                }
-                //Ajout de la zone dans le groupe
-                groupeZone.ajouterZone(maZone);
-            }
-            listeVueContinents.add(groupeZone);
-            this.mapCarte.put(groupeZone, monContinent);
+
+    public void initialiserChoixJoueur() {
+        this.vue.getContentPane().removeAll();
+        this.vue.initialiserFenetre();
+
+        //Réinitialiser de la liste des joueurs
+        this.listePanneauJoueurs = new ArrayList<PanneauAjoutJoueur>();
+
+        JPanel fondAccueil = new JPanel();
+        fondAccueil.setPreferredSize(new Dimension(1280, 720));
+        fondAccueil.setBackground(Color.BLACK);
+        fondAccueil.setVisible(true);
+        this.vue.add(fondAccueil);
+
+        JPanel espaceHaut = new JPanel();
+        espaceHaut.setPreferredSize(new Dimension(1280, 78));
+        espaceHaut.setVisible(true);
+        espaceHaut.setOpaque(false);
+        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
+
+        JPanel ecranJoueurs = new JPanel();
+        ecranJoueurs.setPreferredSize(new Dimension(1000, 485));
+        ecranJoueurs.setBackground(Color.WHITE);
+        ecranJoueurs.setVisible(true);
+        ecranJoueurs.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        fondAccueil.add(ecranJoueurs, BorderLayout.CENTER);
+
+        //Répétition de tout le code en haut... A centraliser qqpart
+        int numeroJoueur = 1;
+        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+
+            PanneauAjoutJoueur panneauJoueur = new PanneauAjoutJoueur(numeroJoueur, monJoueur.rendNom(), monJoueur.rendCouleur());
+
+            this.listePanneauJoueurs.add(panneauJoueur);
+            ecranJoueurs.add(panneauJoueur);
+
+            numeroJoueur++;
         }
-        this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
-//        this.vue.rendPlateauJeu().creerCarte(this.modele.rendCarte().rendListeContinents());
-        
+
+        if (this.modele.rendJoueurs().size() < this.NB_JOUEUR_MAX) {
+            //Bouton + pour ajouter un joueur
+            JButton boutonAjouterJoueur = new JButton("+");
+            boutonAjouterJoueur.setPreferredSize(new Dimension(45, 45));
+            boutonAjouterJoueur.addActionListener(new ActionAjouterJoueur(this));
+            JPanel panneauJoueurSupp = new JPanel();
+            panneauJoueurSupp.setPreferredSize(new Dimension(600, 60));
+            panneauJoueurSupp.setVisible(true);
+            panneauJoueurSupp.setOpaque(false);
+            panneauJoueurSupp.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 0));
+
+            ecranJoueurs.add(panneauJoueurSupp);
+            panneauJoueurSupp.add(boutonAjouterJoueur);
+
+        }
+
+        JButton launchGameButton = new JButton("Lancer la partie");
+        launchGameButton.setPreferredSize(new Dimension(300, 100));
+        launchGameButton.addActionListener(new ActionLancerPartie(this));
+
+        ecranJoueurs.add(launchGameButton);
+
+        this.vue.pack();
+    }
+
+    public ArrayList<PanneauAjoutJoueur> rendlistePanneauJoueur() {
+        return this.listePanneauJoueurs;
+    }
+
+    public ArrayList<Joueur> rendlisteJoueur() {
+        return this.modele.rendJoueurs();
+    }
+
+    public void ajouterInfosJoueur(String nom, Color couleur) {
+        this.modele.ajouterJoueurs(nom, couleur);
+    }
+
+    public void initialiserLancementJeu() {
+        this.vue.getContentPane().removeAll();
+        this.vue.initialiserFenetre();
+        this.vue.creerPlateauJeu();
+        this.creerMenu();
+        this.creerMap();
+        this.vue.ajouterControleur(this);
+        //Ordre de jeu random : 
+        Collections.shuffle(this.modele.rendJoueurs());
+        this.etat.affecterJoueurSuivant(this.modele.rendJoueurs().get(0));
+        this.creerPanneauFaction();
+
+        this.vue.pack();
+    }
+
+    public void creerPanneauFaction() {
+        boolean estLeJoueurCourant;
+        this.vue.rendPanneauFactions().removeAll();
+        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+            estLeJoueurCourant = false;
+            if(monJoueur==this.etat.rendJoueurCourant()) {
+                estLeJoueurCourant = true;
+            }
+            PanneauFaction panneauJoueur = new PanneauFaction(monJoueur.rendCouleur(), monJoueur.rendNom(), estLeJoueurCourant);
+            this.vue.rendPanneauFactions().add(panneauJoueur);
+        }
+        this.vue.pack(); // Peut foutre la merde -> A déplacer
     }
 
     private void creerMenu() {
@@ -88,43 +218,111 @@ public class Controleur {
         menuEdition.add(new JMenuItem("Tutorial du jeu"));
         menuEdition.add(new JMenuItem("A propos"));
 
-        this.vue.getContentPane().setLayout(new BorderLayout());
+//        this.vue.getContentPane().setLayout(new BorderLayout());
 
     }
 
-    private void creerBarrePhasesJeu() {
+    private void creerMap() {
+        ArrayList<GroupeZone> listeVueContinents = new ArrayList<>();
 
-        JButton boutonDeployer = new JButton("Déployer armées +");
-        JButton boutonDeplacer = new JButton("Attaquer / Transfert =>");
-        JButton boutonConfirmation = new JButton("Confirmation / ");
-        Dimension dimensionBouton = new Dimension(420, 30);
-        boutonDeployer.setPreferredSize(dimensionBouton);
-        boutonDeplacer.setPreferredSize(dimensionBouton);
-        boutonConfirmation.setPreferredSize(dimensionBouton);
-        boutonDeployer.addActionListener(new ActionDeployer(this.vue, this));
-        this.vue.rendPanneauPhasesDeJeu().add(boutonDeployer);
-        this.vue.rendPanneauPhasesDeJeu().add(boutonDeplacer);
-        this.vue.rendPanneauPhasesDeJeu().add(boutonConfirmation);
-    }
-
-    public void ajouterJoueurs() {
-        ArrayList<Joueur> listeJoueurs = this.modele.rendJoueurs();
+        for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+            GroupeZone groupeZone = new GroupeZone(monContinent.rendNom());
+            for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                //Création de la zone en fonction du modèle
+                Zone maZone = new Zone(monTerritoire.rendNom(), monTerritoire.rendCouleur(),
+                        monTerritoire.rendCoordonnesX(), monTerritoire.rendCoordonnesY(), monTerritoire.rendPointCentral());
+                //Ajout des voisins
+                for (Territoire voisin : monTerritoire.rendListeVoisins()) {
+                    maZone.ajouterVoisin(new Zone(voisin.rendNom(), voisin.rendCouleur(),
+                            voisin.rendCoordonnesX(), voisin.rendCoordonnesY(), monTerritoire.rendPointCentral()));
+                }
+                //Ajout de la zone dans le groupe
+                groupeZone.ajouterZone(maZone);
+            }
+            listeVueContinents.add(groupeZone);
+            this.mapCarte.put(groupeZone, monContinent);
+        }
+        this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
     }
 
     public boolean controleAjoutUnite(String nomTerritoire) {
         boolean autorisationAjout = false;
-        if(nomTerritoire!=null) {
-            this.modele.ajouterUnite(nomTerritoire);
+        if (nomTerritoire != null) {
+            if (this.controleAppartenanceTerritoire(nomTerritoire)) {
+                this.modele.ajouterUnite(nomTerritoire, this.etat.rendJoueurCourant());
+            }
             autorisationAjout = true;
         }
         return autorisationAjout;
     }
-    
-//    private void addListenersToModel() {
-//        this.modele.addListener(this.vue);
-//    }
-//    
-//    public void notifyUnitesChanged(String nomTerritoire) {
-//        this.modele.ajouterUnite(nomTerritoire);
-//    }
+
+    public void actionEtat(Zone maZone) {
+        this.etat.interactionUtilisateur(maZone);
+    }
+
+    public boolean controleAppartenanceTerritoire(String nomTerritoire) {
+        boolean appartientAuJoueur = false;
+        if (nomTerritoire != null) {
+            if (this.controleTerritoireLibre(nomTerritoire)) {
+                appartientAuJoueur = true;
+            } else {
+                for (Territoire territoireControle : this.modele.rendJoueurActuel().rendListeTerritoire()) {
+                    if (nomTerritoire.equals(territoireControle.rendNom())) {
+                        appartientAuJoueur = true;
+                    }
+                }
+            }
+        }
+        return appartientAuJoueur;
+    }
+
+    public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
+        System.out.println("Déplacement de " + zoneDepart.rendNom() + " à " + zoneArrivee.rendNom());
+    }
+
+    public void actionAttaque(Zone zoneDepart, Zone zoneArrivee) {
+        System.out.println("Attaque de " + zoneDepart.rendNom() + " à " + zoneArrivee.rendNom());
+    }
+
+    public void effacerVue() {
+        this.vue.getContentPane().removeAll();
+        this.vue.initialiserFenetre();
+    }
+
+    public void reinitialiserListeJoueur() {
+        this.modele.reinitialiserListeJoueur();
+    }
+
+    public Joueur rendJoueurSuivant(Joueur joueurCourant) {
+        return this.modele.rendJoueurSuivant(joueurCourant);
+    }
+
+    /**
+     * Détermine si le territoire appartient à un autre joueur où s'il est
+     * libre. La recherche est effectué en fonction des territoires des joueurs
+     * @param nomTerritoire : Le nom du territoire dont il faut vérifier
+     * l'occupation
+     * @return : True si le territoire est libre, false sinon.
+     */
+    public boolean controleTerritoireLibre(String nomTerritoire) {
+        boolean territoireEstInnocupe = true;
+        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+            //On exclu le joueur courant
+            if (!monJoueur.rendNom().equals(this.etat.rendJoueurCourant().rendNom())) {
+                for (Territoire monTerritoire : monJoueur.rendListeTerritoire()) {
+                    //Si on trouve le territoire dans la liste des territoires d'un joueur adverse -> false
+                    if (nomTerritoire.equals(monTerritoire.rendNom())) {
+                        territoireEstInnocupe = false;
+                        System.err.println("Ce territoire appartient à qqun d'autre !");
+                    }
+                }
+            }
+        }
+
+        if (territoireEstInnocupe) {
+            this.modele.ajouterUnite(nomTerritoire, this.etat.rendJoueurCourant());
+        }
+        return territoireEstInnocupe;
+
+    }
 }

@@ -5,10 +5,12 @@
 
 package Observer;
 
+import java.awt.Color;
+
 /**
  *
  * @author Karim
  */
 public interface Observeur {
-  public void update(String nomTerritoire, int nbUnites);
+  public void update(String nomTerritoire, int nbUnites, Color couleur);
 }

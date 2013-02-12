@@ -5,6 +5,8 @@
 
 package Observer;
 
+import java.awt.Color;
+
 /**
  *
  * @author Karim
@@ -12,6 +14,6 @@ package Observer;
 public interface Observable {
   public void addObserver(Observeur obs);
   public void removeObserver();
-  public void notifyObserver(String nomTerritoire, int nbUnites);
+  public void notifyObserver(String nomTerritoire, int nbUnites, Color couleur);
 }
 
