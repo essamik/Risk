@@ -17,6 +17,7 @@ public class Joueur {
     private String nom;
     private Color couleur;
     private ArrayList<Territoire> mesTerritoires;
+    private int nbUniteADeployer;
     
     public Joueur(String nomJoueur, Color couleurJoueur) {
         this.nom = nomJoueur;
@@ -31,12 +32,16 @@ public class Joueur {
         return this.couleur;
     }
     
-//    public void setOrdre(int ordreJoueur) {
-//        this.ordreJeu = ordreJoueur;
-//    }
-//    public int rendOrdre() {
-//        return this.ordreJeu;
-//    }
+    public void setUnitesADeployer(int unites) {
+        this.nbUniteADeployer = unites;
+    }
+    public int rendUnitesADeployer() {
+        return this.nbUniteADeployer;
+    }
+    
+    public void deployerUnite() {
+        this.nbUniteADeployer--;
+    }
     
     public boolean addTerritoire(Territoire territoryCaptured) {
         boolean aEteAJoute = false;

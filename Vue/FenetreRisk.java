@@ -21,6 +21,7 @@ public class FenetreRisk extends JFrame implements Observeur {
     private JPanel conteneurHaut;
     private JPanel conteneurBas;
     private JPanel panneauFactions;
+    private PanneauActionPhase panneauActionPhase;
     private Font titre;
     private Controleur controleur;
 
@@ -138,10 +139,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 
 
         ////Panneau des actions correspondant à la phase de jeu en cours - Amovible ///////////////////////////////////////////////////
-        JPanel panneauActionPhase = new JPanel();
-        panneauActionPhase.setPreferredSize(new Dimension(1280, 100));
-        panneauActionPhase.setBackground(Color.LIGHT_GRAY);
-        panneauActionPhase.setVisible(true);
+        this.panneauActionPhase = new PanneauActionPhase();
         this.conteneurBas.add(panneauActionPhase, BorderLayout.CENTER);
 
 /////////Conteneur des des informations de jeu fixe/////////////////////////////////////
@@ -202,6 +200,10 @@ public class FenetreRisk extends JFrame implements Observeur {
     public JPanel rendPanneauFactions() {
         return this.panneauFactions;
     }
+    
+    public PanneauActionPhase rendPanneauActionPhase() {
+        return this.panneauActionPhase;
+    }
 
     public void interactionZone(Zone maZone) {
         this.controleur.actionEtat(maZone);
@@ -231,7 +233,7 @@ public class FenetreRisk extends JFrame implements Observeur {
     public void initialiserFenetre() {
         this.titre = new Font("verdana", Font.PLAIN, 40);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(25, 25);
+        this.setLocation(200, 25);
         //this.setExtendedState(this.MAXIMIZED_BOTH);
         this.setMinimumSize(new Dimension(1280, 720));
         

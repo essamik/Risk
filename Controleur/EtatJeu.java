@@ -43,6 +43,10 @@ public abstract class EtatJeu {
          return aEteAjoute;
      }
      
+     public void setJoueurCourant(Joueur monJoueur) {
+         this.joueurcourant = monJoueur;
+     }
+     
      public void setZoneDepart(Zone maZoneDepart) {
          this.zoneDepart = maZoneDepart;
      }

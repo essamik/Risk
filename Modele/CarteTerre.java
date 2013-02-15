@@ -25,7 +25,7 @@ public class CarteTerre {
     private void initialiserCarte() {
         
 //////////////AMERIQUE DU NORD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Continent ameriqueNord = new Continent("Amerique du nord");
+        Continent ameriqueNord = new Continent("Amerique du nord", 5);
         
         //////////Groenland//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int xGroenland[] = {309, 325, 339, 346, 356, 361, 374, 390, 394, 397, 403, 411, 419, 424,
@@ -164,7 +164,7 @@ public class CarteTerre {
         ameriqueNord.addTerritoire(cuba);
         
 //////////////AMERIQUE DU SUD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Continent ameriqueSud = new Continent("Amerique du sud");
+        Continent ameriqueSud = new Continent("Amerique du sud", 2);
 
         int xVenezuela[] = {184,198,204,209,212,                                           //PerouX
             215, 217, 214, 217, 215, 218, 223, 226, 231, 235, 234, 232, 235, 239, 243, 245, //BresilX
@@ -235,13 +235,13 @@ public class CarteTerre {
         Territoire argentine = new Territoire("Argentine", xArgentine, yArgentine, new Point(244, 431));
         
          ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ameriqueNord.addTerritoire(brasil);
-        ameriqueNord.addTerritoire(argentine);
-        ameriqueNord.addTerritoire(venezuela);
-        ameriqueNord.addTerritoire(perou);
+        ameriqueSud.addTerritoire(brasil);
+        ameriqueSud.addTerritoire(argentine);
+        ameriqueSud.addTerritoire(venezuela);
+        ameriqueSud.addTerritoire(perou);
         
 //////////////EUROPE///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Continent europe = new Continent("Europe");
+        Continent europe = new Continent("Europe", 5);
         ///////////ISLANDE///////////////////////////////////////////////////////////////////////////////////////////////////////
         int xIslande[] = {412, 417, 418, 422, 423, 428, 429, 435, 433, 432, 429, 427, 425, 420, 415, 413, 407,
             407, 404, 396, 394, 391, 390, 391, 391, 393, 399, 403, 406, 410, };
@@ -362,7 +362,7 @@ public class CarteTerre {
         europe.addTerritoire(scandinavie);
         
         //ASIE///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Continent asie = new Continent("Asie");
+        Continent asie = new Continent("Asie", 7);
         
         //////////MOYEN ORIENT//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int xMoyenOrient[] = {589, 589, 596, 601, 604, 608, //MoyenOrientX
@@ -583,7 +583,7 @@ public class CarteTerre {
         
         
 //////////////AFRIQUE///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Continent afrique = new Continent("Afrique");
+        Continent afrique = new Continent("Afrique", 3);
         //////////AFRIQUE DU NORD/////////////////////////////////////////////////////////////////////////////////////////////////////
         int xAfriqueNord[] = {532, 511, 500, 490, 484, 486, 492, //EgypteX
              486, 488, 487, 484, 480, 466, 463, 452, 445, 440, 436, 431, 424, 422, 422, 421,
@@ -677,7 +677,7 @@ public class CarteTerre {
 
 //////////////OCEANIE///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        Continent oceanie = new Continent("Oceanie");
+        Continent oceanie = new Continent("Oceanie", 2);
         int xAustralieOuest[] = {901, 896, 900, 897, 898, 897, 890, 887, 878, 867, 856, 852, 840, 831, 823, 824, 828, 828, 829, 833, 850, 860, 863, 868,
             868, 879, 886, 876, 916};
         int yAustralieOuest[] = {444, 442, 439, 428, 425, 424, 429, 424, 420, 420, 425, 426, 428, 432, 429, 426, 420, 411, 393, 384, 377, 368, 365, 367,

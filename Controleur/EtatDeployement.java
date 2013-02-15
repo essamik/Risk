@@ -5,8 +5,6 @@
 
 package Controleur;
 
-import Controleur.EtatJeu;
-import Controleur.Controleur;
 import Vue.Zone;
 
 /**
@@ -18,14 +16,17 @@ public class EtatDeployement extends EtatJeu {
 
     public EtatDeployement(Controleur controleur) {
         super(controleur);
+        super.rendControleur().lancerPhaseDeployement();
+        //System.out.println(super.rendJoueurCourant().rendNom());
     }
 
     @Override
     public void interactionUtilisateur(Zone maZone) {
-//        super.setZoneDepart(maZone);
-//        super.setZoneArrivee(maZone);
-        
-        super.rendControleur().controleAjoutUnite(maZone.rendNom());
+        if(!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
+            super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
+        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
+        super.rendControleur().updateUnitesRestantADeployer();
+        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
+        }
     }
-
 }

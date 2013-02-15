@@ -33,7 +33,7 @@ public class ActionAjouterJoueur implements ActionListener {
             this.controleur.ajouterInfosJoueur(panneau.rendNom(), panneau.rendCouleur());
         }
         int numeroJoueurSuivant = this.controleur.rendlistePanneauJoueur().size()+1;
-        this.controleur.ajouterInfosJoueur("Joueur " + numeroJoueurSuivant, Color.GREEN);
+        this.controleur.ajouterInfosJoueur("Joueur " + numeroJoueurSuivant, Color.ORANGE);
         this.controleur.initialiserChoixJoueur();
     }
 

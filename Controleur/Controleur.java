@@ -4,8 +4,8 @@
  */
 package Controleur;
 
-import Action.ActionLancerPartie;
 import Action.ActionAjouterJoueur;
+import Action.ActionLancerPartie;
 import Action.ActionStart;
 import Modele.Continent;
 import Modele.JeuRisk;
@@ -14,7 +14,6 @@ import Modele.Territoire;
 import Vue.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import javax.swing.*;
@@ -44,8 +43,6 @@ public class Controleur {
         //Ajout des 2 premiers joueurs requis
         this.modele.ajouterJoueurs("Joueur 1", Color.RED);
         this.modele.ajouterJoueurs("Joueur 2", Color.BLUE);
-
-
     }
 
 //    public void ajouterVue(FenetreRisk maFenetre) {
@@ -180,24 +177,30 @@ public class Controleur {
         this.vue.ajouterControleur(this);
         //Ordre de jeu random : 
         Collections.shuffle(this.modele.rendJoueurs());
+        this.modele.initialiserNbUnitesDepart();
         this.etat.affecterJoueurSuivant(this.modele.rendJoueurs().get(0));
-        this.creerPanneauFaction();
+        this.updateUnitesRestantADeployer();
+        this.updatePanneauFaction();
 
         this.vue.pack();
     }
 
-    public void creerPanneauFaction() {
+    public void updatePanneauFaction() {
         boolean estLeJoueurCourant;
         this.vue.rendPanneauFactions().removeAll();
         for (Joueur monJoueur : this.modele.rendJoueurs()) {
             estLeJoueurCourant = false;
-            if(monJoueur==this.etat.rendJoueurCourant()) {
+            if (monJoueur == this.etat.rendJoueurCourant()) {
                 estLeJoueurCourant = true;
             }
             PanneauFaction panneauJoueur = new PanneauFaction(monJoueur.rendCouleur(), monJoueur.rendNom(), estLeJoueurCourant);
             this.vue.rendPanneauFactions().add(panneauJoueur);
         }
         this.vue.pack(); // Peut foutre la merde -> A déplacer
+    }
+
+    public void updateUnitesRestantADeployer() {
+        this.vue.rendPanneauActionPhase().setNbUniteADeployer(this.etat.rendJoueurCourant().rendUnitesADeployer());
     }
 
     private void creerMenu() {
@@ -245,35 +248,20 @@ public class Controleur {
         this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
     }
 
-    public boolean controleAjoutUnite(String nomTerritoire) {
-        boolean autorisationAjout = false;
-        if (nomTerritoire != null) {
-            if (this.controleAppartenanceTerritoire(nomTerritoire)) {
-                this.modele.ajouterUnite(nomTerritoire, this.etat.rendJoueurCourant());
-            }
-            autorisationAjout = true;
-        }
-        return autorisationAjout;
-    }
+//    public boolean controleAjoutUnite(String nomTerritoire) {
+//        boolean autorisationAjout = false;
+//        if (nomTerritoire != null) {
+//            //Verifie qu'il ne s'agit pas d'un territoire ennemi
+//            if (!this.controleTerritoireEnnemi(nomTerritoire)) {
+//                this.modele.conquerirTerritoire(nomTerritoire, this.etat.rendJoueurCourant());
+//            }
+//            autorisationAjout = true;
+//        }
+//        return autorisationAjout;
+//    }
 
     public void actionEtat(Zone maZone) {
         this.etat.interactionUtilisateur(maZone);
-    }
-
-    public boolean controleAppartenanceTerritoire(String nomTerritoire) {
-        boolean appartientAuJoueur = false;
-        if (nomTerritoire != null) {
-            if (this.controleTerritoireLibre(nomTerritoire)) {
-                appartientAuJoueur = true;
-            } else {
-                for (Territoire territoireControle : this.modele.rendJoueurActuel().rendListeTerritoire()) {
-                    if (nomTerritoire.equals(territoireControle.rendNom())) {
-                        appartientAuJoueur = true;
-                    }
-                }
-            }
-        }
-        return appartientAuJoueur;
     }
 
     public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
@@ -297,32 +285,70 @@ public class Controleur {
         return this.modele.rendJoueurSuivant(joueurCourant);
     }
 
+//    public boolean controleAppartenanceTerritoire(String nomTerritoire) {
+//        boolean appartientAuJoueur = false;
+//        if (nomTerritoire != null) {
+//            if (this.controleTerritoireEnnemi(nomTerritoire)) {
+//                appartientAuJoueur = true;
+//            } else {
+//                for (Territoire territoireControle : this.modele.rendJoueurActuel().rendListeTerritoire()) {
+//                    if (nomTerritoire.equals(territoireControle.rendNom())) {
+//                        appartientAuJoueur = true;
+//                    }
+//                }
+//            }
+//        }
+//        return appartientAuJoueur;
+//    }
+
     /**
      * Détermine si le territoire appartient à un autre joueur où s'il est
-     * libre. La recherche est effectué en fonction des territoires des joueurs
-     * @param nomTerritoire : Le nom du territoire dont il faut vérifier
-     * l'occupation
-     * @return : True si le territoire est libre, false sinon.
+     * libre. La recherche est effectué en fonction des territoires controlés par les joueurs.
+     * @param nomTerritoire : Le nom du territoire dont il faut vérifier l'occupation.
+     * @return : True si le territoire est occupé par l'ennemi, false s'il est libre où s'il nous appartient.
      */
-    public boolean controleTerritoireLibre(String nomTerritoire) {
-        boolean territoireEstInnocupe = true;
+    public boolean controleTerritoireEnnemi(String nomTerritoire) {
+        boolean territoireEstOccupe = false;
         for (Joueur monJoueur : this.modele.rendJoueurs()) {
             //On exclu le joueur courant
             if (!monJoueur.rendNom().equals(this.etat.rendJoueurCourant().rendNom())) {
                 for (Territoire monTerritoire : monJoueur.rendListeTerritoire()) {
                     //Si on trouve le territoire dans la liste des territoires d'un joueur adverse -> false
                     if (nomTerritoire.equals(monTerritoire.rendNom())) {
-                        territoireEstInnocupe = false;
+                        territoireEstOccupe = true;
                         System.err.println("Ce territoire appartient à qqun d'autre !");
                     }
                 }
             }
         }
+        return territoireEstOccupe;
+    }
+    
+    public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
+        this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
+    }
 
-        if (territoireEstInnocupe) {
-            this.modele.ajouterUnite(nomTerritoire, this.etat.rendJoueurCourant());
+    /**
+     * Vérifie si la phase de jeu actuelle est terminée et lance la phase
+     * suivante si besoin est.
+     */
+    public boolean checkFinPhaseInitialisation() {
+        //Si le dernier joueur à déployer n'as plus rien à déployer -> phase suivante
+        boolean phaseInitialisationFini = false;
+        int nbJoueur = this.modele.rendJoueurs().size();
+        if (this.modele.rendJoueurs().get(nbJoueur - 1).rendUnitesADeployer() <= 0) {
+            this.etat = new EtatDeployement(this);
+            this.etat.setJoueurCourant(this.modele.rendJoueurs().get(0));
+            phaseInitialisationFini = true;
+            
+            
         }
-        return territoireEstInnocupe;
 
+        return phaseInitialisationFini;
+    }
+
+    public void lancerPhaseDeployement() {
+        this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant());
+        System.out.println("Lancement du déployement");
     }
 }

@@ -15,9 +15,11 @@ public class Continent {
 
     private String nom;
     private ArrayList<Territoire> listeTerritoire;
+    private int unitesBonusDeployement;
     
-    public Continent(String nomContinent) {
+    public Continent(String nomContinent, int unitesSupp) {
         this.nom = nomContinent;
+        this.unitesBonusDeployement = unitesSupp;
         this.listeTerritoire = new ArrayList<>();
     }
 
@@ -38,5 +40,9 @@ public class Continent {
     public String rendNom() {
         String name = this.nom;
         return name;
+    }
+    
+    public int rendNbUnitesBonusPourControleContinent() {
+        return this.unitesBonusDeployement;
     }
 }

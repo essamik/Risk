@@ -17,18 +17,22 @@ public class EtatInitialisation extends EtatJeu {
     public EtatInitialisation(Controleur controleur) {
         super(controleur);
         super.rendControleur().lancerEcranDemarrage();
-        
     }
     
     
 
     @Override
     public void interactionUtilisateur(Zone maZone) {
-        if(super.rendControleur().controleTerritoireLibre(maZone.rendNom())) {
-        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
-        super.rendControleur().creerPanneauFaction();
-        }
         //Si le territoire est libre ou appartient au joueur
+        if(!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
+            super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
+        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
+        super.rendControleur().updatePanneauFaction();
+        super.rendControleur().updateUnitesRestantADeployer();
+        super.rendControleur().checkFinPhaseInitialisation();
+        
+        }
+        
         
     }
 
