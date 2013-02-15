@@ -17,16 +17,14 @@ public class EtatDeployement extends EtatJeu {
     public EtatDeployement(Controleur controleur) {
         super(controleur);
         super.rendControleur().lancerPhaseDeployement();
-        //System.out.println(super.rendJoueurCourant().rendNom());
     }
 
     @Override
     public void interactionUtilisateur(Zone maZone) {
         if(!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
             super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
-        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
+        //super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
         super.rendControleur().updateUnitesRestantADeployer();
-        super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
         }
     }
 }
