@@ -32,8 +32,9 @@ public class Joueur {
         return this.couleur;
     }
     
-    public void setUnitesADeployer(int unites) {
-        this.nbUniteADeployer = unites;
+    public void ajouteUnitesADeployer(int unites) {
+        this.nbUniteADeployer += unites;
+
     }
     public int rendUnitesADeployer() {
         return this.nbUniteADeployer;
@@ -56,4 +57,11 @@ public class Joueur {
         ArrayList<Territoire> listeTerritoires = this.mesTerritoires;
         return listeTerritoires;
     }
+
+   public void retirerTerritoire(Territoire territoirePerdu) {
+        if(this.mesTerritoires.contains(territoirePerdu)) {
+            this.mesTerritoires.remove(territoirePerdu);
+        }
+    }
+
 }

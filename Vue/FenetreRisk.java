@@ -215,11 +215,15 @@ public class FenetreRisk extends JFrame implements Observeur {
             for (Zone maZone : mesContinents.rendListeZones()) {
                 if (maZone.rendNom().equals(nomTerritoire)) {
                     maZone.setNbUnite(nbUnites);
-                    maZone.setCouleur(couleur);
-                    //System.out.println(maZone.rendNom() + " : " + maZone.rendNbUnite()+ " units");
+                    if(couleur!=null) {
+                        maZone.setCouleur(couleur);
+                    }
+                    
+                    //System.out.println(maZone.rendNom() + " : " + nbUnites+ " units");
                 }
             }
         }
+        this.plateauJeu.repaint();
     }
 
     public JPanel rendConteneurHaut() {
@@ -239,5 +243,10 @@ public class FenetreRisk extends JFrame implements Observeur {
         
         this.pack();
         this.setVisible(true);
+    }
+    
+    public void reinitialiserPanneauAction() {
+        this.panneauActionPhase = new PanneauActionPhase();
+        this.conteneurBas.add(panneauActionPhase, BorderLayout.CENTER);
     }
 }

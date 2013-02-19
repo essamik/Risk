@@ -4,6 +4,9 @@
  */
 package Controleur;
 
+import Vue.PanneauAttaque;
+import Vue.PanneauEtatDeplacement;
+import Action.ActionFinDeployement;
 import Action.ActionAjouterJoueur;
 import Action.ActionLancerPartie;
 import Action.ActionStart;
@@ -121,7 +124,7 @@ public class Controleur {
 
         //Répétition de tout le code en haut... A centraliser qqpart
         int numeroJoueur = 1;
-        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+        for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
 
             PanneauAjoutJoueur panneauJoueur = new PanneauAjoutJoueur(numeroJoueur, monJoueur.rendNom(), monJoueur.rendCouleur());
 
@@ -131,7 +134,7 @@ public class Controleur {
             numeroJoueur++;
         }
 
-        if (this.modele.rendJoueurs().size() < this.NB_JOUEUR_MAX) {
+        if (this.modele.rendListeJoueurs().size() < this.NB_JOUEUR_MAX) {
             //Bouton + pour ajouter un joueur
             JButton boutonAjouterJoueur = new JButton("+");
             boutonAjouterJoueur.setPreferredSize(new Dimension(45, 45));
@@ -161,7 +164,7 @@ public class Controleur {
     }
 
     public ArrayList<Joueur> rendlisteJoueur() {
-        return this.modele.rendJoueurs();
+        return this.modele.rendListeJoueurs();
     }
 
     public void ajouterInfosJoueur(String nom, Color couleur) {
@@ -176,9 +179,9 @@ public class Controleur {
         this.creerMap();
         this.vue.ajouterControleur(this);
         //Ordre de jeu random : 
-        Collections.shuffle(this.modele.rendJoueurs());
+        Collections.shuffle(this.modele.rendListeJoueurs());
         this.modele.initialiserNbUnitesDepart();
-        this.etat.affecterJoueurSuivant(this.modele.rendJoueurs().get(0));
+        this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
         this.updateUnitesRestantADeployer();
         this.updatePanneauFaction();
 
@@ -188,7 +191,7 @@ public class Controleur {
     public void updatePanneauFaction() {
         boolean estLeJoueurCourant;
         this.vue.rendPanneauFactions().removeAll();
-        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+        for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
             estLeJoueurCourant = false;
             if (monJoueur == this.etat.rendJoueurCourant()) {
                 estLeJoueurCourant = true;
@@ -248,28 +251,20 @@ public class Controleur {
         this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
     }
 
-//    public boolean controleAjoutUnite(String nomTerritoire) {
-//        boolean autorisationAjout = false;
-//        if (nomTerritoire != null) {
-//            //Verifie qu'il ne s'agit pas d'un territoire ennemi
-//            if (!this.controleTerritoireEnnemi(nomTerritoire)) {
-//                this.modele.conquerirTerritoire(nomTerritoire, this.etat.rendJoueurCourant());
-//            }
-//            autorisationAjout = true;
-//        }
-//        return autorisationAjout;
-//    }
-
     public void actionEtat(Zone maZone) {
         this.etat.interactionUtilisateur(maZone);
     }
 
     public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
-        System.out.println("Déplacement de " + zoneDepart.rendNom() + " à " + zoneArrivee.rendNom());
+        this.vue.rendPanneauActionPhase().removeAll();
+        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(this, zoneDepart, zoneArrivee));
+        this.vue.pack();
     }
 
     public void actionAttaque(Zone zoneDepart, Zone zoneArrivee) {
-        System.out.println("Attaque de " + zoneDepart.rendNom() + " à " + zoneArrivee.rendNom());
+        this.vue.rendPanneauActionPhase().removeAll();
+        this.vue.rendPanneauActionPhase().add(new PanneauAttaque(this, zoneDepart, zoneArrivee));
+        this.vue.pack();
     }
 
     public void effacerVue() {
@@ -285,45 +280,51 @@ public class Controleur {
         return this.modele.rendJoueurSuivant(joueurCourant);
     }
 
-//    public boolean controleAppartenanceTerritoire(String nomTerritoire) {
-//        boolean appartientAuJoueur = false;
-//        if (nomTerritoire != null) {
-//            if (this.controleTerritoireEnnemi(nomTerritoire)) {
-//                appartientAuJoueur = true;
-//            } else {
-//                for (Territoire territoireControle : this.modele.rendJoueurActuel().rendListeTerritoire()) {
-//                    if (nomTerritoire.equals(territoireControle.rendNom())) {
-//                        appartientAuJoueur = true;
-//                    }
-//                }
-//            }
-//        }
-//        return appartientAuJoueur;
-//    }
-
     /**
      * Détermine si le territoire appartient à un autre joueur où s'il est
-     * libre. La recherche est effectué en fonction des territoires controlés par les joueurs.
-     * @param nomTerritoire : Le nom du territoire dont il faut vérifier l'occupation.
-     * @return : True si le territoire est occupé par l'ennemi, false s'il est libre où s'il nous appartient.
+     * libre. La recherche est effectué en fonction des territoires controlés
+     * par les joueurs.
+     *
+     * @param nomTerritoire : Le nom du territoire dont il faut vérifier
+     * l'occupation.
+     * @return : True si le territoire est occupé par l'ennemi, false s'il est
+     * libre où s'il nous appartient.
      */
     public boolean controleTerritoireEnnemi(String nomTerritoire) {
         boolean territoireEstOccupe = false;
-        for (Joueur monJoueur : this.modele.rendJoueurs()) {
+        for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
             //On exclu le joueur courant
             if (!monJoueur.rendNom().equals(this.etat.rendJoueurCourant().rendNom())) {
                 for (Territoire monTerritoire : monJoueur.rendListeTerritoire()) {
                     //Si on trouve le territoire dans la liste des territoires d'un joueur adverse -> false
                     if (nomTerritoire.equals(monTerritoire.rendNom())) {
                         territoireEstOccupe = true;
-                        System.err.println("Ce territoire appartient à qqun d'autre !");
                     }
                 }
             }
         }
         return territoireEstOccupe;
     }
-    
+
+    /**
+     * Vérifie sur le territoire envoyé en paramètre appartient au joueur
+     *
+     * @param nomTerritoire
+     * @return
+     */
+    public boolean controleAppartenanceTerritoire(String nomTerritoire) {
+        boolean appartientAuJoueur = false;
+        if (nomTerritoire != null) {
+            for (Territoire territoireControle : this.etat.rendJoueurCourant().rendListeTerritoire()) {
+                if (nomTerritoire.equals(territoireControle.rendNom())) {
+                    appartientAuJoueur = true;
+                }
+
+            }
+        }
+        return appartientAuJoueur;
+    }
+
     public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
         this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
     }
@@ -335,20 +336,109 @@ public class Controleur {
     public boolean checkFinPhaseInitialisation() {
         //Si le dernier joueur à déployer n'as plus rien à déployer -> phase suivante
         boolean phaseInitialisationFini = false;
-        int nbJoueur = this.modele.rendJoueurs().size();
-        if (this.modele.rendJoueurs().get(nbJoueur - 1).rendUnitesADeployer() <= 0) {
+        int nbJoueur = this.modele.rendListeJoueurs().size();
+        if (this.modele.rendDernierJoueur().rendUnitesADeployer() <= 0) {
             this.etat = new EtatDeployement(this);
-            this.etat.setJoueurCourant(this.modele.rendJoueurs().get(0));
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.lancerPhaseDeployement();
             phaseInitialisationFini = true;
-            
-            
         }
 
         return phaseInitialisationFini;
     }
 
     public void lancerPhaseDeployement() {
-        this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant());
+        //Affectation des nouvelles unités à déployer
+        this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
+        
+        this.updateUnitesRestantADeployer();
+        this.updatePanneauFaction();
+        JButton boutonFinDeployement = new JButton("Terminer déployement");
+        boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
+        this.vue.rendPanneauActionPhase().add(boutonFinDeployement, BorderLayout.EAST);
+        this.vue.pack();
         System.out.println("Lancement du déployement");
     }
+
+    public void finDeployement() {
+        if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
+            this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
+            this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
+            this.updateUnitesRestantADeployer();
+            this.updatePanneauFaction();
+
+        } else { //Si le dernier joueur vient de mettre fin à son tour de déployement
+            this.etat = new EtatTransfert(this);
+            System.out.println("Lancement de l'état de déplacement");
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.updatePanneauFaction();
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.pack();
+        }
+    }
+
+    public void deplacerUnites() {
+        Component component = this.vue.rendPanneauActionPhase().getComponent(0);
+        if (component instanceof PanneauTransfertUnites) {
+            int nbUnitesADeplacer = ((PanneauTransfertUnites) component).rendNbUniteDeplacement();
+            if (this.modele.deplacerUnites(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant())) {
+                //Si le déplacement est fait
+                this.etat.rendZoneDepart().setNotClicked();
+                this.etat.setZoneDepart(null);
+                this.etat.setZoneArrivee(null);
+                this.vue.rendPanneauActionPhase().removeAll();
+                this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+                this.vue.pack();
+            }
+        }
+    }
+
+    public void attaquer() {
+        Component component = this.vue.rendPanneauActionPhase().getComponent(0);
+        if (component instanceof PanneauAttaque) {
+            int nbUnitesADeplacer = ((PanneauAttaque) component).rendNbUniteDeplacement();
+            this.modele.attaquer(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant());
+                //Si l'attaque à réussis
+                this.etat.rendZoneDepart().setNotClicked();
+                this.etat.setZoneDepart(null);
+                this.etat.setZoneArrivee(null);
+                this.vue.rendPanneauActionPhase().removeAll();
+                this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+                this.vue.pack();
+            
+        }
+    }
+
+    public void finDeplacement() {
+        //Normalement, on passe au joueur suivant
+        if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
+            this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
+            this.updatePanneauFaction();
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+
+        } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
+            this.etat = new EtatDeployement(this);
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.reinitialiserPanneauAction();
+            this.lancerPhaseDeployement();
+
+            //this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
+//            this.updateUnitesRestantADeployer();
+//            this.updatePanneauFaction();
+//            this.vue.pack();
+        }
+    }
 }
+//    public boolean controleAjoutUnite(String nomTerritoire) {
+//        boolean autorisationAjout = false;
+//        if (nomTerritoire != null) {
+//            //Verifie qu'il ne s'agit pas d'un territoire ennemi
+//            if (!this.controleTerritoireEnnemi(nomTerritoire)) {
+//                this.modele.conquerirTerritoire(nomTerritoire, this.etat.rendJoueurCourant());
+//            }
+//            autorisationAjout = true;
+//        }
+//        return autorisationAjout;
+//    }    

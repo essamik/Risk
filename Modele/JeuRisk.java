@@ -5,6 +5,7 @@
 package Modele;
 
 import Observer.Observeur;
+import Vue.Zone;
 import java.awt.Color;
 import java.util.ArrayList;
 
@@ -17,8 +18,9 @@ public class JeuRisk implements Observer.Observable {
     private CarteTerre carte; //A remplacer par une interface commune pour toutes les cartes
     private ArrayList<Joueur> listeJoueurs;
     private ArrayList<Observeur> listObserver;
+    private De de;
     private final int NB_UNITES_A_DEPLOYER_MINIMUM = 3;
-    private final int NB_UNITE_INITIALE_2_JOUEURS = 5; // 40
+    private final int NB_UNITE_INITIALE_2_JOUEURS = 2; // 40
     private final int NB_UNITE_INITIALE_3_JOUEURS = 2; //35
     private final int NB_UNITE_INITIALE_4_JOUEURS = 30;
     private final int NB_UNITE_INITIALE_5_JOUEURS = 25;
@@ -28,6 +30,7 @@ public class JeuRisk implements Observer.Observable {
     public JeuRisk() {
         this.listeJoueurs = new ArrayList<>();
         this.listObserver = new ArrayList<>();
+        this.de = new De();
         this.initialiserCarteMonde();
         //Test avec 1 joueur//
         //this.listeJoueurs.add(new Joueur("Joueur1", Color.BLUE));
@@ -48,13 +51,13 @@ public class JeuRisk implements Observer.Observable {
         this.listeJoueurs.add(new Joueur(nom, couleur));
     }
 
-    public ArrayList<Joueur> rendJoueurs() {
+    public ArrayList<Joueur> rendListeJoueurs() {
         ArrayList<Joueur> joueurs = this.listeJoueurs;
         return joueurs;
     }
 
-    public Joueur rendJoueurActuel() {
-        return this.listeJoueurs.get(0); //TEST : rend le premier joueur
+    public Joueur rendDernierJoueur() {
+        return this.listeJoueurs.get(this.listeJoueurs.size() - 1);
     }
 
     /**
@@ -78,7 +81,6 @@ public class JeuRisk implements Observer.Observable {
         }
     }
 
-
     public void reinitialiserListeJoueur() {
         this.listeJoueurs = new ArrayList<Joueur>();
     }
@@ -95,10 +97,10 @@ public class JeuRisk implements Observer.Observable {
         }
         return joueurSuivant;
     }
-    
+
     public void initialiserNbUnitesDepart() {
         int nbUnitesInitiale = 0;
-        switch (this.rendJoueurs().size()) {
+        switch (this.listeJoueurs.size()) {
             case 2:
                 nbUnitesInitiale = this.NB_UNITE_INITIALE_2_JOUEURS;
                 break;
@@ -116,11 +118,11 @@ public class JeuRisk implements Observer.Observable {
                 break;
         }
 
-        for (Joueur monJoueur : this.rendJoueurs()) {
-            monJoueur.setUnitesADeployer(nbUnitesInitiale);
+        for (Joueur monJoueur : this.listeJoueurs) {
+            monJoueur.ajouteUnitesADeployer(nbUnitesInitiale);
         }
     }
-    
+
     public int rendNbUnitesADeployer(Joueur joueur) {
         int unitesADeployer = 0;
         if (joueur != null) {
@@ -132,8 +134,9 @@ public class JeuRisk implements Observer.Observable {
             } else if (quotaTroupes > 3) {
                 unitesADeployer = quotaTroupes;
             }
-            System.out.println(+unitesADeployer + " unités à déployer");
-            unitesADeployer = this.rendUnitesBonusPourControleContinent(joueur);
+            System.out.println(unitesADeployer + " unités à déployer");
+            //Ajout des unités bonus
+            unitesADeployer += this.rendUnitesBonusPourControleContinent(joueur);
         }
         return unitesADeployer;
     }
@@ -154,14 +157,13 @@ public class JeuRisk implements Observer.Observable {
                 //Si le nombre de territoire correspondant correspond au nombre total de territoires de ce continent
                 if (monContinent.rendTerritoires().size() == checkTerritoire) {
                     unitesBonus = monContinent.rendNbUnitesBonusPourControleContinent();
-                    System.out.println(unitesBonus + " unités supplémentaires reçus pour controle de" +monContinent.rendNom());
+                    System.out.println(unitesBonus + " unités supplémentaires reçus pour controle de" + monContinent.rendNom());
                 }
             }
         }
-        
+
         return unitesBonus;
     }
-
 
     @Override
     public void addObserver(Observeur obs) {
@@ -179,6 +181,64 @@ public class JeuRisk implements Observer.Observable {
             obs.update(nomTerritoire, nbUnites, couleur);
         }
     }
-    
-    
+
+    public boolean deplacerUnites(String nomTerritoireDepart, String nomTerritoireArrivee, int nbUnitesADeplacer, Joueur joueurDeplacement) {
+        boolean deplacementEffectue = false;
+        if (nomTerritoireDepart != null && nomTerritoireArrivee != null && nbUnitesADeplacer > 0) {
+            for (Continent monContinent : this.carte.rendListeContinents()) {
+                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                    if (monTerritoire.rendNom().equals(nomTerritoireDepart)) {
+                        Territoire territoireDestination = monTerritoire.deplacerUnites(nbUnitesADeplacer, nomTerritoireArrivee);
+                        if (territoireDestination != null) {
+                            //Le joueur annexe le territoire
+                            joueurDeplacement.addTerritoire(territoireDestination);
+                            this.notifyObserver(territoireDestination.rendNom(), territoireDestination.rendNbUnites(), joueurDeplacement.rendCouleur());
+                            this.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), joueurDeplacement.rendCouleur());
+                            deplacementEffectue = true;
+                        }
+                    }
+                }
+            }
+        }
+        return deplacementEffectue;
+    }
+
+    public boolean attaquer(String nomTerritoireAttaquant, String nomTerritoireDefenseur, int nbUnitesADeplacer, Joueur joueurAttaquant) {
+        boolean attaqueEffectuee = false;
+        if (nomTerritoireAttaquant != null && nomTerritoireDefenseur != null && nbUnitesADeplacer > 0) {
+            for (Continent monContinent : this.carte.rendListeContinents()) {
+                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                    if (monTerritoire.rendNom().equals(nomTerritoireAttaquant)) {
+                        Territoire territoireDefenseur = monTerritoire.lancerAttaque(nbUnitesADeplacer, nomTerritoireDefenseur, this.de);
+                        if (territoireDefenseur != null) {
+                            //Le joueur annexe le territoire
+                            this.retirerTerritoireAJoueur(territoireDefenseur);
+                            joueurAttaquant.addTerritoire(territoireDefenseur);
+                            this.notifyObserver(territoireDefenseur.rendNom(), territoireDefenseur.rendNbUnites(), joueurAttaquant.rendCouleur());
+                            this.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), joueurAttaquant.rendCouleur());
+                            attaqueEffectuee = true;
+                        } else { //En cas de défaite, mise à jour du nombre d'unités par territoire (et il faut chercher manuellement le territoire défenseur
+                            for (Territoire territoireVoisin : monTerritoire.rendListeVoisins()) {
+                                if (monTerritoire.rendNom().equals(nomTerritoireAttaquant)) {
+                                    this.notifyObserver(territoireVoisin.rendNom(), territoireVoisin.rendNbUnites(), territoireVoisin.rendCouleur());
+                                    this.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), joueurAttaquant.rendCouleur());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return attaqueEffectuee;
+    }
+
+    private void retirerTerritoireAJoueur(Territoire territoirePerdu) {
+        for (Joueur monJoueur : this.listeJoueurs) {
+            for (Territoire monTerritoire : monJoueur.rendListeTerritoire()) {
+                if (territoirePerdu == monTerritoire) {
+                    monJoueur.retirerTerritoire(territoirePerdu);
+                }
+            }
+        }
+    }
 }
