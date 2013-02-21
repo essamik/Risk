@@ -153,13 +153,13 @@ public class Territoire {
         boolean attaquantEstGagant = false;
         this.retirerUnites(nbUnitesAttaquant);
         int nbAttaque = nbUnitesAttaquant;
-        System.out.println("nombre d'unités attaquant : " + nbUnitesAttaquant);
-        System.out.println("nombre d'unités defendant : " +territoireDefenseur.rendNbUnites());
+//        System.out.println("nombre d'unités attaquant : " + nbUnitesAttaquant);
+//        System.out.println("nombre d'unités defendant : " +territoireDefenseur.rendNbUnites());
         //Condition de la boucle : Nb d'unités d'attaquant et aucun camps à 0 unités
         for (int i = 0; i < nbAttaque && territoireDefenseur.rendNbUnites() > 0 && nbUnitesAttaquant > 0; i++) {
             int resultatAttaquant = de.rendsValeurFaceVisible();
             int resultatDefenseur = de.rendsValeurFaceVisible();
-            System.out.println("Attaquant : " + resultatAttaquant + " | defenseur : " + resultatDefenseur);
+//            System.out.println("Attaquant : " + resultatAttaquant + " | defenseur : " + resultatDefenseur);
             //Si le jet de dé du défenseur est supérieur ou égal à celui de l'attaquant, ce dernier perd une unité
             if (resultatDefenseur >= resultatAttaquant) {
                 nbUnitesAttaquant--;
@@ -170,11 +170,11 @@ public class Territoire {
         if (territoireDefenseur.rendNbUnites() <= 0) {
             territoireDefenseur.ajouterUnites(nbUnitesAttaquant);
             attaquantEstGagant = true;
-            System.out.println("l'attaquant gagne");
+//            System.out.println("l'attaquant gagne");
         }
         
-        System.out.println("nombre d'unités attaquant APRES : " + nbUnitesAttaquant);
-        System.out.println("nombre d'unités defendant APRES: " +territoireDefenseur.rendNbUnites());
+//        System.out.println("nombre d'unités attaquant APRES : " + nbUnitesAttaquant);
+//        System.out.println("nombre d'unités defendant APRES: " +territoireDefenseur.rendNbUnites());
         return attaquantEstGagant;
     }
 }

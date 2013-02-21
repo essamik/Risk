@@ -32,7 +32,7 @@ public class Controleur {
     private HashMap<GroupeZone, Continent> mapCarte;
     private EtatJeu etat;
     private ArrayList<PanneauAjoutJoueur> listePanneauJoueurs;
-    private final int NB_JOUEUR_MAX = 3;
+    private final int NB_JOUEUR_MAX = 6;
 
     public Controleur(JeuRisk modeleRisk, FenetreRisk vueRisk) {
         this.modele = modeleRisk;
@@ -44,8 +44,8 @@ public class Controleur {
         this.etat = new EtatInitialisation(this);
 
         //Ajout des 2 premiers joueurs requis
-        this.modele.ajouterJoueurs("Joueur 1", Color.RED);
-        this.modele.ajouterJoueurs("Joueur 2", Color.BLUE);
+        this.modele.ajouterJoueurs("Joueur 1", this.rendCouleurRandom());
+        this.modele.ajouterJoueurs("Joueur 2", this.rendCouleurRandom());
     }
 
 //    public void ajouterVue(FenetreRisk maFenetre) {
@@ -83,15 +83,40 @@ public class Controleur {
 
         sousTitreIntro.setHorizontalAlignment(JLabel.CENTER);
 
+        JPanel conteneurBouton = new JPanel();
+        conteneurBouton.setPreferredSize(new Dimension(1000, 225));
+        conteneurBouton.setOpaque(false);
+        conteneurBouton.setLayout(new BorderLayout());
+
+        JPanel espaceBoutonHaut = new JPanel();
+        espaceBoutonHaut.setPreferredSize(new Dimension(1000, 70));
+        espaceBoutonHaut.setOpaque(false);
+
+        JPanel espaceBoutonBas = new JPanel();
+        espaceBoutonBas.setPreferredSize(new Dimension(1000, 70));
+        espaceBoutonBas.setOpaque(false);
+
+        JPanel espaceBoutonGauche = new JPanel();
+        espaceBoutonGauche.setPreferredSize(new Dimension(250, 225));
+        espaceBoutonGauche.setOpaque(false);
+
+        JPanel espaceBoutonDroite = new JPanel();
+        espaceBoutonDroite.setPreferredSize(new Dimension(250, 225));
+        espaceBoutonDroite.setOpaque(false);
+
         JButton startButton = new JButton("START");
         startButton.setFont(new Font("verdana", Font.PLAIN, 40));
-        startButton.setPreferredSize(new Dimension(400, 100));
         startButton.addActionListener(new ActionStart(this));
 
+        conteneurBouton.add(startButton, BorderLayout.CENTER);
+        conteneurBouton.add(espaceBoutonHaut, BorderLayout.NORTH);
+        conteneurBouton.add(espaceBoutonBas, BorderLayout.SOUTH);
+        conteneurBouton.add(espaceBoutonGauche, BorderLayout.WEST);
+        conteneurBouton.add(espaceBoutonDroite, BorderLayout.EAST);
 
         ecranAccueil.add(titreIntroduction, BorderLayout.NORTH);
         ecranAccueil.add(sousTitreIntro, BorderLayout.CENTER);
-        ecranAccueil.add(startButton, BorderLayout.SOUTH);
+        ecranAccueil.add(conteneurBouton, BorderLayout.SOUTH);
 
         this.vue.pack();
     }
@@ -101,60 +126,70 @@ public class Controleur {
         this.vue.initialiserFenetre();
 
         //Réinitialiser de la liste des joueurs
-        this.listePanneauJoueurs = new ArrayList<PanneauAjoutJoueur>();
+        this.listePanneauJoueurs = new ArrayList<>();
 
-        JPanel fondAccueil = new JPanel();
-        fondAccueil.setPreferredSize(new Dimension(1280, 720));
-        fondAccueil.setBackground(Color.BLACK);
-        fondAccueil.setVisible(true);
-        this.vue.add(fondAccueil);
 
-        JPanel espaceHaut = new JPanel();
-        espaceHaut.setPreferredSize(new Dimension(1280, 78));
-        espaceHaut.setVisible(true);
-        espaceHaut.setOpaque(false);
-        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
+        JPanel ecranJoueurs = this.vue.genereFondDemarrage();
 
-        JPanel ecranJoueurs = new JPanel();
-        ecranJoueurs.setPreferredSize(new Dimension(1000, 485));
-        ecranJoueurs.setBackground(Color.WHITE);
-        ecranJoueurs.setVisible(true);
-        ecranJoueurs.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
-        fondAccueil.add(ecranJoueurs, BorderLayout.CENTER);
+        JPanel colonneJoueur = new JPanel();
+        colonneJoueur.setPreferredSize(new Dimension(600, 485));
+        colonneJoueur.setBackground(Color.WHITE);
+        colonneJoueur.setVisible(true);
+        colonneJoueur.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
+
+        JPanel colonneBouton = new JPanel();
+        colonneBouton.setPreferredSize(new Dimension(400, 485));
+        colonneBouton.setBackground(Color.WHITE);
+        colonneBouton.setVisible(true);
+        colonneBouton.setLayout(new BorderLayout());
+
+        JPanel espaceColonneBoutonHaut = new JPanel();
+        espaceColonneBoutonHaut.setPreferredSize(new Dimension(400, 200));
+        espaceColonneBoutonHaut.setOpaque(false);
+        JPanel espaceColonneBoutonBas = new JPanel();
+        espaceColonneBoutonBas.setPreferredSize(new Dimension(400, 200));
+        espaceColonneBoutonBas.setOpaque(false);
+        JPanel espaceColonneBoutonDroite = new JPanel();
+        espaceColonneBoutonDroite.setPreferredSize(new Dimension(20, 485));
+        espaceColonneBoutonDroite.setOpaque(false);
+
+        colonneBouton.add(espaceColonneBoutonHaut, BorderLayout.NORTH);
+        colonneBouton.add(espaceColonneBoutonBas, BorderLayout.SOUTH);
+        colonneBouton.add(espaceColonneBoutonDroite, BorderLayout.EAST);
+        ecranJoueurs.add(colonneJoueur, BorderLayout.WEST);
+        ecranJoueurs.add(colonneBouton, BorderLayout.EAST);
+
 
         //Répétition de tout le code en haut... A centraliser qqpart
         int numeroJoueur = 1;
         for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
-
             PanneauAjoutJoueur panneauJoueur = new PanneauAjoutJoueur(numeroJoueur, monJoueur.rendNom(), monJoueur.rendCouleur());
-
             this.listePanneauJoueurs.add(panneauJoueur);
-            ecranJoueurs.add(panneauJoueur);
-
+            colonneJoueur.add(panneauJoueur);
             numeroJoueur++;
         }
 
         if (this.modele.rendListeJoueurs().size() < this.NB_JOUEUR_MAX) {
             //Bouton + pour ajouter un joueur
             JButton boutonAjouterJoueur = new JButton("+");
-            boutonAjouterJoueur.setPreferredSize(new Dimension(45, 45));
+            boutonAjouterJoueur.setPreferredSize(new Dimension(450, 45));
             boutonAjouterJoueur.addActionListener(new ActionAjouterJoueur(this));
             JPanel panneauJoueurSupp = new JPanel();
-            panneauJoueurSupp.setPreferredSize(new Dimension(600, 60));
             panneauJoueurSupp.setVisible(true);
             panneauJoueurSupp.setOpaque(false);
             panneauJoueurSupp.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 0));
 
-            ecranJoueurs.add(panneauJoueurSupp);
+            colonneJoueur.add(panneauJoueurSupp);
             panneauJoueurSupp.add(boutonAjouterJoueur);
 
         }
 
         JButton launchGameButton = new JButton("Lancer la partie");
         launchGameButton.setPreferredSize(new Dimension(300, 100));
+        launchGameButton.setFont(new Font("verdana", Font.PLAIN, 26));
         launchGameButton.addActionListener(new ActionLancerPartie(this));
 
-        ecranJoueurs.add(launchGameButton);
+        colonneBouton.add(launchGameButton, BorderLayout.CENTER);
 
         this.vue.pack();
     }
@@ -184,7 +219,6 @@ public class Controleur {
         this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
         this.updateUnitesRestantADeployer();
         this.updatePanneauFaction();
-
         this.vue.pack();
     }
 
@@ -253,6 +287,7 @@ public class Controleur {
 
     public void actionEtat(Zone maZone) {
         this.etat.interactionUtilisateur(maZone);
+        //this.updateBarreForces();
     }
 
     public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
@@ -264,6 +299,7 @@ public class Controleur {
     public void actionAttaque(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
         this.vue.rendPanneauActionPhase().add(new PanneauAttaque(this, zoneDepart, zoneArrivee));
+        this.updateBarreForces();
         this.vue.pack();
     }
 
@@ -327,6 +363,9 @@ public class Controleur {
 
     public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
         this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
+        this.updateBarreForces();
+        this.vue.pack();
+
     }
 
     /**
@@ -350,7 +389,7 @@ public class Controleur {
     public void lancerPhaseDeployement() {
         //Affectation des nouvelles unités à déployer
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
-        
+
         this.updateUnitesRestantADeployer();
         this.updatePanneauFaction();
         JButton boutonFinDeployement = new JButton("Terminer déployement");
@@ -399,14 +438,14 @@ public class Controleur {
         if (component instanceof PanneauAttaque) {
             int nbUnitesADeplacer = ((PanneauAttaque) component).rendNbUniteDeplacement();
             this.modele.attaquer(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant());
-                //Si l'attaque à réussis
-                this.etat.rendZoneDepart().setNotClicked();
-                this.etat.setZoneDepart(null);
-                this.etat.setZoneArrivee(null);
-                this.vue.rendPanneauActionPhase().removeAll();
-                this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
-                this.vue.pack();
-            
+            //Si l'attaque à réussis
+            this.etat.rendZoneDepart().setNotClicked();
+            this.etat.setZoneDepart(null);
+            this.etat.setZoneArrivee(null);
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.pack();
+
         }
     }
 
@@ -429,6 +468,25 @@ public class Controleur {
 //            this.updatePanneauFaction();
 //            this.vue.pack();
         }
+    }
+
+    public Color rendCouleurRandom() {
+        return this.modele.genereCouleurRandom();
+    }
+
+    public void updateBarreForces() {
+        int[] nbUniteParJoueur = new int[this.modele.rendListeJoueurs().size()];
+        Color[] couleurParJoueur = new Color[this.modele.rendListeJoueurs().size()];
+        int nbTotalUnite = 0;
+        
+        for (int i = 0; i<this.modele.rendListeJoueurs().size(); i++) {
+            int nbUniteEnJeu = this.modele.rendListeJoueurs().get(i).rendNbUniteEnJeu();
+            nbUniteParJoueur[i] = nbUniteEnJeu;
+            couleurParJoueur[i] = this.modele.rendListeJoueurs().get(i).rendCouleur();
+            nbTotalUnite += nbUniteEnJeu;
+        }
+        
+        this.vue.updateBarrePourcentageForces(nbTotalUnite, nbUniteParJoueur, couleurParJoueur);
     }
 }
 //    public boolean controleAjoutUnite(String nomTerritoire) {

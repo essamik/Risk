@@ -64,4 +64,12 @@ public class Joueur {
         }
     }
 
+    public int rendNbUniteEnJeu() {
+        int nbUnitesPossede = 0;
+        for(Territoire monTerritoire : this.mesTerritoires) {
+            nbUnitesPossede+= monTerritoire.rendNbUnites();
+        }
+        return nbUnitesPossede;
+    }
+
 }

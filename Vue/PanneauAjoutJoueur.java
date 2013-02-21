@@ -28,15 +28,17 @@ public class PanneauAjoutJoueur extends JPanel {
         this.setVisible(true);
         this.setOpaque(false);
         //this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 0));
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 0));
+        
+        Font police = new Font("verdana", Font.PLAIN, 20);
 
         JLabel numJoueur = new JLabel();
         numJoueur.setText(num + ".");
-        numJoueur.setFont(new Font("verdana", Font.PLAIN, 26));
+        numJoueur.setFont(police);
 
         JTextField inputJoueur = new JTextField(nom);
-        inputJoueur.setPreferredSize(new Dimension(400, 46));
-        inputJoueur.setFont(new Font("verdana", Font.PLAIN, 26));
+        inputJoueur.setPreferredSize(new Dimension(300, 46));
+        inputJoueur.setFont(police);
 
         JPanel caseCouleur = new JPanel();
         caseCouleur.setPreferredSize(new Dimension(45, 45));

@@ -5,9 +5,9 @@
 package Modele;
 
 import Observer.Observeur;
-import Vue.Zone;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -19,6 +19,7 @@ public class JeuRisk implements Observer.Observable {
     private ArrayList<Joueur> listeJoueurs;
     private ArrayList<Observeur> listObserver;
     private De de;
+    private ArrayList<Color> listeCouleursDispo;
     private final int NB_UNITES_A_DEPLOYER_MINIMUM = 3;
     private final int NB_UNITE_INITIALE_2_JOUEURS = 2; // 40
     private final int NB_UNITE_INITIALE_3_JOUEURS = 2; //35
@@ -30,8 +31,10 @@ public class JeuRisk implements Observer.Observable {
     public JeuRisk() {
         this.listeJoueurs = new ArrayList<>();
         this.listObserver = new ArrayList<>();
+        this.listeCouleursDispo = new ArrayList<>();
         this.de = new De();
         this.initialiserCarteMonde();
+        this.initialiserCouleursJoueur();
         //Test avec 1 joueur//
         //this.listeJoueurs.add(new Joueur("Joueur1", Color.BLUE));
     }
@@ -234,11 +237,23 @@ public class JeuRisk implements Observer.Observable {
 
     private void retirerTerritoireAJoueur(Territoire territoirePerdu) {
         for (Joueur monJoueur : this.listeJoueurs) {
-            for (Territoire monTerritoire : monJoueur.rendListeTerritoire()) {
-                if (territoirePerdu == monTerritoire) {
+                if (monJoueur.rendListeTerritoire().contains(territoirePerdu)) {
                     monJoueur.retirerTerritoire(territoirePerdu);
-                }
             }
         }
+    }
+
+    public Color genereCouleurRandom() {
+        Collections.shuffle(this.listeCouleursDispo);
+        return this.listeCouleursDispo.remove(0);
+    }
+
+    private void initialiserCouleursJoueur() {
+        this.listeCouleursDispo.add(Color.RED);
+        this.listeCouleursDispo.add(Color.BLUE);
+        this.listeCouleursDispo.add(new Color(255, 132, 9)); //Orange
+        this.listeCouleursDispo.add(new Color(0, 174, 0)); //Vert
+        this.listeCouleursDispo.add(new Color(255, 223, 0)); //Jaune
+        this.listeCouleursDispo.add(new Color(29, 220, 201)); //turquoise
     }
 }

@@ -1,5 +1,9 @@
 import Controleur.Controleur;
 import Vue.FenetreRisk;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 
@@ -19,6 +23,7 @@ public class JeuRisk {
 
             @Override
             public void run() {
+                    
                 Modele.JeuRisk modeleRisk = new Modele.JeuRisk();
                 FenetreRisk fenetreRisk = new FenetreRisk();
                 Controleur controleur = new Controleur(modeleRisk, fenetreRisk);

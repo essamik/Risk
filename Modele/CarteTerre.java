@@ -54,7 +54,7 @@ public class CarteTerre {
         int yTerritoireNordOuest[] = {82, 79, 79, 80,  73, 68, 66, 65, 66, 63, 58, 58, 60,
             58, 59, 49, 47, 53, 53, 50, 47, 45, 41, 42, 50, 55, 52, 54, 52, 53, 57, 57, 54,
             52, 51, 47, 45, 49, 49, 47, 79};
-        Territoire territoireNordOuest = new Territoire("Territoire nord ouest", xTerritoireNordOuest, yTerritoireNordOuest, new Point(161, 63));
+        Territoire territoireNordOuest = new Territoire("Territoires nord ouest", xTerritoireNordOuest, yTerritoireNordOuest, new Point(161, 63));
         
         //////////ALBERTA//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int xAlberta[] = {80, 82, 85, 87, 88, 85, 87, 84, 85, 91, 156, 178,}; //3 derniers points -> frontière

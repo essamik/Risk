@@ -33,7 +33,6 @@ public class PanneauActionPhase extends JPanel {
     
     public void setNbUniteADeployer(int nbUnites) {
         this.infoUnites.setText("Nombre d'unités restant à déployer : " +nbUnites);
-        System.out.println("mise à jour : " +nbUnites);
     }
 
 
