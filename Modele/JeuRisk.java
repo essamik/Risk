@@ -137,7 +137,7 @@ public class JeuRisk implements Observer.Observable {
             } else if (quotaTroupes > 3) {
                 unitesADeployer = quotaTroupes;
             }
-            System.out.println(unitesADeployer + " unités à déployer");
+            //System.out.println(unitesADeployer + " unités à déployer");
             //Ajout des unités bonus
             unitesADeployer += this.rendUnitesBonusPourControleContinent(joueur);
         }
@@ -160,7 +160,7 @@ public class JeuRisk implements Observer.Observable {
                 //Si le nombre de territoire correspondant correspond au nombre total de territoires de ce continent
                 if (monContinent.rendTerritoires().size() == checkTerritoire) {
                     unitesBonus = monContinent.rendNbUnitesBonusPourControleContinent();
-                    System.out.println(unitesBonus + " unités supplémentaires reçus pour controle de" + monContinent.rendNom());
+                    //System.out.println(unitesBonus + " unités supplémentaires reçus pour controle de" + monContinent.rendNom());
                 }
             }
         }
@@ -175,7 +175,7 @@ public class JeuRisk implements Observer.Observable {
 
     @Override
     public void removeObserver() {
-        this.listObserver = new ArrayList<Observeur>();
+        this.listObserver = new ArrayList<>();
     }
 
     @Override

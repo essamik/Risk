@@ -24,10 +24,11 @@ public class EtatDeployement extends EtatJeu {
                 //super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
                 super.rendControleur().updateUnitesRestantADeployer();
             } else {
-                System.err.println("Ce territoire ne vous appartient pas. Déployement impossible");
+                super.rendControleur().messageErreur("Ce territoire ne vous appartient pas. Déployement impossible");
+
             }
         } else {
-            System.err.println("Vous n'avez plus d'unités à déployer !");
+            super.rendControleur().messageErreur("Vous n'avez plus d'unités à déployer. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
         }
     }
 }

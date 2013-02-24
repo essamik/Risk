@@ -22,8 +22,10 @@ public class FenetreRisk extends JFrame implements Observeur {
     private JPanel conteneurHaut;
     private JPanel conteneurBas;
     private JPanel panneauFactions;
+    private JPanel listeOrdre;
     private PanneauActionPhase panneauActionPhase;
-    private JPanel barreForceArmees; 
+    private JPanel barreForceArmees;
+    private JLabel infoBarre;
     private Font titre;
     private Controleur controleur;
 
@@ -39,7 +41,7 @@ public class FenetreRisk extends JFrame implements Observeur {
             }
         } catch (Exception e) {
         }
-        
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(200, 25);
         //this.setExtendedState(this.MAXIMIZED_BOTH);
@@ -89,21 +91,74 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.conteneurHaut.add(conteneurResumeJeu, BorderLayout.EAST);
 
         ////Panneau des ordres Amovible///////////////////////////////////////////////////
-        JPanel panneauOrdres = new JPanel();
-        panneauOrdres.setPreferredSize(new Dimension(280, 260));
-        panneauOrdres.setBackground(Color.DARK_GRAY);
-        panneauOrdres.setVisible(true);
-        panneauOrdres.setLayout(new FlowLayout());
+        JPanel conteneurPanneauOrdres = new JPanel();
+        conteneurPanneauOrdres.setPreferredSize(new Dimension(280, 260));
+        conteneurPanneauOrdres.setVisible(true);
+        conteneurPanneauOrdres.setLayout(new BorderLayout());
+        conteneurPanneauOrdres.setBackground(Color.WHITE);
 
-        conteneurResumeJeu.add(panneauOrdres, BorderLayout.CENTER);
+
+        conteneurResumeJeu.add(conteneurPanneauOrdres, BorderLayout.CENTER);
         JLabel titreOrdre = new JLabel(" Ordres");
         titreOrdre.setHorizontalAlignment(JLabel.LEFT);
+
         titreOrdre.setForeground(Color.BLACK);
         titreOrdre.setFont(this.titre);
-        panneauOrdres.add(titreOrdre, BorderLayout.NORTH);
-//        for (PanelOrdre monOrdre : this.listeOrdres) {
-//            panneauOrdres.add(monOrdre);
-//        }
+        conteneurPanneauOrdres.add(titreOrdre, BorderLayout.NORTH);
+
+
+        JPanel conteneurListeOrdres = new JPanel();
+        conteneurListeOrdres.setVisible(true);
+        conteneurListeOrdres.setBackground(Color.WHITE);
+        conteneurListeOrdres.setLayout(new BorderLayout());
+        conteneurListeOrdres.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
+
+        //conteneurPanneauOrdres.add(conteneurListeOrdres, BorderLayout.CENTER);
+
+        JPanel espaceOrdreGauche = new JPanel();
+        espaceOrdreGauche.setPreferredSize(new Dimension(15, 260));
+        espaceOrdreGauche.setOpaque(false);
+        JPanel espaceOrdreDroite = new JPanel();
+        espaceOrdreDroite.setPreferredSize(new Dimension(15, 260));
+        espaceOrdreDroite.setOpaque(false);
+
+        conteneurPanneauOrdres.add(espaceOrdreGauche, BorderLayout.WEST);
+        conteneurPanneauOrdres.add(espaceOrdreDroite, BorderLayout.EAST);
+
+        ////Panneau contenant la liste de tous les ordres///////////////////////////////////////////////////
+        this.listeOrdre = new JPanel();
+        this.listeOrdre.setVisible(true);
+        this.listeOrdre.setBackground(Color.WHITE);
+        this.listeOrdre.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        this.listeOrdre.setPreferredSize(new Dimension(210, 200));
+
+        conteneurPanneauOrdres.add(conteneurListeOrdres, BorderLayout.CENTER);
+
+//        PanelOrdre ordre1 = new PanelOrdre("Attaque de Egypte à AfriqueNord");
+//        PanelOrdre ordre2 = new PanelOrdre("Pertes :  2 unités");
+//        PanelOrdre ordre3 = new PanelOrdre("Afrique du nord capturé !");
+//        PanelOrdre ordre4 = new PanelOrdre("Déployement à Europe Est");
+//        PanelOrdre ordre5 = new PanelOrdre("Bla");
+//        PanelOrdre ordre6 = new PanelOrdre("Truc");
+//
+//        this.listeOrdre.add(ordre1);
+//        this.listeOrdre.add(ordre2);
+//        this.listeOrdre.add(ordre3);
+//        this.listeOrdre.add(ordre4);
+//        this.listeOrdre.add(ordre5);
+//        this.listeOrdre.add(ordre6);
+//        this.listeOrdre.add(new PanelOrdre("machine"));
+//        this.listeOrdre.add(new PanelOrdre("descend"));
+
+        ////Barre de scroll//////////////////////////////////////////////////////////////
+        JScrollPane scrollPane = new JScrollPane(this.listeOrdre);
+        JScrollBar scrollBarV = new JScrollBar(JScrollBar.VERTICAL);
+        scrollBarV.setPreferredSize(new Dimension(20, 260));
+        scrollPane.setVerticalScrollBar(scrollBarV);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        conteneurListeOrdres.add(scrollPane, BorderLayout.CENTER);
+
         ////Conteneur des factions fixe ///////////////////////////////////////////////////
         JPanel conteneurFactions = new JPanel();
         conteneurFactions.setPreferredSize(new Dimension(280, 260));
@@ -134,25 +189,27 @@ public class FenetreRisk extends JFrame implements Observeur {
 
         conteneurFactions.add(this.panneauFactions, BorderLayout.CENTER);
 
-        ////JPanels servant d'espace afin de centrer le pannaeu des factions ///////////////////////////////////////////////////
-        JPanel espaceFactionGauche = new JPanel();
-        espaceFactionGauche.setPreferredSize(new Dimension(25, 280));
-        espaceFactionGauche.setOpaque(false);
-        conteneurFactions.add(espaceFactionGauche, BorderLayout.WEST);
+        ////JPanels servant d'espace afin de centrer le panneau des factions ///////////////////////////////////////////////////
         JPanel espaceFactionDroite = new JPanel();
-        espaceFactionDroite.setPreferredSize(new Dimension(25, 280));
+        espaceFactionDroite.setPreferredSize(new Dimension(15, 260));
         espaceFactionDroite.setOpaque(false);
-        conteneurFactions.add(espaceFactionDroite, BorderLayout.EAST);
         JPanel espaceFactionBas = new JPanel();
         espaceFactionBas.setPreferredSize(new Dimension(200, 25));
         espaceFactionBas.setOpaque(false);
+        JPanel espaceFactionGauche = new JPanel();
+        espaceFactionGauche.setPreferredSize(new Dimension(15, 260));
+        espaceFactionGauche.setOpaque(false);
+
         conteneurFactions.add(espaceFactionBas, BorderLayout.SOUTH);
+        conteneurFactions.add(espaceFactionDroite, BorderLayout.EAST);
+        conteneurFactions.add(espaceFactionGauche, BorderLayout.WEST);
 
         ////Barre des 3 phases de jeu fixe ///////////////////////////////////////////////////
         this.panneauPhasesJeu = new JPanel();
         this.panneauPhasesJeu.setPreferredSize(new Dimension(1280, 40));
         this.panneauPhasesJeu.setBackground(Color.WHITE);
         this.panneauPhasesJeu.setVisible(true);
+        this.panneauPhasesJeu.setLayout(new FlowLayout());
         this.conteneurBas.add(this.panneauPhasesJeu, BorderLayout.NORTH);
 
 
@@ -163,7 +220,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 /////////Conteneur des des informations de jeu fixe/////////////////////////////////////
         JPanel conteneurInfos = new JPanel();
         conteneurInfos.setPreferredSize(new Dimension(1280, 60));
-        conteneurInfos.setVisible(true);
+        //conteneurInfos.setVisible(true);
         conteneurInfos.setLayout(new BorderLayout());
         this.conteneurBas.add(conteneurInfos, BorderLayout.SOUTH);
 
@@ -172,15 +229,18 @@ public class FenetreRisk extends JFrame implements Observeur {
         barreForceArmees.setPreferredSize(new Dimension(1280, 20));
         barreForceArmees.setBackground(Color.WHITE);
         barreForceArmees.setVisible(true);
-        conteneurInfos.add(barreForceArmees, BorderLayout.NORTH);
 
+        ////Barre de texte d'information pour guider le joueur - Fixe ///////////////////////////////////////////////////
+        this.infoBarre = new JLabel("Barre d'information");
+        this.infoBarre.setPreferredSize(new Dimension(1280, 30));
+        this.infoBarre.setBackground(Color.WHITE);
+        this.infoBarre.setForeground(Color.BLACK);
+        this.infoBarre.setHorizontalAlignment(JLabel.CENTER);
+        this.infoBarre.setFont(new Font("Verdana", Font.PLAIN, 14));
 
-        ////Barre d'information pour les joueurs - Amovible ///////////////////////////////////////////////////
-        JPanel infoBarre = new JPanel();
-        infoBarre.setPreferredSize(new Dimension(1280, 40));
-        infoBarre.setBackground(Color.BLACK);
-        infoBarre.setVisible(true);
-        conteneurInfos.add(infoBarre, BorderLayout.CENTER);
+        conteneurInfos.add(this.infoBarre, BorderLayout.SOUTH);
+        conteneurInfos.add(barreForceArmees, BorderLayout.CENTER);
+
         this.creerBarrePhasesJeu();
     }
 
@@ -191,12 +251,12 @@ public class FenetreRisk extends JFrame implements Observeur {
         Dimension dimensionPannneau = new Dimension(630, 30);
         labelDeployer.setHorizontalAlignment(JLabel.CENTER);
         labelDeplacer.setHorizontalAlignment(JLabel.CENTER);
-        
+
         Font policePanneauEtat = new Font("Verdana", Font.BOLD, 20);
         labelDeployer.setFont(policePanneauEtat);
         labelDeplacer.setFont(policePanneauEtat);
-        labelDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
-        labelDeplacer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
+        labelDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
+        labelDeplacer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
 
         labelDeployer.setPreferredSize(dimensionPannneau);
         labelDeplacer.setPreferredSize(dimensionPannneau);
@@ -209,11 +269,6 @@ public class FenetreRisk extends JFrame implements Observeur {
     public void ajouterControleur(Controleur monControleur) {
         this.controleur = monControleur;
     }
-//    
-//    public void creerInfosBasJeu() {
-//
-//    
-//    }
 
     public PlateauJeu rendPlateauJeu() {
         return this.plateauJeu;
@@ -290,9 +345,51 @@ public class FenetreRisk extends JFrame implements Observeur {
         fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
         return ecranAccueil;
     }
-    
+
     public void updateBarrePourcentageForces(int nbTotalUniteEnJeu, int[] nbUnitesParJoueur, Color[] couleurs) {
         this.barreForceArmees.removeAll();
         this.barreForceArmees.add(new JBarrePourcentageForces(nbTotalUniteEnJeu, nbUnitesParJoueur, couleurs));
+    }
+
+    public void setEtatDeployementJoueur(Color couleurJoueurCourant) {
+        Component componentDeployer = this.rendPanneauPhasesDeJeu().getComponents()[0];
+        if (componentDeployer instanceof JLabel) {
+            JLabel panneauDeployer = (JLabel) componentDeployer;
+            panneauDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
+        }
+
+        Component componentTransfert = this.rendPanneauPhasesDeJeu().getComponents()[1];
+        if (componentTransfert instanceof JLabel) {
+            JLabel panneauTransfert = (JLabel) componentTransfert;
+            panneauTransfert.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, Color.BLACK));
+        }
+    }
+
+    public void setEtatDeplacementJoueur(Color couleurJoueurCourant) {
+        Component component = this.rendPanneauPhasesDeJeu().getComponents()[1];
+        if (component instanceof JLabel) {
+            JLabel panneauTransfert = (JLabel) component;
+            panneauTransfert.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
+        }
+
+        Component componentDeployer = this.rendPanneauPhasesDeJeu().getComponents()[0];
+        if (componentDeployer instanceof JLabel) {
+            JLabel panneauDeployer = (JLabel) componentDeployer;
+            panneauDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, Color.BLACK));
+        }
+    }
+
+    public void setTexteInfo(String texteInformation) {
+        this.infoBarre.setText(texteInformation);
+    }
+    
+    public void ajouterOrdre(String ordreTextuel) {
+        this.listeOrdre.add(new PanelOrdre(ordreTextuel));
+    }
+
+    public void reinitialiserPanneauOrdres() {
+        this.listeOrdre.removeAll();
+        //this.pack();
+        
     }
 }

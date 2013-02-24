@@ -27,13 +27,14 @@ public class EtatTransfert extends EtatJeu {
                         super.setZoneDepart(maZone);
                         maZone.setClicked();
                         } else {
-                            System.err.println("Ce territoire ne possède pas assez d'unités pour effectuer un déplacement");
+                            this.rendControleur().messageErreur("Ce territoire ne possède pas assez d'unités pour effectuer un déplacement");
                         }
                     } else {
-                        System.err.println("Ce territoire est contrôlé par l'ennemi");
+                        this.rendControleur().messageErreur("Ce territoire est contrôlé par l'ennemi");
+
                     }
                 } else {
-                    System.err.println("Ce territoire ne vous appartient pas");
+                    this.rendControleur().messageErreur("Ce territoire ne vous appartient pas");
                 }
                 //Second clic
             } else {
@@ -52,7 +53,7 @@ public class EtatTransfert extends EtatJeu {
                             super.rendControleur().actionAttaque(super.rendZoneDepart(), super.rendZoneArrivee());
                         }
                     } else {
-                        System.err.println("Ce territoire n'est pas un territoire voisin");
+                        this.rendControleur().messageErreur("Ce territoire n'est pas un territoire voisin");
                     }
                 }
             }

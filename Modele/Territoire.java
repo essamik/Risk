@@ -139,7 +139,7 @@ public class Territoire {
             for (Territoire territoireVoisin : this.listeVoisins) {
                 if (nomTerritoirDefenseur.equals(territoireVoisin.rendNom())) {
                     //Jets de dés pour le combat
-                    if(this.combat(nbUnitesAttaquant, territoireVoisin, de)) {
+                    if(this.resolutionCombat(nbUnitesAttaquant, territoireVoisin, de)) {
                     //En cas de victoire, on renvois le territoire conquis
                     territoireConquis = territoireVoisin;
                     }
@@ -149,8 +149,10 @@ public class Territoire {
         return territoireConquis;
     }
 
-    private boolean combat(int nbUnitesAttaquant, Territoire territoireDefenseur, De de) {
+    private boolean resolutionCombat(int nbUnitesAttaquant, Territoire territoireDefenseur, De de) {
         boolean attaquantEstGagant = false;
+        
+        RapportCombat rapport = new RapportCombat(this, territoireDefenseur, nbUnitesAttaquant);
         this.retirerUnites(nbUnitesAttaquant);
         int nbAttaque = nbUnitesAttaquant;
 //        System.out.println("nombre d'unités attaquant : " + nbUnitesAttaquant);
@@ -162,14 +164,18 @@ public class Territoire {
 //            System.out.println("Attaquant : " + resultatAttaquant + " | defenseur : " + resultatDefenseur);
             //Si le jet de dé du défenseur est supérieur ou égal à celui de l'attaquant, ce dernier perd une unité
             if (resultatDefenseur >= resultatAttaquant) {
-                nbUnitesAttaquant--;
+                nbUnitesAttaquant--;//
+                rapport.perteUnite();
+                
             } else {
-                territoireDefenseur.retirerUnite();
+                territoireDefenseur.retirerUnite();//
+                rapport.rendTerritoireDefenseur().retirerUnite();
             }
         }
         if (territoireDefenseur.rendNbUnites() <= 0) {
             territoireDefenseur.ajouterUnites(nbUnitesAttaquant);
-            attaquantEstGagant = true;
+            attaquantEstGagant = true;//
+            rapport.attaquantGagne();
 //            System.out.println("l'attaquant gagne");
         }
         

@@ -6,6 +6,7 @@
 package Vue;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -15,13 +16,15 @@ import javax.swing.border.BevelBorder;
  *
  * @author Karim
  */
-class PanelOrdre extends JLabel{
+public class PanelOrdre extends JLabel{
 
     public PanelOrdre(String texte) {
         super(texte);
-        this.setForeground(Color.black);
-        this.setFont(new Font("verdana", Font.PLAIN, 12));
-        //this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
+        this.setForeground(Color.BLACK);
+        this.setBackground(Color.WHITE);
+        this.setFont(new Font("verdana", Font.PLAIN, 10));
+        this.setPreferredSize(new Dimension(210, 30));
+        this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
 
     }
 

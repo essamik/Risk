@@ -8,9 +8,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 
 /**
  *
@@ -27,7 +29,6 @@ public class PanneauAjoutJoueur extends JPanel {
         this.setPreferredSize(new Dimension(600, 60));
         this.setVisible(true);
         this.setOpaque(false);
-        //this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 0));
         
         Font police = new Font("verdana", Font.PLAIN, 20);
@@ -44,6 +45,8 @@ public class PanneauAjoutJoueur extends JPanel {
         caseCouleur.setPreferredSize(new Dimension(45, 45));
         caseCouleur.setBackground(couleur);
         caseCouleur.setVisible(true);
+        caseCouleur.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
+
         
         this.numeroJoueur = numJoueur;
         this.nomJoueur = inputJoueur;

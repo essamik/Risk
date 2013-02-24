@@ -173,6 +173,7 @@ public class Controleur {
             //Bouton + pour ajouter un joueur
             JButton boutonAjouterJoueur = new JButton("+");
             boutonAjouterJoueur.setPreferredSize(new Dimension(450, 45));
+            boutonAjouterJoueur.setFont(new Font("verdana", Font.BOLD, 20));
             boutonAjouterJoueur.addActionListener(new ActionAjouterJoueur(this));
             JPanel panneauJoueurSupp = new JPanel();
             panneauJoueurSupp.setVisible(true);
@@ -218,23 +219,12 @@ public class Controleur {
         this.modele.initialiserNbUnitesDepart();
         this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
         this.updateUnitesRestantADeployer();
-        this.updatePanneauFaction();
+        this.updateVueJoueur();
+        this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+        this.vue.setTexteInfo("Chaque joueur clic à tour de rôle sur un pays afin de se l'approprier jusqu'a ce que toutes les unités ont été déployées");
         this.vue.pack();
     }
 
-    public void updatePanneauFaction() {
-        boolean estLeJoueurCourant;
-        this.vue.rendPanneauFactions().removeAll();
-        for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
-            estLeJoueurCourant = false;
-            if (monJoueur == this.etat.rendJoueurCourant()) {
-                estLeJoueurCourant = true;
-            }
-            PanneauFaction panneauJoueur = new PanneauFaction(monJoueur.rendCouleur(), monJoueur.rendNom(), estLeJoueurCourant);
-            this.vue.rendPanneauFactions().add(panneauJoueur);
-        }
-        this.vue.pack(); // Peut foutre la merde -> A déplacer
-    }
 
     public void updateUnitesRestantADeployer() {
         this.vue.rendPanneauActionPhase().setNbUniteADeployer(this.etat.rendJoueurCourant().rendUnitesADeployer());
@@ -287,12 +277,13 @@ public class Controleur {
 
     public void actionEtat(Zone maZone) {
         this.etat.interactionUtilisateur(maZone);
-        //this.updateBarreForces();
+
     }
 
     public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
         this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(this, zoneDepart, zoneArrivee));
+        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action");
         this.vue.pack();
     }
 
@@ -300,6 +291,7 @@ public class Controleur {
         this.vue.rendPanneauActionPhase().removeAll();
         this.vue.rendPanneauActionPhase().add(new PanneauAttaque(this, zoneDepart, zoneArrivee));
         this.updateBarreForces();
+        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action");
         this.vue.pack();
     }
 
@@ -314,6 +306,7 @@ public class Controleur {
 
     public Joueur rendJoueurSuivant(Joueur joueurCourant) {
         return this.modele.rendJoueurSuivant(joueurCourant);
+
     }
 
     /**
@@ -364,6 +357,11 @@ public class Controleur {
     public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
         this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
         this.updateBarreForces();
+        if(territoireAConquerir.rendNbUnite() > 1) {
+            this.vue.ajouterOrdre("Ajout d'une unité à " +territoireAConquerir.rendNom());
+        } else {
+            this.vue.ajouterOrdre(territoireAConquerir.rendNom() + " capturé");
+        }
         this.vue.pack();
 
     }
@@ -391,12 +389,13 @@ public class Controleur {
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
 
         this.updateUnitesRestantADeployer();
-        this.updatePanneauFaction();
+        this.updateVueJoueur();
         JButton boutonFinDeployement = new JButton("Terminer déployement");
         boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
         this.vue.rendPanneauActionPhase().add(boutonFinDeployement, BorderLayout.EAST);
+        this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
         this.vue.pack();
-        System.out.println("Lancement du déployement");
+        
     }
 
     public void finDeployement() {
@@ -404,15 +403,18 @@ public class Controleur {
             this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
             this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
             this.updateUnitesRestantADeployer();
-            this.updatePanneauFaction();
+            this.updateVueJoueur();
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
+
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déployement
             this.etat = new EtatTransfert(this);
-            System.out.println("Lancement de l'état de déplacement");
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
             this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
-            this.updatePanneauFaction();
+            this.updateVueJoueur();
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
             this.vue.pack();
         }
     }
@@ -422,12 +424,13 @@ public class Controleur {
         if (component instanceof PanneauTransfertUnites) {
             int nbUnitesADeplacer = ((PanneauTransfertUnites) component).rendNbUniteDeplacement();
             if (this.modele.deplacerUnites(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant())) {
-                //Si le déplacement est fait
+                this.vue.ajouterOrdre("Déplacement de "+ this.etat.rendZoneDepart().rendNom() + " à " +this.etat.rendZoneArrivee().rendNom()+ " " + nbUnitesADeplacer + "unités");
                 this.etat.rendZoneDepart().setNotClicked();
                 this.etat.setZoneDepart(null);
                 this.etat.setZoneArrivee(null);
                 this.vue.rendPanneauActionPhase().removeAll();
                 this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+                this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
                 this.vue.pack();
             }
         }
@@ -438,12 +441,14 @@ public class Controleur {
         if (component instanceof PanneauAttaque) {
             int nbUnitesADeplacer = ((PanneauAttaque) component).rendNbUniteDeplacement();
             this.modele.attaquer(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant());
-            //Si l'attaque à réussis
+            this.vue.ajouterOrdre("Attaque de "+ this.etat.rendZoneDepart().rendNom() + " à " +this.etat.rendZoneArrivee().rendNom()+ " " + nbUnitesADeplacer + "unités");
             this.etat.rendZoneDepart().setNotClicked();
             this.etat.setZoneDepart(null);
             this.etat.setZoneArrivee(null);
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+
             this.vue.pack();
 
         }
@@ -453,8 +458,10 @@ public class Controleur {
         //Normalement, on passe au joueur suivant
         if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
             this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
-            this.updatePanneauFaction();
+            this.updateVueJoueur();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
             this.etat = new EtatDeployement(this);
@@ -478,25 +485,47 @@ public class Controleur {
         int[] nbUniteParJoueur = new int[this.modele.rendListeJoueurs().size()];
         Color[] couleurParJoueur = new Color[this.modele.rendListeJoueurs().size()];
         int nbTotalUnite = 0;
-        
-        for (int i = 0; i<this.modele.rendListeJoueurs().size(); i++) {
+
+        for (int i = 0; i < this.modele.rendListeJoueurs().size(); i++) {
             int nbUniteEnJeu = this.modele.rendListeJoueurs().get(i).rendNbUniteEnJeu();
             nbUniteParJoueur[i] = nbUniteEnJeu;
             couleurParJoueur[i] = this.modele.rendListeJoueurs().get(i).rendCouleur();
             nbTotalUnite += nbUniteEnJeu;
         }
-        
+
         this.vue.updateBarrePourcentageForces(nbTotalUnite, nbUniteParJoueur, couleurParJoueur);
     }
+    
+
+    public void updateVueJoueur() {
+        boolean estLeJoueurCourant;
+        this.vue.rendPanneauFactions().removeAll();
+        for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
+            estLeJoueurCourant = false;
+            if (monJoueur == this.etat.rendJoueurCourant()) {
+                estLeJoueurCourant = true;
+            }
+            PanneauFaction panneauJoueur = new PanneauFaction(monJoueur.rendCouleur(), monJoueur.rendNom(), estLeJoueurCourant);
+            this.vue.rendPanneauFactions().add(panneauJoueur);
+        }
+
+        if (this.etat instanceof EtatDeployement || this.etat instanceof EtatInitialisation) {
+            this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+                //this.vue.repaint();
+
+        } else if (this.etat instanceof EtatTransfert) {
+            this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+        //this.vue.repaint();
+
+        }
+        this.vue.reinitialiserPanneauOrdres();
+        this.vue.pack(); // Peut foutre la merde -> A déplacer
+    }
+    
+    
+    public void messageErreur(String mssgErreur) {
+        this.vue.setTexteInfo(mssgErreur);
+    }
+    
 }
-//    public boolean controleAjoutUnite(String nomTerritoire) {
-//        boolean autorisationAjout = false;
-//        if (nomTerritoire != null) {
-//            //Verifie qu'il ne s'agit pas d'un territoire ennemi
-//            if (!this.controleTerritoireEnnemi(nomTerritoire)) {
-//                this.modele.conquerirTerritoire(nomTerritoire, this.etat.rendJoueurCourant());
-//            }
-//            autorisationAjout = true;
-//        }
-//        return autorisationAjout;
-//    }    
+
