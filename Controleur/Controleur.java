@@ -4,22 +4,19 @@
  */
 package Controleur;
 
+import Action.ActionAbout;
+import Action.*;
+import Vue.PanelScoreJoueur;
 import Vue.PanneauAttaque;
 import Vue.PanneauEtatDeplacement;
-import Action.ActionFinDeployement;
-import Action.ActionAjouterJoueur;
-import Action.ActionLancerPartie;
-import Action.ActionStart;
-import Modele.Continent;
-import Modele.JeuRisk;
-import Modele.Joueur;
-import Modele.Territoire;
+import Modele.*;
 import Vue.*;
 import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import javax.swing.*;
+import modele.Chronometre;
 
 /**
  *
@@ -29,23 +26,24 @@ public class Controleur {
 
     private JeuRisk modele;
     private FenetreRisk vue;
-    private HashMap<GroupeZone, Continent> mapCarte;
+//    private HashMap<GroupeZone, Continent> mapCarte;
     private EtatJeu etat;
     private ArrayList<PanneauAjoutJoueur> listePanneauJoueurs;
     private final int NB_JOUEUR_MAX = 6;
+    private MementoDeployement mementoDeployement;
 
     public Controleur(JeuRisk modeleRisk, FenetreRisk vueRisk) {
         this.modele = modeleRisk;
         this.vue = vueRisk;
         this.modele.addObserver(this.vue);
-        this.mapCarte = new HashMap();
+//        this.mapCarte = new HashMap();
         this.listePanneauJoueurs = new ArrayList<>();
         //test
         this.etat = new EtatInitialisation(this);
 
-        //Ajout des 2 premiers joueurs requis
-        this.modele.ajouterJoueurs("Joueur 1", this.rendCouleurRandom());
-        this.modele.ajouterJoueurs("Joueur 2", this.rendCouleurRandom());
+        //Ajout des 2 premiers joueurs requis minimum
+        this.modele.creerJoueur("Joueur 1", this.rendCouleurRandom());
+        this.modele.creerJoueur("Joueur 2", this.rendCouleurRandom());
     }
 
 //    public void ajouterVue(FenetreRisk maFenetre) {
@@ -53,25 +51,7 @@ public class Controleur {
 //        this.modele.addObserver(vue);
 //    }
     public void lancerEcranDemarrage() {
-        JPanel fondAccueil = new JPanel();
-        fondAccueil.setPreferredSize(new Dimension(1280, 720));
-        fondAccueil.setBackground(Color.BLACK);
-        fondAccueil.setVisible(true);
-        this.vue.add(fondAccueil);
-
-        JPanel espaceHaut = new JPanel();
-        espaceHaut.setPreferredSize(new Dimension(1280, 78));
-        espaceHaut.setVisible(true);
-        espaceHaut.setOpaque(false);
-        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
-
-        JPanel ecranAccueil = new JPanel();
-        ecranAccueil.setPreferredSize(new Dimension(1000, 485));
-        ecranAccueil.setBackground(Color.WHITE);
-        ecranAccueil.setVisible(true);
-        ecranAccueil.setLayout(new BorderLayout());
-        fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
-
+        JPanel ecranAccueil = this.vue.genereFondDemarrage();
         JLabel titreIntroduction = new JLabel("RISK");
         titreIntroduction.setFont(new Font("verdana", Font.BOLD, 100));
         titreIntroduction.setPreferredSize(new Dimension(1000, 150));
@@ -83,17 +63,17 @@ public class Controleur {
 
         sousTitreIntro.setHorizontalAlignment(JLabel.CENTER);
 
-        JPanel conteneurBouton = new JPanel();
-        conteneurBouton.setPreferredSize(new Dimension(1000, 225));
-        conteneurBouton.setOpaque(false);
-        conteneurBouton.setLayout(new BorderLayout());
+        JPanel conteneurBas = new JPanel();
+        conteneurBas.setPreferredSize(new Dimension(1000, 225));
+        conteneurBas.setOpaque(false);
+        conteneurBas.setLayout(new BorderLayout());
 
         JPanel espaceBoutonHaut = new JPanel();
         espaceBoutonHaut.setPreferredSize(new Dimension(1000, 70));
         espaceBoutonHaut.setOpaque(false);
 
         JPanel espaceBoutonBas = new JPanel();
-        espaceBoutonBas.setPreferredSize(new Dimension(1000, 70));
+        espaceBoutonBas.setPreferredSize(new Dimension(1000, 10));
         espaceBoutonBas.setOpaque(false);
 
         JPanel espaceBoutonGauche = new JPanel();
@@ -101,33 +81,46 @@ public class Controleur {
         espaceBoutonGauche.setOpaque(false);
 
         JPanel espaceBoutonDroite = new JPanel();
-        espaceBoutonDroite.setPreferredSize(new Dimension(250, 225));
+        espaceBoutonDroite.setPreferredSize(new Dimension(250, 200));
         espaceBoutonDroite.setOpaque(false);
 
         JButton startButton = new JButton("START");
         startButton.setFont(new Font("verdana", Font.PLAIN, 40));
         startButton.addActionListener(new ActionStart(this));
+        startButton.setPreferredSize(new Dimension(250, 90));
 
-        conteneurBouton.add(startButton, BorderLayout.CENTER);
-        conteneurBouton.add(espaceBoutonHaut, BorderLayout.NORTH);
-        conteneurBouton.add(espaceBoutonBas, BorderLayout.SOUTH);
-        conteneurBouton.add(espaceBoutonGauche, BorderLayout.WEST);
-        conteneurBouton.add(espaceBoutonDroite, BorderLayout.EAST);
+        JButton loadButton = new JButton("Charger partie");
+        loadButton.setFont(new Font("verdana", Font.PLAIN, 20));
+        loadButton.addActionListener(new ActionCharger(this, "Charger partie"));
+        loadButton.setPreferredSize(new Dimension(250, 40));
+        
+        JPanel conteneurBoutons = new JPanel();
+        conteneurBoutons.setPreferredSize(new Dimension(250, 155));
+        conteneurBoutons.setLayout(new BorderLayout());
+        conteneurBoutons.setVisible(true);
+        conteneurBoutons.setOpaque(false);
+        conteneurBoutons.add(startButton, BorderLayout.NORTH);
+        conteneurBoutons.add(loadButton, BorderLayout.SOUTH);
+
+        conteneurBas.add(conteneurBoutons, BorderLayout.CENTER);
+        conteneurBas.add(espaceBoutonHaut, BorderLayout.NORTH);
+        conteneurBas.add(espaceBoutonBas, BorderLayout.SOUTH);
+        conteneurBas.add(espaceBoutonGauche, BorderLayout.WEST);
+        conteneurBas.add(espaceBoutonDroite, BorderLayout.EAST);
 
         ecranAccueil.add(titreIntroduction, BorderLayout.NORTH);
         ecranAccueil.add(sousTitreIntro, BorderLayout.CENTER);
-        ecranAccueil.add(conteneurBouton, BorderLayout.SOUTH);
+        ecranAccueil.add(conteneurBas, BorderLayout.SOUTH);
 
         this.vue.pack();
     }
 
     public void initialiserChoixJoueur() {
         this.vue.getContentPane().removeAll();
-        this.vue.initialiserFenetre();
+        //this.vue.initialiserFenetre();
 
         //Réinitialiser de la liste des joueurs
         this.listePanneauJoueurs = new ArrayList<>();
-
 
         JPanel ecranJoueurs = this.vue.genereFondDemarrage();
 
@@ -150,12 +143,17 @@ public class Controleur {
         espaceColonneBoutonBas.setPreferredSize(new Dimension(400, 200));
         espaceColonneBoutonBas.setOpaque(false);
         JPanel espaceColonneBoutonDroite = new JPanel();
-        espaceColonneBoutonDroite.setPreferredSize(new Dimension(20, 485));
+        espaceColonneBoutonDroite.setPreferredSize(new Dimension(10, 485));
         espaceColonneBoutonDroite.setOpaque(false);
+
+        JPanel espaceColonneBoutonGauche = new JPanel();
+        espaceColonneBoutonGauche.setPreferredSize(new Dimension(10, 485));
+        espaceColonneBoutonGauche.setOpaque(false);
 
         colonneBouton.add(espaceColonneBoutonHaut, BorderLayout.NORTH);
         colonneBouton.add(espaceColonneBoutonBas, BorderLayout.SOUTH);
         colonneBouton.add(espaceColonneBoutonDroite, BorderLayout.EAST);
+        colonneBouton.add(espaceColonneBoutonGauche, BorderLayout.WEST);
         ecranJoueurs.add(colonneJoueur, BorderLayout.WEST);
         ecranJoueurs.add(colonneBouton, BorderLayout.EAST);
 
@@ -184,7 +182,11 @@ public class Controleur {
             panneauJoueurSupp.add(boutonAjouterJoueur);
 
         }
+        JLabel infoNbJoueur = new JLabel("6 joueurs max");
+        infoNbJoueur.setPreferredSize(new Dimension(500, 45));
+        infoNbJoueur.setHorizontalAlignment(JLabel.CENTER);
 
+        colonneJoueur.add(infoNbJoueur);
         JButton launchGameButton = new JButton("Lancer la partie");
         launchGameButton.setPreferredSize(new Dimension(300, 100));
         launchGameButton.setFont(new Font("verdana", Font.PLAIN, 26));
@@ -204,12 +206,12 @@ public class Controleur {
     }
 
     public void ajouterInfosJoueur(String nom, Color couleur) {
-        this.modele.ajouterJoueurs(nom, couleur);
+        this.modele.creerJoueur(nom, couleur);
     }
 
     public void initialiserLancementJeu() {
         this.vue.getContentPane().removeAll();
-        this.vue.initialiserFenetre();
+        this.vue.pack();
         this.vue.creerPlateauJeu();
         this.creerMenu();
         this.creerMap();
@@ -225,7 +227,6 @@ public class Controleur {
         this.vue.pack();
     }
 
-
     public void updateUnitesRestantADeployer() {
         this.vue.rendPanneauActionPhase().setNbUniteADeployer(this.etat.rendJoueurCourant().rendUnitesADeployer());
     }
@@ -238,15 +239,15 @@ public class Controleur {
         JMenu menuFile = new JMenu("Fichier");
         barreMenu.add(menuFile);
 
-        menuFile.add(new JMenuItem("Sauvegarder  partie"));
-        menuFile.add(new JMenuItem("Charger partie"));
-        menuFile.add(new JMenuItem("Recommencer partie"));
-        menuFile.add(new JMenuItem("Quitter sans sauvegarder"));
+        menuFile.add(new JMenuItem(new ActionSauvegarder(this, "Sauvegarder  partie")));
+        menuFile.add(new JMenuItem(new ActionCharger(this, "Charger partie")));
+        menuFile.add(new JMenuItem(new ActionRecommencer(this, "Recommencer partie")));
+        menuFile.add(new JMenuItem(new ActionQuitter("Quitter sans sauvegarder")));
 
         JMenu menuEdition = new JMenu("Aide");
         barreMenu.add(menuEdition);
-        menuEdition.add(new JMenuItem("Tutorial du jeu"));
-        menuEdition.add(new JMenuItem("A propos"));
+        menuEdition.add(new JMenuItem(new ActionAfficherTutorial("Tutorial du jeu")));
+        menuEdition.add(new JMenuItem(new ActionAbout("A propos")));
 
 //        this.vue.getContentPane().setLayout(new BorderLayout());
 
@@ -270,7 +271,6 @@ public class Controleur {
                 groupeZone.ajouterZone(maZone);
             }
             listeVueContinents.add(groupeZone);
-            this.mapCarte.put(groupeZone, monContinent);
         }
         this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
     }
@@ -297,7 +297,7 @@ public class Controleur {
 
     public void effacerVue() {
         this.vue.getContentPane().removeAll();
-        this.vue.initialiserFenetre();
+        this.vue.pack();
     }
 
     public void reinitialiserListeJoueur() {
@@ -357,8 +357,8 @@ public class Controleur {
     public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
         this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
         this.updateBarreForces();
-        if(territoireAConquerir.rendNbUnite() > 1) {
-            this.vue.ajouterOrdre("Ajout d'une unité à " +territoireAConquerir.rendNom());
+        if (territoireAConquerir.rendNbUnite() > 1) {
+            this.vue.ajouterOrdre("Ajout d'une unité à " + territoireAConquerir.rendNom());
         } else {
             this.vue.ajouterOrdre(territoireAConquerir.rendNom() + " capturé");
         }
@@ -390,18 +390,35 @@ public class Controleur {
 
         this.updateUnitesRestantADeployer();
         this.updateVueJoueur();
+
+        JPanel conteneurBoutons = new JPanel();
+        conteneurBoutons.setVisible(true);
+        conteneurBoutons.setLayout(new BorderLayout());
+        conteneurBoutons.setBackground(Color.WHITE);
+        conteneurBoutons.setPreferredSize(new Dimension(320, 100));
         JButton boutonFinDeployement = new JButton("Terminer déployement");
         boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
-        this.vue.rendPanneauActionPhase().add(boutonFinDeployement, BorderLayout.EAST);
+        boutonFinDeployement.setPreferredSize(new Dimension(320, 45));
+        JButton boutonAnnulerDeployement = new JButton("Annuler déployement");
+        boutonAnnulerDeployement.addActionListener(new ActionAnnulerDeployement(this));
+        boutonAnnulerDeployement.setPreferredSize(new Dimension(320, 45));
+        conteneurBoutons.add(boutonFinDeployement, BorderLayout.NORTH);
+        conteneurBoutons.add(boutonAnnulerDeployement, BorderLayout.SOUTH);
+        this.vue.rendPanneauActionPhase().add(conteneurBoutons, BorderLayout.EAST);
+
+        this.mementoDeployement = new MementoDeployement();
+
+
         this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
         this.vue.pack();
-        
+
     }
 
     public void finDeployement() {
         if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
             this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
             this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
+            this.mementoDeployement = new MementoDeployement();
             this.updateUnitesRestantADeployer();
             this.updateVueJoueur();
             this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
@@ -424,7 +441,7 @@ public class Controleur {
         if (component instanceof PanneauTransfertUnites) {
             int nbUnitesADeplacer = ((PanneauTransfertUnites) component).rendNbUniteDeplacement();
             if (this.modele.deplacerUnites(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant())) {
-                this.vue.ajouterOrdre("Déplacement de "+ this.etat.rendZoneDepart().rendNom() + " à " +this.etat.rendZoneArrivee().rendNom()+ " " + nbUnitesADeplacer + "unités");
+                this.vue.ajouterOrdre("Déplacement de " + this.etat.rendZoneDepart().rendNom() + " à " + this.etat.rendZoneArrivee().rendNom() + " " + nbUnitesADeplacer + "unités");
                 this.etat.rendZoneDepart().setNotClicked();
                 this.etat.setZoneDepart(null);
                 this.etat.setZoneArrivee(null);
@@ -440,17 +457,35 @@ public class Controleur {
         Component component = this.vue.rendPanneauActionPhase().getComponent(0);
         if (component instanceof PanneauAttaque) {
             int nbUnitesADeplacer = ((PanneauAttaque) component).rendNbUniteDeplacement();
-            this.modele.attaquer(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant());
-            this.vue.ajouterOrdre("Attaque de "+ this.etat.rendZoneDepart().rendNom() + " à " +this.etat.rendZoneArrivee().rendNom()+ " " + nbUnitesADeplacer + "unités");
+            RapportCombat rapport = this.modele.attaquer(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant());
+            this.vue.ajouterOrdre("Attaque de " + rapport.rendTerritoireAttaquant().rendNom() + " à " + rapport.rendTerritoireDefenseur().rendNom());
+            this.vue.ajouterOrdre("Nb unités envoyées : " + rapport.rendNbUniteAttaquant());
+            this.vue.ajouterOrdre("Perte(s) : " + rapport.rendNbUnitesPerdues());
+            if (rapport.rendResultatCombat()) {
+                this.vue.ajouterOrdre(rapport.rendTerritoireDefenseur().rendNom() + " capturé");
+
+                if (this.modele.checkJoueurElimine()) {
+                    if (!this.modele.rendListeJoueurs().isEmpty()) {
+                        this.vue.ajouterOrdre("Joueur éliminé");
+                        this.updateVueJoueur();
+                        this.updateBarreForces();
+                    } else {
+                        this.finJeu();
+                    }
+                }
+
+            } else {
+                this.vue.ajouterOrdre("Défaite");
+                this.vue.ajouterOrdre(+rapport.rendNbUnitesSurvivant() + " survivant(s) de retour à " + rapport.rendTerritoireAttaquant().rendNom());
+            }
+
             this.etat.rendZoneDepart().setNotClicked();
             this.etat.setZoneDepart(null);
             this.etat.setZoneArrivee(null);
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
             this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
-
             this.vue.pack();
-
         }
     }
 
@@ -464,10 +499,11 @@ public class Controleur {
             this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
+            this.modele.finTour();
             this.etat = new EtatDeployement(this);
             this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
             this.vue.rendPanneauActionPhase().removeAll();
-            this.vue.reinitialiserPanneauAction();
+            this.vue.reinitialiserPanneauDeployement();
             this.lancerPhaseDeployement();
 
             //this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
@@ -495,7 +531,6 @@ public class Controleur {
 
         this.vue.updateBarrePourcentageForces(nbTotalUnite, nbUniteParJoueur, couleurParJoueur);
     }
-    
 
     public void updateVueJoueur() {
         boolean estLeJoueurCourant;
@@ -511,21 +546,226 @@ public class Controleur {
 
         if (this.etat instanceof EtatDeployement || this.etat instanceof EtatInitialisation) {
             this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-                //this.vue.repaint();
 
         } else if (this.etat instanceof EtatTransfert) {
             this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-        //this.vue.repaint();
 
         }
         this.vue.reinitialiserPanneauOrdres();
+        this.vue.rendPanneauFactions().repaint();
         this.vue.pack(); // Peut foutre la merde -> A déplacer
     }
-    
-    
+
     public void messageErreur(String mssgErreur) {
         this.vue.setTexteInfo(mssgErreur);
     }
-    
-}
 
+    public void annulerTransfert() {
+        this.vue.rendPanneauActionPhase().removeAll();
+//        this.etat.rendZoneDepart().setNotClicked();
+//        this.etat.setZoneDepart(null);
+//        this.etat.setZoneArrivee(null);
+        this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+        this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+        this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+        this.vue.pack();
+    }
+
+    private void finJeu() {
+        this.vue.getContentPane().removeAll();
+        JPanel panel = this.vue.genereFondDemarrage();
+        JPanel conteneurEnTete = new JPanel();
+        conteneurEnTete.setPreferredSize(new Dimension(1000, 100));
+        conteneurEnTete.setVisible(true);
+        conteneurEnTete.setLayout(new BorderLayout());
+
+        JPanel espaceGaucheEnTete = new JPanel();
+        espaceGaucheEnTete.setPreferredSize(new Dimension(340, 100));
+        espaceGaucheEnTete.setVisible(true);
+
+        JPanel panelEnTetes = new JPanel();
+        //panelEnTetes.setPreferredSize(new Dimension (700, 100));
+        panelEnTetes.setVisible(true);
+        panelEnTetes.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 20));
+
+        conteneurEnTete.add(espaceGaucheEnTete, BorderLayout.WEST);
+        conteneurEnTete.add(panelEnTetes, BorderLayout.CENTER);
+
+        Font policeEnTete = new Font("verdana", Font.BOLD, 14);
+
+        JLabel labelUnite = new JLabel("Nb d'unités total");
+        JLabel labelTour = new JLabel("Nb de tour");
+        JLabel labelTemps = new JLabel("Temps");
+
+        labelUnite.setFont(policeEnTete);
+        labelTour.setFont(policeEnTete);
+        labelTemps.setFont(policeEnTete);
+
+        panelEnTetes.add(labelUnite);
+        panelEnTetes.add(labelTour);
+        panelEnTetes.add(labelTemps);
+
+
+        JPanel panneauListeJoueurs = new JPanel();
+        panneauListeJoueurs.setPreferredSize(new Dimension(800, 300));
+        panneauListeJoueurs.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 20));
+        panneauListeJoueurs.setVisible(true);
+
+        panel.add(conteneurEnTete, BorderLayout.NORTH);
+        panel.add(panneauListeJoueurs, BorderLayout.CENTER);
+
+        int rang = 1;
+        Collections.reverse(this.modele.rendListeJoueursElimines());
+        for (Joueur monJoueur : this.modele.rendListeJoueursElimines()) {
+            panneauListeJoueurs.add(new PanelScoreJoueur(rang, monJoueur.rendNom(), monJoueur.rendCouleur(), monJoueur.rendNbUniteTotalEnJeu(), monJoueur.rendNbTourJoue(), monJoueur.rendTempsJeu()));
+            rang++;
+        }
+        this.vue.pack();
+    }
+
+    public void lancerExplorateurFichier(String typeExploration) {
+        ExplorateurFichier explorateur = new ExplorateurFichier(this, typeExploration);
+    }
+
+    public void sauvegarderPartie(String chemin) {
+
+        try {
+            ObjectOutputStream flotTraitementOut = null;
+            // permet d'écrire le flot de 11000110101001111000010 dans un fichier
+            FileOutputStream flotCommunicationOut = new FileOutputStream(chemin + "saveRisk.data");
+            // permet de transformer les objets en un flot de 1001100110010010010
+            flotTraitementOut = new ObjectOutputStream(flotCommunicationOut);
+            //Temps de jeu
+            flotTraitementOut.writeObject(this.modele.rendChronometre());
+            //N° tour
+            flotTraitementOut.writeInt(this.modele.rendNbTour());
+            //Etat
+            //flotTraitementOut.writeObject(this.etat);
+
+            //Enregistrment de l'état actuel de tous les territoires
+            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                    flotTraitementOut.writeObject(monTerritoire);
+                }
+            }
+            //Joueurs
+            flotTraitementOut.writeObject(this.modele.rendListeJoueurs());
+            flotTraitementOut.writeObject(this.modele.rendListeJoueursElimines());
+
+
+            // Le fait de fermer le flot de traitement, ferme automatiquement
+            // le flot de communication associé.
+            flotTraitementOut.close();
+            JOptionPane infoBox = new JOptionPane();
+            infoBox.showMessageDialog(null, "Partie sauvegardée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane errorBox = new JOptionPane();
+            errorBox.showMessageDialog(null, "Echec de la sauvegarde de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+
+    }
+
+    public void chargerPartie(String chemin) {
+        if(this.vue.rendPlateauJeu() == null) {
+            this.initialiserLancementJeu();
+        }
+
+        try {
+            // Permet transformer le fichier en un flot de 1100100010010010011001
+            FileInputStream flotCommunicationIn = new FileInputStream(chemin);
+            // permet de transformer le flot de 111000110001010100 en objets
+            ObjectInputStream flotTraitementIn = new ObjectInputStream(flotCommunicationIn);
+            // Temps de jeu
+            this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
+            //N° tour
+            this.modele.setNbTour(flotTraitementIn.readInt());
+            //Etat
+            //EtatJeu stateGame = (EtatJeu) flotTraitementIn.readObject();
+//            if(stateGame instanceof EtatInitialisation) {
+//                this.etat = (EtatInitialisation) stateGame;
+//            } else if(stateGame instanceof EtatDeployement) {
+//                this.etat = (EtatDeployement) stateGame;
+//            } else if(stateGame instanceof EtatTransfert) {
+//                this.etat = (EtatTransfert) stateGame;
+//            }
+            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                    Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
+                    monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
+                    monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
+                }
+            }
+
+
+            ArrayList<Joueur> mesJoueurs = (ArrayList<Joueur>) flotTraitementIn.readObject();
+            this.modele.chargerJoueurs(mesJoueurs);
+            ArrayList<Joueur> mesJoueursElimine = (ArrayList<Joueur>) flotTraitementIn.readObject();
+            this.modele.chargerJoueursElimines(mesJoueursElimine);
+
+            // Le fait de fermer le flot de traitement, ferme automatiquement
+            // le flot de communication associé. (Idem écriture)
+            flotTraitementIn.close();
+
+
+
+            this.vue.getContentPane().removeAll();
+            this.vue.rendPlateauJeu().reinitialiserListeContinents();
+            this.vue.pack();
+            this.vue.creerPlateauJeu();
+            this.creerMenu();
+            this.creerMap();
+            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                    this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendCouleur());
+                }
+            }
+            this.etat = new EtatDeployement(this);
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.reinitialiserPanneauDeployement();
+            this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
+            this.lancerPhaseDeployement();
+            this.updateUnitesRestantADeployer();
+            this.updateVueJoueur();
+            this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+            this.vue.pack();
+            JOptionPane errorBox = new JOptionPane();
+            errorBox.showMessageDialog(null, "Partie chargée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            JOptionPane infoBox = new JOptionPane();
+            infoBox.showMessageDialog(null, "Echec du chargement de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+
+
+    }
+
+    public void restaurerEtatJeu() {
+        this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.mementoDeployement.restaurerEtatJeu());
+        for(Territoire monTerritoireARestaurer : this.mementoDeployement.rendListeTerritoiresDeployes()) {
+            if(monTerritoireARestaurer.rendNbUnites() < 1) {
+                this.etat.rendJoueurCourant().retirerTerritoire(monTerritoireARestaurer);
+            }
+            this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(), monTerritoireARestaurer.rendCouleur());
+        }
+        this.mementoDeployement = new MementoDeployement();
+        this.updateUnitesRestantADeployer();
+        this.updateVueJoueur();
+        this.updateBarreForces();
+        this.vue.pack();
+    }
+
+    void updateMemento(String nomTerritoire) {
+        for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+            for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                if (monTerritoire.rendNom().equals(nomTerritoire)) {
+                    this.mementoDeployement.ajouterTerritoire(monTerritoire);
+                }
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@ public class EtatDeployement extends EtatJeu {
         if (super.rendJoueurCourant().rendUnitesADeployer() > 0) {
             if (!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
                 super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
+                super.rendControleur().updateMemento(maZone.rendNom());
                 //super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
                 super.rendControleur().updateUnitesRestantADeployer();
             } else {

@@ -1,18 +1,23 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Modele;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- *
+ * Représentation d'un territoire du jeu Risk dans le modèle.
+ * Chaque territorie est définis par : 
+ * - Un nom unique représentant un pays ou une région du monde
+ * - Une liste de territoires voisins, qui sont les territoires adjaçents.
+ * - Un nombre d'unité occupant le territoire
+ * - Une série de points en 2 dimensions formant le contour du territoire.
+ * - Une couleur, dépendant du Joueur contrôlant le territoire.
+ * - Un point central.
  * @author Karim
  */
-public class Territoire {
+public class Territoire implements Serializable{
 
     private String nom;
     private ArrayList<Territoire> listeVoisins;
@@ -22,6 +27,13 @@ public class Territoire {
     private Color couleur;
     private Point pointCentral;
 
+    /**
+     * Constructeur de territoire en fonction de son nom, d'une série de coordonnées x et y et d'un point central.
+     * @param nomTerritoire : Le nom identifiant le territoire
+     * @param coordonneesX : Un tableau des coordonnées X du territoire
+     * @param coordonneesY : Un tableau des coordonnées Y du territoire
+     * @param pointCentre : Le point central du pays.
+     */
     public Territoire(String nomTerritoire, int[] coordonneesX, int[] coordonneesY, Point pointCentre) {
         this.nom = nomTerritoire;
         this.nbUnite = 0;
@@ -32,7 +44,11 @@ public class Territoire {
         this.pointCentral = pointCentre;
 
     }
-
+    /**
+     * Ajoute un territoire à la liste des territoires voisins du territoire.
+     * @param territoireVoisin : Le territoire adjaçent.
+     * @return : true si le territoire a été ajouté, fale sinon.
+     */
     public boolean addVoisin(Territoire territoireVoisin) {
         boolean aEteAjoute = false;
         if (territoireVoisin != null && !this.listeVoisins.contains(territoireVoisin)) {
@@ -42,51 +58,95 @@ public class Territoire {
         return aEteAjoute;
     }
 
+    /**
+     * Renvois le nom identifiant le Territoire.
+     * @return : Le nom du territoire.
+     */
     public String rendNom() {
         return this.nom;
     }
 
+    /**
+     * Renvois la liste des territoires voisins.
+     * @return : La liste des territoires adjaçent.
+     */
     public ArrayList<Territoire> rendListeVoisins() {
         ArrayList<Territoire> territoiresAdjacents = this.listeVoisins;
         return territoiresAdjacents;
     }
 
+    /**
+     * Renvois le nombre d'unité occupant le territoire.
+     * @return : Le nombre d'unités sur le territoire.
+     */
     public int rendNbUnites() {
         return this.nbUnite;
     }
 
+    /**
+     * Renvois les coordonnées X formant le territoire.
+     * @return : Un tableau de points X.
+     */
     public int[] rendCoordonnesX() {
         return this.xpoints;
     }
 
+    /**
+     * Renvois les coordonnées Y formant le territoire.
+     * @return : Un tableau de points Y.
+     */
     public int[] rendCoordonnesY() {
         return this.ypoints;
     }
 
+    /**
+     * Renvois la couleur actuelle du territoire. Dépend du Joueur contrôlant le territoire.
+     * @return : La couleur du territoire.
+     */
     public Color rendCouleur() {
         return this.couleur;
     }
 
+    /**
+     * Définis la nouvelle couleur du territoire.
+     * @param nouvelleCouleur : La couleur à attribuer au territoire.
+     */
     public void setCouleur(Color nouvelleCouleur) {
         this.couleur = nouvelleCouleur;
     }
 
+    /**
+     * Renvois le point central du territoire.
+     * @return : Le Point central du territoire.
+     */
     public Point rendPointCentral() {
         return this.pointCentral;
     }
 
+    /**
+     * Ajoute une unité sur le territoire.
+     * @return : Le nombre d'unités présent sur le territoire.
+     */
     public int ajouterUnite() {
         this.nbUnite++;
         return this.nbUnite;
 
     }
     
+    /**
+     * Retire une unité du territoire.
+     */
     public void retirerUnite() {
         if(this.nbUnite > 0) {
             this.nbUnite--;
         }
     }
 
+    /**
+     * Retire le nombre d'unité envoyé en paramètre du territoire.
+     * @param nbUnitesARetirer : Le nombre d'unité à retirer du territoire.
+     * @return : True si les unités ont été retirées, false sinon.
+     */
     public boolean retirerUnites(int nbUnitesARetirer) {
         boolean uniteAEteRetiree = false;;
         if (nbUnitesARetirer < this.nbUnite) {
@@ -96,13 +156,17 @@ public class Territoire {
         return uniteAEteRetiree;
     }
 
-    public boolean ajouterUnites(int nbUnitesADeplacee) {
+    /**
+     * Ajoute le nombre d'unités envoyé en paramètre du territoire.
+     * Attention, le nombre d'unité par territoire ne peut pas dépasser 99.
+     * @param nbUnitesAAjouter : Le nombre d'unités à ajouter sur le territoire.
+     * @return : True si l'ajout a réussis, false sinon.
+     */
+    public boolean ajouterUnites(int nbUnitesAAjouter) {
         boolean unitesAjoute = false;
         if (this.nbUnite < 100) {
-            this.nbUnite = this.nbUnite + nbUnitesADeplacee;
+            this.nbUnite = this.nbUnite + nbUnitesAAjouter;
             unitesAjoute = true;
-        } else {
-            System.err.println("Le nombre maximum d'unités autorisé par territoire est de 100");
         }
         return unitesAjoute;
     }
@@ -132,55 +196,12 @@ public class Territoire {
         return territoireDestination;
     }
 
-    public Territoire lancerAttaque(int nbUnitesAttaquant, String nomTerritoirDefenseur, De de) {
-        Territoire territoireConquis = null;
-        if (nbUnitesAttaquant < this.nbUnite) {
-            this.nbUnite = this.nbUnite - nbUnitesAttaquant;
-            for (Territoire territoireVoisin : this.listeVoisins) {
-                if (nomTerritoirDefenseur.equals(territoireVoisin.rendNom())) {
-                    //Jets de dés pour le combat
-                    if(this.resolutionCombat(nbUnitesAttaquant, territoireVoisin, de)) {
-                    //En cas de victoire, on renvois le territoire conquis
-                    territoireConquis = territoireVoisin;
-                    }
-                }
-            }
-        }
-        return territoireConquis;
-    }
-
-    private boolean resolutionCombat(int nbUnitesAttaquant, Territoire territoireDefenseur, De de) {
-        boolean attaquantEstGagant = false;
-        
-        RapportCombat rapport = new RapportCombat(this, territoireDefenseur, nbUnitesAttaquant);
-        this.retirerUnites(nbUnitesAttaquant);
-        int nbAttaque = nbUnitesAttaquant;
-//        System.out.println("nombre d'unités attaquant : " + nbUnitesAttaquant);
-//        System.out.println("nombre d'unités defendant : " +territoireDefenseur.rendNbUnites());
-        //Condition de la boucle : Nb d'unités d'attaquant et aucun camps à 0 unités
-        for (int i = 0; i < nbAttaque && territoireDefenseur.rendNbUnites() > 0 && nbUnitesAttaquant > 0; i++) {
-            int resultatAttaquant = de.rendsValeurFaceVisible();
-            int resultatDefenseur = de.rendsValeurFaceVisible();
-//            System.out.println("Attaquant : " + resultatAttaquant + " | defenseur : " + resultatDefenseur);
-            //Si le jet de dé du défenseur est supérieur ou égal à celui de l'attaquant, ce dernier perd une unité
-            if (resultatDefenseur >= resultatAttaquant) {
-                nbUnitesAttaquant--;//
-                rapport.perteUnite();
-                
-            } else {
-                territoireDefenseur.retirerUnite();//
-                rapport.rendTerritoireDefenseur().retirerUnite();
-            }
-        }
-        if (territoireDefenseur.rendNbUnites() <= 0) {
-            territoireDefenseur.ajouterUnites(nbUnitesAttaquant);
-            attaquantEstGagant = true;//
-            rapport.attaquantGagne();
-//            System.out.println("l'attaquant gagne");
-        }
-        
-//        System.out.println("nombre d'unités attaquant APRES : " + nbUnitesAttaquant);
-//        System.out.println("nombre d'unités defendant APRES: " +territoireDefenseur.rendNbUnites());
-        return attaquantEstGagant;
+    /**
+     * Fixe le nombre d'unités sur le territoire.
+     * Utilisé lors du chargement d'une sauvegarde.
+     * @param unites : Le nombre d'unités à mettre sur le territoire.
+     */
+    public void setNbUnites(int unites) {
+        this.nbUnite = unites;
     }
 }

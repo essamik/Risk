@@ -5,6 +5,7 @@
 
 package Vue;
 
+import Action.ActionAnnulerTransfert;
 import Action.ActionDeplacer;
 import Controleur.Controleur;
 import java.awt.BorderLayout;
@@ -65,7 +66,10 @@ public class PanneauTransfertUnites extends JPanel{
         
         JButton boutonValider = new JButton("Déplacer");
         boutonValider.addActionListener(new ActionDeplacer(ctrl));
+        boutonValider.setPreferredSize(new Dimension(320, 45));
         JButton boutonAnnuler = new JButton("Annuler");
+        boutonAnnuler.addActionListener(new ActionAnnulerTransfert(ctrl));
+        boutonAnnuler.setPreferredSize(new Dimension(320, 45));
         
         JPanel conteneurBoutons = new JPanel();
         conteneurBoutons.setPreferredSize(new Dimension(320, 100));

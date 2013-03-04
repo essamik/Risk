@@ -8,12 +8,13 @@ package Controleur;
 import Controleur.Controleur;
 import Modele.Joueur;
 import Vue.Zone;
+import java.io.Serializable;
 
 /**
  *
  * @author Karim
  */
-public abstract class EtatJeu {
+public abstract class EtatJeu implements Serializable {
     
      private Joueur joueurcourant;
      private Zone zoneDepart; 

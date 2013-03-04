@@ -1,34 +1,40 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vue;
 
 import Controleur.Controleur;
+import Modele.Continent;
+import Modele.Territoire;
 import Observer.Observeur;
 import java.awt.*;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 
 /**
- *
+ * Vue du jeu Risk. Recense tous les éléments visuels permettant de jouer au jeu risk.
+ * 
  * @author Karim
  */
 public class FenetreRisk extends JFrame implements Observeur {
 
     private PlateauJeu plateauJeu;
-    private JPanel panneauPhasesJeu;
+    private JLabel panneauPhaseJeu;
     private JPanel conteneurHaut;
     private JPanel conteneurBas;
     private JPanel panneauFactions;
     private JPanel listeOrdre;
-    private PanneauActionPhase panneauActionPhase;
+    private PanneauDeployement panneauActionPhase;
     private JPanel barreForceArmees;
     private JLabel infoBarre;
     private Font titre;
     private Controleur controleur;
 
+    /**
+     * Constructeur de fenêtre de jeu Risk.
+     * Initialise les éléments de la vue indispensable et qui ne changeront pas lors du jeu.
+     * Définis le Look & Fell de type Nimbus afin d'améliorer le visuel des composants swing.
+     */
     public FenetreRisk() {
         super("Risk - The Java Game");
         //Mise en place du design pour les éléments SWING
@@ -44,14 +50,18 @@ public class FenetreRisk extends JFrame implements Observeur {
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(200, 25);
-        //this.setExtendedState(this.MAXIMIZED_BOTH);
-        this.setMinimumSize(new Dimension(1280, 720));
+        this.titre = new Font("verdana", Font.PLAIN, 40);
 
-        this.initialiserFenetre();
+        this.setMinimumSize(new Dimension(1280, 720));
+        this.setVisible(true);
+        this.pack();
     }
 
+    /**
+     * Construit la structure du plateau de jeu interactif ainsi que les différents panneaux de contrôle du jeu.
+     * Tous les panneaux créer sont vide , il ne s'agit que de créer les conteneurs pour ces différents éléments.
+     */
     public void creerPlateauJeu() {
-
         this.getContentPane().setLayout(new BorderLayout());
 
 ////////////Conteneur du haut amovible/////////////////////////////////////
@@ -71,11 +81,7 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.conteneurBas.setLayout(new BorderLayout());
         this.add(this.conteneurBas, BorderLayout.SOUTH);
 
-        //Ajout de la vue au controleur une fois l'interface terminée
-        //Le fait d'ajouter le controleur après le pack() détruit le redimensionnement de la fenêtre -> A corriger
-//        this.controleur.ajouterVue(this);
-
-        ////Carte du risk FIXE/////////////////////////////////////
+/////////Carte du risk FIXE/////////////////////////////////////
         this.plateauJeu = new PlateauJeu(this);
         this.plateauJeu.setPreferredSize(new Dimension(1000, 520));
         this.plateauJeu.setBackground(Color.BLACK);
@@ -113,8 +119,6 @@ public class FenetreRisk extends JFrame implements Observeur {
         conteneurListeOrdres.setLayout(new BorderLayout());
         conteneurListeOrdres.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
 
-        //conteneurPanneauOrdres.add(conteneurListeOrdres, BorderLayout.CENTER);
-
         JPanel espaceOrdreGauche = new JPanel();
         espaceOrdreGauche.setPreferredSize(new Dimension(15, 260));
         espaceOrdreGauche.setOpaque(false);
@@ -129,34 +133,19 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.listeOrdre = new JPanel();
         this.listeOrdre.setVisible(true);
         this.listeOrdre.setBackground(Color.WHITE);
-        this.listeOrdre.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        this.listeOrdre.setPreferredSize(new Dimension(210, 200));
+        this.listeOrdre.setLayout(new WrapLayout());
 
         conteneurPanneauOrdres.add(conteneurListeOrdres, BorderLayout.CENTER);
-
-//        PanelOrdre ordre1 = new PanelOrdre("Attaque de Egypte à AfriqueNord");
-//        PanelOrdre ordre2 = new PanelOrdre("Pertes :  2 unités");
-//        PanelOrdre ordre3 = new PanelOrdre("Afrique du nord capturé !");
-//        PanelOrdre ordre4 = new PanelOrdre("Déployement à Europe Est");
-//        PanelOrdre ordre5 = new PanelOrdre("Bla");
-//        PanelOrdre ordre6 = new PanelOrdre("Truc");
-//
-//        this.listeOrdre.add(ordre1);
-//        this.listeOrdre.add(ordre2);
-//        this.listeOrdre.add(ordre3);
-//        this.listeOrdre.add(ordre4);
-//        this.listeOrdre.add(ordre5);
-//        this.listeOrdre.add(ordre6);
-//        this.listeOrdre.add(new PanelOrdre("machine"));
-//        this.listeOrdre.add(new PanelOrdre("descend"));
-
+        
         ////Barre de scroll//////////////////////////////////////////////////////////////
         JScrollPane scrollPane = new JScrollPane(this.listeOrdre);
         JScrollBar scrollBarV = new JScrollBar(JScrollBar.VERTICAL);
         scrollBarV.setPreferredSize(new Dimension(20, 260));
         scrollPane.setVerticalScrollBar(scrollBarV);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(210, 200));
+
         conteneurListeOrdres.add(scrollPane, BorderLayout.CENTER);
 
         ////Conteneur des factions fixe ///////////////////////////////////////////////////
@@ -204,17 +193,29 @@ public class FenetreRisk extends JFrame implements Observeur {
         conteneurFactions.add(espaceFactionDroite, BorderLayout.EAST);
         conteneurFactions.add(espaceFactionGauche, BorderLayout.WEST);
 
-        ////Barre des 3 phases de jeu fixe ///////////////////////////////////////////////////
-        this.panneauPhasesJeu = new JPanel();
-        this.panneauPhasesJeu.setPreferredSize(new Dimension(1280, 40));
-        this.panneauPhasesJeu.setBackground(Color.WHITE);
-        this.panneauPhasesJeu.setVisible(true);
-        this.panneauPhasesJeu.setLayout(new FlowLayout());
-        this.conteneurBas.add(this.panneauPhasesJeu, BorderLayout.NORTH);
+        ////Barre de la phase de jeu fixe ///////////////////////////////////////////////////
+        JPanel conteneurpanneauPhaseJeu = new JPanel();
+        conteneurpanneauPhaseJeu.setPreferredSize(new Dimension(1280, 40));
+        conteneurpanneauPhaseJeu.setBackground(Color.WHITE);
+        conteneurpanneauPhaseJeu.setVisible(true);
+        conteneurpanneauPhaseJeu.setLayout(new FlowLayout());
+        this.conteneurBas.add(conteneurpanneauPhaseJeu, BorderLayout.NORTH);
 
+
+        this.panneauPhaseJeu = new JLabel("Déployer armées +");
+        Dimension dimensionPannneau = new Dimension(1260, 30);
+        this.panneauPhaseJeu.setHorizontalAlignment(JLabel.CENTER);
+
+        Font policePanneauEtat = new Font("Verdana", Font.BOLD, 20);
+        this.panneauPhaseJeu.setFont(policePanneauEtat);
+        this.panneauPhaseJeu.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
+
+        this.panneauPhaseJeu.setPreferredSize(dimensionPannneau);
+
+        conteneurpanneauPhaseJeu.add(this.panneauPhaseJeu);
 
         ////Panneau des actions correspondant à la phase de jeu en cours - Amovible ///////////////////////////////////////////////////
-        this.panneauActionPhase = new PanneauActionPhase();
+        this.panneauActionPhase = new PanneauDeployement();
         this.conteneurBas.add(panneauActionPhase, BorderLayout.CENTER);
 
 /////////Conteneur des des informations de jeu fixe/////////////////////////////////////
@@ -241,55 +242,143 @@ public class FenetreRisk extends JFrame implements Observeur {
         conteneurInfos.add(this.infoBarre, BorderLayout.SOUTH);
         conteneurInfos.add(barreForceArmees, BorderLayout.CENTER);
 
-        this.creerBarrePhasesJeu();
     }
 
-    private void creerBarrePhasesJeu() {
-
-        JLabel labelDeployer = new JLabel("Déployer armées +");
-        JLabel labelDeplacer = new JLabel("Attaquer / Transfert =>");
-        Dimension dimensionPannneau = new Dimension(630, 30);
-        labelDeployer.setHorizontalAlignment(JLabel.CENTER);
-        labelDeplacer.setHorizontalAlignment(JLabel.CENTER);
-
-        Font policePanneauEtat = new Font("Verdana", Font.BOLD, 20);
-        labelDeployer.setFont(policePanneauEtat);
-        labelDeplacer.setFont(policePanneauEtat);
-        labelDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
-        labelDeplacer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
-
-        labelDeployer.setPreferredSize(dimensionPannneau);
-        labelDeplacer.setPreferredSize(dimensionPannneau);
-//        labelDeployer.setFont(titre);
-//        labelDeplacer.setFont(titre);
-        this.panneauPhasesJeu.add(labelDeployer);
-        this.panneauPhasesJeu.add(labelDeplacer);
-    }
-
+    /**
+     * Permet d'ajouter le controleur à la vue afin de permettre la vue d'informer le controleur d'un clic sur un territoire.
+     */
     public void ajouterControleur(Controleur monControleur) {
         this.controleur = monControleur;
     }
 
+    /**
+     * Renvois le plateau de jeu avec sa liste de zones.
+     * @return Le plateau de jeu de la vue.
+     */
     public PlateauJeu rendPlateauJeu() {
         return this.plateauJeu;
     }
-
-    public JPanel rendPanneauPhasesDeJeu() {
-        return this.panneauPhasesJeu;
-    }
-
+    /**
+     * Renvois le panneau recensant une interface de la liste des joueurs.
+     * @return Le JPanel contenant la liste des joueurs.
+     */
     public JPanel rendPanneauFactions() {
         return this.panneauFactions;
     }
 
-    public PanneauActionPhase rendPanneauActionPhase() {
+    /**
+     * Renvois le panneau d'action dépendant de l'état de jeu en cours. 
+     * @return Le JPanel contenant les actions et informations relatives a la phase de jeu actuelle.
+     */
+    public PanneauDeployement rendPanneauActionPhase() {
         return this.panneauActionPhase;
     }
 
+    /**
+     * Avertis le controleur d'une interaction sur une zone du plateau de jeu.
+     * @param maZone : La zone avec laquelle le joueur a intéragis.
+     */
     public void interactionZone(Zone maZone) {
         this.controleur.actionEtat(maZone);
     }
 
+    /**
+     * Recrée un nouveau panneau de déployement.
+     */
+    public void reinitialiserPanneauDeployement() {
+        this.panneauActionPhase = new PanneauDeployement();
+        this.conteneurBas.add(panneauActionPhase, BorderLayout.CENTER);
+    }
+
+    /**
+     * Initialise la structure de la vue de démarrage du jeu.
+     * @return Le JPanel central de l'interface de démarrage.
+     */
+    public JPanel genereFondDemarrage() {
+        JPanel fondAccueil = new FondDemarrage();
+        fondAccueil.setPreferredSize(new Dimension(1280, 720));
+        this.add(fondAccueil);
+        
+        JPanel espaceHaut = new JPanel();
+        espaceHaut.setPreferredSize(new Dimension(1280, 78));
+        espaceHaut.setOpaque(false);
+        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
+
+        JPanel ecranAccueil = new JPanel();
+//      JPanel ecranAccueil = new PanelDemarrage();
+        ecranAccueil.setPreferredSize(new Dimension(1000, 485));
+        ecranAccueil.setOpaque(true);
+        ecranAccueil.setVisible(true);
+        ecranAccueil.setLayout(new BorderLayout());
+        ecranAccueil.setBackground(Color.WHITE);
+        ecranAccueil.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
+        fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
+        
+        return ecranAccueil;
+    }
+
+    /**
+     * Met à jour la barre des forces du jeu en fonction du nombre d'unité par joueur.
+     * @param nbTotalUniteEnJeu : Le nombre d'unité total actuellement sur le plateau de jeu
+     * @param nbUnitesParJoueur : Tableau contenant le nombre d'unités possedé par joueur.
+     * @param couleurs : Tableau contenant les couleurs correspondante de chaque joueur.
+     */
+    public void updateBarrePourcentageForces(int nbTotalUniteEnJeu, int[] nbUnitesParJoueur, Color[] couleurs) {
+        this.barreForceArmees.removeAll();
+        this.barreForceArmees.add(new JBarrePourcentageForces(nbTotalUniteEnJeu, nbUnitesParJoueur, couleurs));
+    }
+
+    /**
+     * Définis le titre de l'état de jeu comme étant sous "Déployement" et encadre le texte de la couleur du joueur courant.
+     * @param couleurJoueurCourant : La couleur du joueur à qui c'est actuellement le tour de jouer.
+     */
+    public void setEtatDeployementJoueur(Color couleurJoueurCourant) {
+        this.panneauPhaseJeu.setText("Déployer armées +");
+        this.panneauPhaseJeu.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
+
+
+    }
+    /**
+     * Définis le titre de l'état de jeu comme étant sous "Déplacement / Attaque" et encadre le texte de la couleur du joueur courant.
+     * @param couleurJoueurCourant : Le joueur à qui c'est actuellement le tour de jouer.
+     */
+    public void setEtatDeplacementJoueur(Color couleurJoueurCourant) {
+        this.panneauPhaseJeu.setText("Déplacement / Attaque =>");
+        this.panneauPhaseJeu.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
+
+    }
+
+    /**
+     * Met à jour le texte de la barre d'information afin de guider le joueur.
+     * @param texteInformation : Le texte à écrire dans la barre d'information.
+     */
+    public void setTexteInfo(String texteInformation) {
+        this.infoBarre.setText(texteInformation);
+    }
+
+    /**
+     * Ajoute un ordre en fonction des actions du joueur courant.
+     * @param ordreTextuel : Le texte résumant l'action effectué par le joueur.
+     */
+    public void ajouterOrdre(String ordreTextuel) {
+        this.listeOrdre.add(new PanelOrdre(ordreTextuel));
+    }
+
+    public void reinitialiserPanneauOrdres() {
+        this.listeOrdre.removeAll();
+        this.listeOrdre.repaint();
+        //this.pack();
+
+    }
+
+    /**
+     * Met à jour la Zone correspondante sur le plateau de jeu en fonction du nom donné.
+     * Permet au modèle d'informer la vue d'un changement d'un des territoire.
+     * Ceci est une implémentation du design pattern Observer.
+     * @param nomTerritoire : Le nom de la Zone à mettre à jour.
+     * @param nbUnites : Le nouveau nombre d'unité de la Zone.
+     * @param couleur : La nouvelle couleur de la Zone.
+     */
     @Override
     public void update(String nomTerritoire, int nbUnites, Color couleur) {
         for (GroupeZone mesContinents : this.plateauJeu.rendListeContinents()) {
@@ -299,97 +388,10 @@ public class FenetreRisk extends JFrame implements Observeur {
                     if (couleur != null) {
                         maZone.setCouleur(couleur);
                     }
-
-                    //System.out.println(maZone.rendNom() + " : " + nbUnites+ " units");
                 }
             }
         }
         this.plateauJeu.repaint();
     }
-
-    public JPanel rendConteneurHaut() {
-        return this.conteneurHaut;
-    }
-
-    public JPanel rendConteneurBas() {
-        return this.conteneurBas;
-    }
-
-    public void initialiserFenetre() {
-        this.titre = new Font("verdana", Font.PLAIN, 40);
-
-        this.pack();
-        this.setVisible(true);
-    }
-
-    public void reinitialiserPanneauAction() {
-        this.panneauActionPhase = new PanneauActionPhase();
-        this.conteneurBas.add(panneauActionPhase, BorderLayout.CENTER);
-    }
-
-    public JPanel genereFondDemarrage() {
-        JPanel fondAccueil = new JPanel();
-        fondAccueil.setPreferredSize(new Dimension(1280, 720));
-        fondAccueil.setBackground(Color.BLACK);
-        this.add(fondAccueil);
-
-        JPanel espaceHaut = new JPanel();
-        espaceHaut.setPreferredSize(new Dimension(1280, 78));
-        espaceHaut.setOpaque(false);
-        fondAccueil.add(espaceHaut, BorderLayout.NORTH);
-
-        JPanel ecranAccueil = new JPanel();
-        ecranAccueil.setPreferredSize(new Dimension(1000, 485));
-        ecranAccueil.setOpaque(false);
-        ecranAccueil.setLayout(new BorderLayout());
-        fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
-        return ecranAccueil;
-    }
-
-    public void updateBarrePourcentageForces(int nbTotalUniteEnJeu, int[] nbUnitesParJoueur, Color[] couleurs) {
-        this.barreForceArmees.removeAll();
-        this.barreForceArmees.add(new JBarrePourcentageForces(nbTotalUniteEnJeu, nbUnitesParJoueur, couleurs));
-    }
-
-    public void setEtatDeployementJoueur(Color couleurJoueurCourant) {
-        Component componentDeployer = this.rendPanneauPhasesDeJeu().getComponents()[0];
-        if (componentDeployer instanceof JLabel) {
-            JLabel panneauDeployer = (JLabel) componentDeployer;
-            panneauDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
-        }
-
-        Component componentTransfert = this.rendPanneauPhasesDeJeu().getComponents()[1];
-        if (componentTransfert instanceof JLabel) {
-            JLabel panneauTransfert = (JLabel) componentTransfert;
-            panneauTransfert.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, Color.BLACK));
-        }
-    }
-
-    public void setEtatDeplacementJoueur(Color couleurJoueurCourant) {
-        Component component = this.rendPanneauPhasesDeJeu().getComponents()[1];
-        if (component instanceof JLabel) {
-            JLabel panneauTransfert = (JLabel) component;
-            panneauTransfert.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, couleurJoueurCourant, couleurJoueurCourant));
-        }
-
-        Component componentDeployer = this.rendPanneauPhasesDeJeu().getComponents()[0];
-        if (componentDeployer instanceof JLabel) {
-            JLabel panneauDeployer = (JLabel) componentDeployer;
-            panneauDeployer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, Color.BLACK));
-        }
-    }
-
-    public void setTexteInfo(String texteInformation) {
-        this.infoBarre.setText(texteInformation);
-    }
-    
-    public void ajouterOrdre(String ordreTextuel) {
-        this.listeOrdre.add(new PanelOrdre(ordreTextuel));
-    }
-
-    public void reinitialiserPanneauOrdres() {
-        this.listeOrdre.removeAll();
-        //this.pack();
-        
-    }
+ 
 }

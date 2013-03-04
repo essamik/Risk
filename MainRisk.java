@@ -16,7 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author Karim
  */
-public class JeuRisk {
+public class MainRisk {
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

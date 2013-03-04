@@ -1,27 +1,39 @@
 package Modele;
 
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- *
+ * Représentation graphique de la terre avec ses différents pays et continents conforme pour jouer au jeu Risk.
  * @author Karim
  */
-public class CarteTerre {
+public class CarteTerre implements Serializable{
 
     private ArrayList<Continent> listeContinent;
     
+    /**
+     * Constructeur de carte de la terre. Lance le dessin de la carte.
+     */
     public CarteTerre() {
         this.listeContinent = new ArrayList<>();
         initialiserCarte();
     }
     
-        
+    /**
+     * Renvois la liste des continents de la carte de la terre. Chaque continent contient lui même un nombre variable de territoires.
+     * @return : Une liste des continents de la carte de la terre.
+     */
     public ArrayList<Continent> rendListeContinents() {
         ArrayList<Continent> continentsRisk = this.listeContinent;
         return continentsRisk;
     }
     
+    /**
+     * Créer tous les territoires et tous les continents destinées à être utilisés dans le cadre du jeu Risk.
+     * Les territoires sont composés d'une série de points correspondant à leur forme.
+     * La liste est voisins de chaque territoire est aussi directement generée.
+     */
     private void initialiserCarte() {
         
 //////////////AMERIQUE DU NORD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

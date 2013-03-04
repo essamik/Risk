@@ -44,14 +44,12 @@ public class PlateauJeu extends JPanel implements MouseListener {
                     g2d.setColor(Color.WHITE);
 
                 }
-                
                 if (maZone.rendNbUnite() > 9) {
                     g2d.drawString("" + maZone.rendNbUnite(), maZone.rendPointCentral().x - 4, maZone.rendPointCentral().y + 4);
                 } else if (maZone.rendNbUnite() > 0) {
                     g2d.drawString("" + maZone.rendNbUnite(), maZone.rendPointCentral().x+1, maZone.rendPointCentral().y + 4);
                 }
                 g2d.setStroke(new BasicStroke(1));
-
             }
         }
         this.dessinerTerritoiresVoisins(g2d);
@@ -88,8 +86,6 @@ public class PlateauJeu extends JPanel implements MouseListener {
         g.drawLine(523, 176, 525, 162); //Egypte-Europe
         g.drawLine(486, 162, 504, 152); //Afrique-Italie
         g.drawLine(436, 167, 436, 164); //Maroc-Espagne
-//        g.drawLine(570, 387, 595, 385); //AfriqueSud-Madagascar
-//        g.drawLine(595, 303, 612, 355); //AfriqueEst-Madagascar
         g.drawLine(452, 117, 451, 109); //EuropeOuest - Angleterre
         g.drawLine(469, 106, 461, 102); //EuropeNord - Angleterre      
         g.drawLine(436, 79, 424, 72); //Angleterre-Islande
@@ -123,17 +119,10 @@ public class PlateauJeu extends JPanel implements MouseListener {
         for (GroupeZone monJContinent : this.listeContinents) {
             for (Zone maZone : monJContinent.rendListeZones()) {
                 if (maZone.contains(e.getX(), e.getY())) {
-//                    if (!maZone.estClique()) {
-//                        maZone.setClicked();
                         this.vue.interactionZone(maZone);
-//                    } else {
-//                        maZone.setNotClicked();
-//                    }
-
                 }
             }
         }
-        //System.out.println("new Point(" + e.getX() + ", " + e.getY() + ")");
         this.repaint();
     }
 
@@ -151,5 +140,9 @@ public class PlateauJeu extends JPanel implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    public void reinitialiserListeContinents() {
+        this.listeContinents = new ArrayList<>();
     }
 }

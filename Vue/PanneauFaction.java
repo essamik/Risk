@@ -26,7 +26,7 @@ public class PanneauFaction extends JPanel {
         this.setVisible(true);
         this.setOpaque(false);
         //this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
 
         JPanel caseCouleur = new JPanel();
         caseCouleur.setPreferredSize(new Dimension(20, 20));

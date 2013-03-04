@@ -5,6 +5,7 @@
 
 package Vue;
 
+import Action.ActionAnnulerTransfert;
 import Action.ActionAttaquer;
 import Action.ActionDeplacer;
 import Controleur.Controleur;
@@ -20,9 +21,9 @@ import javax.swing.*;
  * @author Karim
  */
 public class PanneauAttaque extends JPanel {
-
-
+    
     private SpinnerNumberModel modeleSpinner;
+    
     public PanneauAttaque(Controleur ctrl, Zone zoneDepart, Zone zoneDestination) {
         super();
         this.setPreferredSize(new Dimension(1280, 100));
@@ -67,7 +68,11 @@ public class PanneauAttaque extends JPanel {
         
         JButton boutonValider = new JButton("Attaquer");
         boutonValider.addActionListener(new ActionAttaquer(ctrl));
+        boutonValider.setPreferredSize(new Dimension(320, 45));
+
         JButton boutonAnnuler = new JButton("Annuler");
+        boutonAnnuler.addActionListener(new ActionAnnulerTransfert(ctrl));
+        boutonAnnuler.setPreferredSize(new Dimension(320, 45));
         
         JPanel conteneurBoutons = new JPanel();
         conteneurBoutons.setPreferredSize(new Dimension(320, 100));
