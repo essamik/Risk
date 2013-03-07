@@ -8,15 +8,22 @@ import java.awt.*;
 import javax.swing.JPanel;
 
 /**
- *
+ * Panel central lors du démarrage du jeu. Gère la transparance pour laisser apparaître l'image de fond.
  * @author Karim
  */
 class PanelDemarrage extends JPanel {
 
+    /**
+     * Constructeur de pannel de démarrage opaque.
+     */
     public PanelDemarrage() {
         super();
     }
 
+    /**
+     * Définis un fond blanc et transparent pour le panel.
+     * @param g : L'objet Graphics permettant de dessiner dans le JPanel
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

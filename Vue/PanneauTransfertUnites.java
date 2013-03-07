@@ -15,14 +15,22 @@ import java.awt.Font;
 import javax.swing.*;
 
 /**
- *
+ * Panneau permettant au Joueur de régler le déplacement de ses unités.
+ * Le Joueur peut définir le nombre d'unités à envoyé d'un territoire à l'autre.
  * @author Karim
  */
 public class PanneauTransfertUnites extends JPanel{
 
     private SpinnerNumberModel modeleSpinner;
     
-    public PanneauTransfertUnites(Controleur ctrl, Zone zoneDepart, Zone zoneDestination) {
+    /**
+     * Constructeur de Panneau de Transfert d'Unités, à partir d'une zone de départ et d'une zone de destination.
+     * @param zoneDepart : La zone à partir de laquelle le Joueur souhaite déplacer ses troupes.
+     * @param zoneDestination : La zone vers laquelle doivent arriver les troupes du Joueur.
+     * @param actDeplacer : L'action déclenchant le déplacement des unités.
+     * @param actAnnuler : L'action déclenchant l'annulation du déplacement.
+     */
+    public PanneauTransfertUnites(Zone zoneDepart, Zone zoneDestination, ActionDeplacer actDeplacer, ActionAnnulerTransfert actAnnuler) {
         super();
         this.setPreferredSize(new Dimension(1280, 100));
         this.setBackground(Color.WHITE);
@@ -65,10 +73,10 @@ public class PanneauTransfertUnites extends JPanel{
         this.add(panneauUnites, BorderLayout.CENTER);
         
         JButton boutonValider = new JButton("Déplacer");
-        boutonValider.addActionListener(new ActionDeplacer(ctrl));
+        boutonValider.addActionListener(actDeplacer);
         boutonValider.setPreferredSize(new Dimension(320, 45));
         JButton boutonAnnuler = new JButton("Annuler");
-        boutonAnnuler.addActionListener(new ActionAnnulerTransfert(ctrl));
+        boutonAnnuler.addActionListener(actAnnuler);
         boutonAnnuler.setPreferredSize(new Dimension(320, 45));
         
         JPanel conteneurBoutons = new JPanel();
@@ -82,6 +90,10 @@ public class PanneauTransfertUnites extends JPanel{
         this.add(conteneurBoutons, BorderLayout.EAST);
     }
     
+    /**
+     * Renvois le nombre d'unités à déplacer.
+     * @return : Le nombre d'unité que le Joueur à choisi dans le Spinner.
+     */
     public int rendNbUniteDeplacement() {
         return this.modeleSpinner.getNumber().intValue();
     }

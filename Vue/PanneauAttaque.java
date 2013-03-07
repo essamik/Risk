@@ -17,14 +17,24 @@ import java.awt.Font;
 import javax.swing.*;
 
 /**
- *
+ * Panneau permettant de résumer les infos sur l'attaque, définir le nombre d'unités à envoyer et valider/annuler l'attaque.
  * @author Karim
  */
 public class PanneauAttaque extends JPanel {
     
     private SpinnerNumberModel modeleSpinner;
     
-    public PanneauAttaque(Controleur ctrl, Zone zoneDepart, Zone zoneDestination) {
+    /**
+     * Constructeur de Panneau d'Attaque. Nécessite une zone de départ et une zone de destination où envoyer ses troupes.
+     * Initialise le nom des deux territoires ainsi qu'un Spinner permettant au Joueur de choisir le nombre d'unités à envoyer en fonction
+     * du nombre de troupe disponibles sur le territoire attaquant.
+     * Initialise deux boutons, un pour lancer l'attaque et l'autre pour annuler.
+     * @param zoneDepart : La zone appartenant au Joueur courant duquel part l'attaque.
+     * @param zoneDestination : La zone ennemie que le Joueur courant souhaite attaquer.
+     * @param actAttquer : L'action déclenchant l'attaque.
+     * @param actAnnuler : L'action déclenchant l'annulation de l'attaque.
+     */
+    public PanneauAttaque(Zone zoneDepart, Zone zoneDestination, ActionAttaquer actAttquer, ActionAnnulerTransfert actAnnuler) {
         super();
         this.setPreferredSize(new Dimension(1280, 100));
         this.setBackground(Color.WHITE);
@@ -67,11 +77,11 @@ public class PanneauAttaque extends JPanel {
         this.add(panneauUnites, BorderLayout.CENTER);
         
         JButton boutonValider = new JButton("Attaquer");
-        boutonValider.addActionListener(new ActionAttaquer(ctrl));
+        boutonValider.addActionListener(actAttquer);
         boutonValider.setPreferredSize(new Dimension(320, 45));
 
         JButton boutonAnnuler = new JButton("Annuler");
-        boutonAnnuler.addActionListener(new ActionAnnulerTransfert(ctrl));
+        boutonAnnuler.addActionListener(actAnnuler);
         boutonAnnuler.setPreferredSize(new Dimension(320, 45));
         
         JPanel conteneurBoutons = new JPanel();

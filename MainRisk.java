@@ -27,8 +27,6 @@ public class MainRisk {
                 Modele.JeuRisk modeleRisk = new Modele.JeuRisk();
                 FenetreRisk fenetreRisk = new FenetreRisk();
                 Controleur controleur = new Controleur(modeleRisk, fenetreRisk);
-
-//                CreateurMap extracteur = new CreateurMap();
             }
         });
     }

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package Vue;
 
 import java.awt.Color;
@@ -16,11 +11,28 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 /**
- *
+ * Panneau affichant le scores à la fin de la partie pour un Joueur.
+ * S'imbrique avec les panneaux des autres Joueurs dans l'affichage final des scores de la partie.
+ * Les éléments suivant sont affichés : 
+ *  - Le rang du Joueur
+ *  - Le nom du joueur
+ *  - Sa couleur
+ *  - Le nombre d'unité total déployé durant la partie par le Joueur.
+ *  - Le nombre de tour avant élimination/victoire du Joueur.
+ *  - Le temps de jeu effectif avant élimination/Victoire du Joueur.
  * @author Karim
  */
 public class PanelScoreJoueur extends JPanel{
 
+    /**
+     * Construit un Panneau d'affichage du score d'un Joueur.
+     * @param rang : Le rang du joueur.
+     * @param nom : Le nom du Joueur.
+     * @param color : La couleur du Joueur.
+     * @param nbUniteEnJeu : Le nombre d'unité déployé en tout par le Joueur.
+     * @param nbTour : Le nombre de tour de jeu du Joueur.
+     * @param tempsJeu : Le temps de jeu du Joueur.
+     */
     public PanelScoreJoueur(int rang, String nom, Color color, int nbUniteEnJeu, int nbTour, String tempsJeu) {
         super();
         this.setPreferredSize(new Dimension(800, 60));

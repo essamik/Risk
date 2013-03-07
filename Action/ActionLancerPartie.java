@@ -28,19 +28,34 @@ public class ActionLancerPartie implements ActionListener {
         this.controleur.reinitialiserListeJoueur();
         ArrayList<String> listeNoms = new ArrayList<>();
         boolean nomEstRedondant = false;
+        boolean nomEstTropLong = false;
+        boolean nomInexistant = false;
         for (PanneauAjoutJoueur panneau : this.controleur.rendlistePanneauJoueur()) {
             this.controleur.ajouterInfosJoueur(panneau.rendNom(), panneau.rendCouleur());
             if (listeNoms.contains(panneau.rendNom())) {
                 nomEstRedondant = true;
             }
+            if(panneau.rendNom().length() > 16) {
+                nomEstTropLong = true;
+            }
+            if(panneau.rendNom().length() < 1) {
+                nomInexistant = true;
+            }
             listeNoms.add(panneau.rendNom());
         }
+        
+        JOptionPane errorBox = new JOptionPane();
+
         if (nomEstRedondant) {  //Si deux joueurs ont le même nom -> Erreur
             this.controleur.initialiserChoixJoueur();
-            JOptionPane errorBox = new JOptionPane();
             errorBox.showMessageDialog(null, "2 joueurs ont le même nom", "Erreur", JOptionPane.ERROR_MESSAGE);
-
-        } else {
+        } else if(nomEstTropLong) {
+            this.controleur.initialiserChoixJoueur();
+            errorBox.showMessageDialog(null, "Le nom d'un joueur est trop long (16 caractères max.)", "Erreur", JOptionPane.ERROR_MESSAGE);
+        } else if(nomInexistant) {
+            this.controleur.initialiserChoixJoueur();
+            errorBox.showMessageDialog(null, "Le nom d'un joueur est trop court", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }else {
             this.controleur.initialiserLancementJeu();
         }
 

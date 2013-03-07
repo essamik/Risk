@@ -22,6 +22,7 @@ public abstract class EtatJeu implements Serializable {
      private Controleur controleur;
      
      public EtatJeu(Controleur monControleur) {
+        if (monControleur == null) throw new RuntimeException("Paramètres manquant : Impossible de lancer la machine d'état !");        
          this.controleur = monControleur;
          this.joueurcourant = null;
          this.zoneDepart = null;
@@ -35,17 +36,13 @@ public abstract class EtatJeu implements Serializable {
          return this.joueurcourant;
      }
      
-     public boolean affecterJoueurSuivant(Joueur monJoueur) {
+     public boolean setJoueurCourant(Joueur monJoueur) {
          boolean aEteAjoute = false;
          if(monJoueur!=null) {
              this.joueurcourant = monJoueur;
              aEteAjoute = true;
          }
          return aEteAjoute;
-     }
-     
-     public void setJoueurCourant(Joueur monJoueur) {
-         this.joueurcourant = monJoueur;
      }
      
      public void setZoneDepart(Zone maZoneDepart) {

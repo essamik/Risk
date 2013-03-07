@@ -22,7 +22,7 @@ public class EtatInitialisation extends EtatJeu {
         //Si le territoire est libre ou appartient au joueur
         if (!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
             super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
-            super.affecterJoueurSuivant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
+            super.setJoueurCourant(super.rendControleur().rendJoueurSuivant(super.rendJoueurCourant()));
             super.rendControleur().updateVueJoueur();
             super.rendControleur().updateUnitesRestantADeployer();
             super.rendControleur().checkFinPhaseInitialisation();

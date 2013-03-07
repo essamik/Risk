@@ -27,6 +27,7 @@ public class FenetreRisk extends JFrame implements Observeur {
     private PanneauDeployement panneauActionPhase;
     private JPanel barreForceArmees;
     private JLabel infoBarre;
+    private JMenuItem menuSauvegarder;
     private Font titre;
     private Controleur controleur;
 
@@ -221,7 +222,6 @@ public class FenetreRisk extends JFrame implements Observeur {
 /////////Conteneur des des informations de jeu fixe/////////////////////////////////////
         JPanel conteneurInfos = new JPanel();
         conteneurInfos.setPreferredSize(new Dimension(1280, 60));
-        //conteneurInfos.setVisible(true);
         conteneurInfos.setLayout(new BorderLayout());
         this.conteneurBas.add(conteneurInfos, BorderLayout.SOUTH);
 
@@ -325,7 +325,7 @@ public class FenetreRisk extends JFrame implements Observeur {
      */
     public void updateBarrePourcentageForces(int nbTotalUniteEnJeu, int[] nbUnitesParJoueur, Color[] couleurs) {
         this.barreForceArmees.removeAll();
-        this.barreForceArmees.add(new JBarrePourcentageForces(nbTotalUniteEnJeu, nbUnitesParJoueur, couleurs));
+        this.barreForceArmees.add(new BarrePourcentageForces(nbTotalUniteEnJeu, nbUnitesParJoueur, couleurs));
     }
 
     /**
@@ -368,7 +368,28 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.listeOrdre.removeAll();
         this.listeOrdre.repaint();
         //this.pack();
-
+    }
+    
+    /**
+     * Définis l'élément de menu "Sauvegarder Partie"
+     * @param menuSvg : L'objet de menu sauvegarder
+     */
+    public void setMenuSauvegarder(JMenuItem menuSvg) {
+        this.menuSauvegarder = menuSvg;
+    }
+    
+    /**
+     * Rend l'élément de menu "Sauvegarder" clicable afin d'autoriser les sauvegardes.
+     */
+    public void autoriserSauvegardes() {
+        this.menuSauvegarder.setEnabled(true);
+    }
+    
+    /**
+     * Rend l'élément de menu "Sauvegarder" non clicable afin d'interdire les sauvegardes.
+     */
+    public void interdireSauvegardes() {
+        this.menuSauvegarder.setEnabled(false);
     }
 
     /**
@@ -381,7 +402,7 @@ public class FenetreRisk extends JFrame implements Observeur {
      */
     @Override
     public void update(String nomTerritoire, int nbUnites, Color couleur) {
-        for (GroupeZone mesContinents : this.plateauJeu.rendListeContinents()) {
+        for (GroupeZone mesContinents : this.plateauJeu.rendListeGroupeZone()) {
             for (Zone maZone : mesContinents.rendListeZones()) {
                 if (maZone.rendNom().equals(nomTerritoire)) {
                     maZone.setNbUnite(nbUnites);

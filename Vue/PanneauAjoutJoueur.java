@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vue;
 
 import java.awt.Color;
@@ -15,7 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 /**
- *
+ * Panneau permettant d'ajouter un Joueur avec un nom et une couleur, lors de la phase de démarrage du jeu.
  * @author Karim
  */
 public class PanneauAjoutJoueur extends JPanel {
@@ -24,6 +20,12 @@ public class PanneauAjoutJoueur extends JPanel {
     private JTextField nomJoueur;
     private JPanel carreCouleur;
 
+    /**
+     * Constructeur de panneau d'ajout de joueur avec un numéro, un nom et une couleur.
+     * @param num : Le numero du Joueur.
+     * @param nom : Le nom personnalisable du Joueur.
+     * @param couleur : La couleur imposée au Joueur.
+     */
     public PanneauAjoutJoueur(int num, String nom, Color couleur) {
         super();
         this.setPreferredSize(new Dimension(600, 60));
@@ -58,10 +60,17 @@ public class PanneauAjoutJoueur extends JPanel {
 
     }
 
+    /**
+     * Retourne le nom choisis par le Joueur.
+     * @return : Le nom du Joueur.
+     */
     public String rendNom() {
         return this.nomJoueur.getText();
     }
-
+    /**
+     * Retourne la couleur attribuée au Joueur.
+     * @return : La couleur du joueur.
+     */
     public Color rendCouleur() {
         return this.carreCouleur.getBackground();
     }

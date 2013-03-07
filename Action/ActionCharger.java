@@ -6,6 +6,7 @@
 package Action;
 
 import Controleur.Controleur;
+import Vue.ExplorateurFichier;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
@@ -23,8 +24,7 @@ public class ActionCharger extends AbstractAction{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
-        this.controleur.lancerExplorateurFichier("charger");
+        ExplorateurFichier explorateur = new ExplorateurFichier(this.controleur, "charger");
     }
 
 }

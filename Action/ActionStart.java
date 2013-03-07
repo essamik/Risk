@@ -30,7 +30,6 @@ public class ActionStart implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.controleur.effacerVue();
         this.controleur.initialiserChoixJoueur();
     }
 

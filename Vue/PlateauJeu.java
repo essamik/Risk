@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 /**
+ * Surface interactive de jeu contenant l'interface de carte du risk avec ses
+ * zones. Les zones sont automatiquement générées en fonction de leur
+ * coordonnées X et Y.
  *
  * @author Karim
  */
@@ -15,6 +18,11 @@ public class PlateauJeu extends JPanel implements MouseListener {
     private ArrayList<GroupeZone> listeContinents;
     private FenetreRisk vue;
 
+    /**
+     * Constructeur de plateau de jeu interactif permettant de joueur au Risk.
+     *
+     * @param maVue : La vue principale du jeu.
+     */
     public PlateauJeu(FenetreRisk maVue) {
         super();
         this.vue = maVue;
@@ -22,6 +30,13 @@ public class PlateauJeu extends JPanel implements MouseListener {
         this.listeContinents = new ArrayList<>();
     }
 
+    /**
+     * Dessine un par un les zones fournies afin de créer une carte en 2D du jeu
+     * Risk. Si une zone est définies comme étant cliquée, elle sera mise en
+     * évidence ainsi que ses territoires voisins.
+     *
+     * @param g : L'objet Graphics servant à dessiner la carte.
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -33,7 +48,7 @@ public class PlateauJeu extends JPanel implements MouseListener {
                 g2d.fillPolygon(maZone);
                 g2d.setColor(Color.BLACK);
                 g2d.drawPolygon(maZone);
-                
+
                 g2d.setFont(new Font("arial", Font.BOLD, 16));
                 if (maZone.rendNbUnite() > 0) {
                     g2d.setStroke(new BasicStroke(3));
@@ -47,7 +62,7 @@ public class PlateauJeu extends JPanel implements MouseListener {
                 if (maZone.rendNbUnite() > 9) {
                     g2d.drawString("" + maZone.rendNbUnite(), maZone.rendPointCentral().x - 4, maZone.rendPointCentral().y + 4);
                 } else if (maZone.rendNbUnite() > 0) {
-                    g2d.drawString("" + maZone.rendNbUnite(), maZone.rendPointCentral().x+1, maZone.rendPointCentral().y + 4);
+                    g2d.drawString("" + maZone.rendNbUnite(), maZone.rendPointCentral().x + 1, maZone.rendPointCentral().y + 4);
                 }
                 g2d.setStroke(new BasicStroke(1));
             }
@@ -78,7 +93,12 @@ public class PlateauJeu extends JPanel implements MouseListener {
         }
     }
 
-    public void ajouterPonts(Graphics2D g) {
+    /**
+     * Dessine les traits faisant office de pont maritime entre les zones.
+     *
+     * @param g : L'objet Graphics permettant de dessiner.
+     */
+    private void ajouterPonts(Graphics2D g) {
         g.setColor(Color.WHITE);
         g.drawLine(285, 93, 328, 72); //Amerique-Groenland
         g.drawLine(332, 321, 408, 269); //AmeriqueSud-Afrique
@@ -104,45 +124,84 @@ public class PlateauJeu extends JPanel implements MouseListener {
         g.drawLine(923, 74, this.getWidth(), 74); //Kamchatka - BordDroite (extensible avec la fenetre)
     }
 
+    /**
+     * Lance le dessin de la carte en fonction des Zones fournies.
+     *
+     * @param mesGroupesZones : La liste de Groupe de Zone à dessiner.
+     */
     public void creerCarte(ArrayList<GroupeZone> mesGroupesZones) {
         this.listeContinents = mesGroupesZones;
         this.repaint();
     }
 
-    public ArrayList<GroupeZone> rendListeContinents() {
+    /**
+     * Renvois la liste des Groupes de Zones.
+     *
+     * @return : La liste des Groupes de Zone.
+     */
+    public ArrayList<GroupeZone> rendListeGroupeZone() {
         ArrayList<GroupeZone> mesContinents = this.listeContinents;
         return mesContinents;
     }
 
+    /**
+     * Gère les interactions du joueur sur la carte. Cherche si le point cliqué
+     * correspondant aux coordonnées d'une zone et lance l'action correspondant.
+     *
+     * @param e : L'évênement lié au clic de la souris.
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         for (GroupeZone monJContinent : this.listeContinents) {
             for (Zone maZone : monJContinent.rendListeZones()) {
                 if (maZone.contains(e.getX(), e.getY())) {
-                        this.vue.interactionZone(maZone);
+                    this.vue.interactionZone(maZone);
                 }
             }
         }
         this.repaint();
     }
 
+    /**
+     * Remet à 0 la liste des continents.
+     */
+    public void reinitialiserListeContinents() {
+        this.listeContinents = new ArrayList<>();
+    }
+
+    /**
+     * Interaction de la souris non utilisé
+     *
+     * @param e : L'évênement lié à la souris
+     */
     @Override
     public void mousePressed(MouseEvent e) {
     }
 
+    /**
+     * Interaction de la souris non utilisé
+     *
+     * @param e : L'évênement lié à la souris
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
     }
 
+    /**
+     * Interaction de la souris non utilisé
+     *
+     * @param e : L'évênement lié à la souris
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    /**
+     * Interaction de la souris non utilisé
+     *
+     * @param e : L'évênement lié à la souris
+     */
     @Override
     public void mouseExited(MouseEvent e) {
-    }
-
-    public void reinitialiserListeContinents() {
-        this.listeContinents = new ArrayList<>();
     }
 }

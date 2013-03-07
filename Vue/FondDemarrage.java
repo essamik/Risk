@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vue;
 
 import java.awt.Graphics;
@@ -12,16 +8,24 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 /**
- *
+ * Panel représentant le fond de du programme lors de la phase de lancement du jeu.
+ * Affiche une image en fond.
  * @author Karim
  */
 public class FondDemarrage extends JPanel {
 
+    /**
+     * Constructeur de fond de démarrage.
+     */
     public FondDemarrage() {
         super();
         
     }
 
+    /**
+     * Dessine une image sur toute la longueur du panel.
+     * @param g : Le composant Graphics permettant de dessiner.
+     */
     public void paintComponent(Graphics g) {
         try {
             Image img = ImageIO.read(new File("fond.jpg"));

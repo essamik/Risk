@@ -6,6 +6,7 @@
 package Action;
 
 import Controleur.Controleur;
+import Vue.ExplorateurFichier;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
@@ -24,7 +25,7 @@ public class ActionSauvegarder extends AbstractAction{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.controleur.lancerExplorateurFichier("sauvegarder");
+        ExplorateurFichier explorateur = new ExplorateurFichier(this.controleur, "sauvegarder");
         
     }
 

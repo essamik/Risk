@@ -26,30 +26,24 @@ public class Controleur {
 
     private JeuRisk modele;
     private FenetreRisk vue;
-//    private HashMap<GroupeZone, Continent> mapCarte;
     private EtatJeu etat;
     private ArrayList<PanneauAjoutJoueur> listePanneauJoueurs;
     private final int NB_JOUEUR_MAX = 6;
     private MementoDeployement mementoDeployement;
 
     public Controleur(JeuRisk modeleRisk, FenetreRisk vueRisk) {
+        if (modeleRisk == null || vueRisk == null) throw new RuntimeException("Paramètres manquants : Impossible de lancer le programme !");        
         this.modele = modeleRisk;
         this.vue = vueRisk;
         this.modele.addObserver(this.vue);
-//        this.mapCarte = new HashMap();
         this.listePanneauJoueurs = new ArrayList<>();
-        //test
         this.etat = new EtatInitialisation(this);
 
         //Ajout des 2 premiers joueurs requis minimum
         this.modele.creerJoueur("Joueur 1", this.rendCouleurRandom());
         this.modele.creerJoueur("Joueur 2", this.rendCouleurRandom());
     }
-
-//    public void ajouterVue(FenetreRisk maFenetre) {
-//        this.vue = maFenetre;
-//        this.modele.addObserver(vue);
-//    }
+    
     public void lancerEcranDemarrage() {
         JPanel ecranAccueil = this.vue.genereFondDemarrage();
         JLabel titreIntroduction = new JLabel("RISK");
@@ -93,7 +87,7 @@ public class Controleur {
         loadButton.setFont(new Font("verdana", Font.PLAIN, 20));
         loadButton.addActionListener(new ActionCharger(this, "Charger partie"));
         loadButton.setPreferredSize(new Dimension(250, 40));
-        
+
         JPanel conteneurBoutons = new JPanel();
         conteneurBoutons.setPreferredSize(new Dimension(250, 155));
         conteneurBoutons.setLayout(new BorderLayout());
@@ -121,7 +115,7 @@ public class Controleur {
 
         //Réinitialiser de la liste des joueurs
         this.listePanneauJoueurs = new ArrayList<>();
-
+        this.vue.genereFondDemarrage().removeAll();
         JPanel ecranJoueurs = this.vue.genereFondDemarrage();
 
         JPanel colonneJoueur = new JPanel();
@@ -219,7 +213,7 @@ public class Controleur {
         //Ordre de jeu random : 
         Collections.shuffle(this.modele.rendListeJoueurs());
         this.modele.initialiserNbUnitesDepart();
-        this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
+        this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0));
         this.updateUnitesRestantADeployer();
         this.updateVueJoueur();
         this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
@@ -239,7 +233,10 @@ public class Controleur {
         JMenu menuFile = new JMenu("Fichier");
         barreMenu.add(menuFile);
 
-        menuFile.add(new JMenuItem(new ActionSauvegarder(this, "Sauvegarder  partie")));
+        JMenuItem menuSauvegarder = new JMenuItem(new ActionSauvegarder(this, "Sauvegarder  partie"));
+        menuSauvegarder.setEnabled(false);
+        this.vue.setMenuSauvegarder(menuSauvegarder); //On garde la référence vers l'élément de menu sauvegarder afin de le rendre cliquable plus tard
+        menuFile.add(menuSauvegarder);
         menuFile.add(new JMenuItem(new ActionCharger(this, "Charger partie")));
         menuFile.add(new JMenuItem(new ActionRecommencer(this, "Recommencer partie")));
         menuFile.add(new JMenuItem(new ActionQuitter("Quitter sans sauvegarder")));
@@ -248,9 +245,6 @@ public class Controleur {
         barreMenu.add(menuEdition);
         menuEdition.add(new JMenuItem(new ActionAfficherTutorial("Tutorial du jeu")));
         menuEdition.add(new JMenuItem(new ActionAbout("A propos")));
-
-//        this.vue.getContentPane().setLayout(new BorderLayout());
-
     }
 
     private void creerMap() {
@@ -282,14 +276,14 @@ public class Controleur {
 
     public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
-        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(this, zoneDepart, zoneArrivee));
+        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee,new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
         this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action");
         this.vue.pack();
     }
 
     public void actionAttaque(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
-        this.vue.rendPanneauActionPhase().add(new PanneauAttaque(this, zoneDepart, zoneArrivee));
+        this.vue.rendPanneauActionPhase().add(new PanneauAttaque(zoneDepart, zoneArrivee, new ActionAttaquer(this), new ActionAnnulerTransfert(this)));
         this.updateBarreForces();
         this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action");
         this.vue.pack();
@@ -366,24 +360,6 @@ public class Controleur {
 
     }
 
-    /**
-     * Vérifie si la phase de jeu actuelle est terminée et lance la phase
-     * suivante si besoin est.
-     */
-    public boolean checkFinPhaseInitialisation() {
-        //Si le dernier joueur à déployer n'as plus rien à déployer -> phase suivante
-        boolean phaseInitialisationFini = false;
-        int nbJoueur = this.modele.rendListeJoueurs().size();
-        if (this.modele.rendDernierJoueur().rendUnitesADeployer() <= 0) {
-            this.etat = new EtatDeployement(this);
-            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
-            this.lancerPhaseDeployement();
-            phaseInitialisationFini = true;
-        }
-
-        return phaseInitialisationFini;
-    }
-
     public void lancerPhaseDeployement() {
         //Affectation des nouvelles unités à déployer
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
@@ -408,15 +384,35 @@ public class Controleur {
 
         this.mementoDeployement = new MementoDeployement();
 
-
+        this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+        //On autorise les sauvegardes en phase de déployement : 
+        this.vue.autoriserSauvegardes();
         this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
         this.vue.pack();
 
     }
 
+    /**
+     * Vérifie si la phase de jeu actuelle est terminée et lance la phase
+     * suivante si besoin est.
+     */
+    public boolean checkFinPhaseInitialisation() {
+        //Si le dernier joueur à déployer n'as plus rien à déployer -> phase suivante
+        boolean phaseInitialisationFini = false;
+        int nbJoueur = this.modele.rendListeJoueurs().size();
+        if (this.modele.rendDernierJoueur().rendUnitesADeployer() <= 0) {
+            this.etat = new EtatDeployement(this);
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.lancerPhaseDeployement();
+            phaseInitialisationFini = true;
+        }
+
+        return phaseInitialisationFini;
+    }
+
     public void finDeployement() {
         if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
-            this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
+            this.etat.setJoueurCourant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
             this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
             this.mementoDeployement = new MementoDeployement();
             this.updateUnitesRestantADeployer();
@@ -430,9 +426,35 @@ public class Controleur {
             this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
             this.updateVueJoueur();
             this.vue.rendPanneauActionPhase().removeAll();
-            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
             this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+            //On bloque les sauvegardes en phase de Transfert : 
+            this.vue.interdireSauvegardes();
             this.vue.pack();
+        }
+    }
+
+    public void finDeplacement() {
+        //Normalement, on passe au joueur suivant
+        if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
+            this.etat.setJoueurCourant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
+            this.updateVueJoueur();
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
+            this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+
+        } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
+            this.modele.finTour();
+            this.etat = new EtatDeployement(this);
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.reinitialiserPanneauDeployement();
+            this.lancerPhaseDeployement();
+
+            //this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
+//            this.updateUnitesRestantADeployer();
+//            this.updatePanneauFaction();
+//            this.vue.pack();
         }
     }
 
@@ -446,7 +468,7 @@ public class Controleur {
                 this.etat.setZoneDepart(null);
                 this.etat.setZoneArrivee(null);
                 this.vue.rendPanneauActionPhase().removeAll();
-                this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+                this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
                 this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
                 this.vue.pack();
             }
@@ -483,33 +505,9 @@ public class Controleur {
             this.etat.setZoneDepart(null);
             this.etat.setZoneArrivee(null);
             this.vue.rendPanneauActionPhase().removeAll();
-            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
             this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
             this.vue.pack();
-        }
-    }
-
-    public void finDeplacement() {
-        //Normalement, on passe au joueur suivant
-        if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
-            this.etat.affecterJoueurSuivant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
-            this.updateVueJoueur();
-            this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
-            this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
-
-        } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
-            this.modele.finTour();
-            this.etat = new EtatDeployement(this);
-            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
-            this.vue.rendPanneauActionPhase().removeAll();
-            this.vue.reinitialiserPanneauDeployement();
-            this.lancerPhaseDeployement();
-
-            //this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
-//            this.updateUnitesRestantADeployer();
-//            this.updatePanneauFaction();
-//            this.vue.pack();
         }
     }
 
@@ -562,12 +560,13 @@ public class Controleur {
 
     public void annulerTransfert() {
         this.vue.rendPanneauActionPhase().removeAll();
-//        this.etat.rendZoneDepart().setNotClicked();
-//        this.etat.setZoneDepart(null);
-//        this.etat.setZoneArrivee(null);
-        this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(this));
+        this.etat.rendZoneDepart().setNotClicked();
+        this.etat.setZoneDepart(null);
+        this.etat.setZoneArrivee(null);
+        this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
         this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
         this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+        this.vue.rendPlateauJeu().repaint();
         this.vue.pack();
     }
 
@@ -623,16 +622,12 @@ public class Controleur {
         this.vue.pack();
     }
 
-    public void lancerExplorateurFichier(String typeExploration) {
-        ExplorateurFichier explorateur = new ExplorateurFichier(this, typeExploration);
-    }
-
     public void sauvegarderPartie(String chemin) {
 
         try {
             ObjectOutputStream flotTraitementOut = null;
             // permet d'écrire le flot de 11000110101001111000010 dans un fichier
-            FileOutputStream flotCommunicationOut = new FileOutputStream(chemin + "saveRisk.data");
+            FileOutputStream flotCommunicationOut = new FileOutputStream(chemin);
             // permet de transformer les objets en un flot de 1001100110010010010
             flotTraitementOut = new ObjectOutputStream(flotCommunicationOut);
             //Temps de jeu
@@ -652,6 +647,9 @@ public class Controleur {
             flotTraitementOut.writeObject(this.modele.rendListeJoueurs());
             flotTraitementOut.writeObject(this.modele.rendListeJoueursElimines());
 
+            //Joueur courant
+            flotTraitementOut.writeObject(this.etat.rendJoueurCourant());
+
 
             // Le fait de fermer le flot de traitement, ferme automatiquement
             // le flot de communication associé.
@@ -670,10 +668,9 @@ public class Controleur {
     }
 
     public void chargerPartie(String chemin) {
-        if(this.vue.rendPlateauJeu() == null) {
+        if (this.vue.rendPlateauJeu() == null) {
             this.initialiserLancementJeu();
         }
-
         try {
             // Permet transformer le fichier en un flot de 1100100010010010011001
             FileInputStream flotCommunicationIn = new FileInputStream(chemin);
@@ -683,15 +680,7 @@ public class Controleur {
             this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
             //N° tour
             this.modele.setNbTour(flotTraitementIn.readInt());
-            //Etat
-            //EtatJeu stateGame = (EtatJeu) flotTraitementIn.readObject();
-//            if(stateGame instanceof EtatInitialisation) {
-//                this.etat = (EtatInitialisation) stateGame;
-//            } else if(stateGame instanceof EtatDeployement) {
-//                this.etat = (EtatDeployement) stateGame;
-//            } else if(stateGame instanceof EtatTransfert) {
-//                this.etat = (EtatTransfert) stateGame;
-//            }
+
             for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
                 for (Territoire monTerritoire : monContinent.rendTerritoires()) {
                     Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
@@ -705,6 +694,8 @@ public class Controleur {
             this.modele.chargerJoueurs(mesJoueurs);
             ArrayList<Joueur> mesJoueursElimine = (ArrayList<Joueur>) flotTraitementIn.readObject();
             this.modele.chargerJoueursElimines(mesJoueursElimine);
+
+            Joueur joueurCourant = (Joueur) flotTraitementIn.readObject();
 
             // Le fait de fermer le flot de traitement, ferme automatiquement
             // le flot de communication associé. (Idem écriture)
@@ -723,14 +714,35 @@ public class Controleur {
                     this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendCouleur());
                 }
             }
-            this.etat = new EtatDeployement(this);
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.reinitialiserPanneauDeployement();
-            this.etat.affecterJoueurSuivant(this.modele.rendListeJoueurs().get(0));
-            this.lancerPhaseDeployement();
+            this.etat = new EtatDeployement(this);
+            this.etat.setJoueurCourant(joueurCourant);
+
             this.updateUnitesRestantADeployer();
             this.updateVueJoueur();
             this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
+            JPanel conteneurBoutons = new JPanel();
+            conteneurBoutons.setVisible(true);
+            conteneurBoutons.setLayout(new BorderLayout());
+            conteneurBoutons.setBackground(Color.WHITE);
+            conteneurBoutons.setPreferredSize(new Dimension(320, 100));
+            JButton boutonFinDeployement = new JButton("Terminer déployement");
+            boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
+            boutonFinDeployement.setPreferredSize(new Dimension(320, 45));
+            JButton boutonAnnulerDeployement = new JButton("Annuler déployement");
+            boutonAnnulerDeployement.addActionListener(new ActionAnnulerDeployement(this));
+            boutonAnnulerDeployement.setPreferredSize(new Dimension(320, 45));
+            conteneurBoutons.add(boutonFinDeployement, BorderLayout.NORTH);
+            conteneurBoutons.add(boutonAnnulerDeployement, BorderLayout.SOUTH);
+            this.vue.rendPanneauActionPhase().add(conteneurBoutons, BorderLayout.EAST);
+
+            this.mementoDeployement = new MementoDeployement();
+
+            //On autorise les sauvegardes en phase de déployement : 
+            this.vue.autoriserSauvegardes();
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
+
             this.vue.pack();
             JOptionPane errorBox = new JOptionPane();
             errorBox.showMessageDialog(null, "Partie chargée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -746,8 +758,8 @@ public class Controleur {
 
     public void restaurerEtatJeu() {
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.mementoDeployement.restaurerEtatJeu());
-        for(Territoire monTerritoireARestaurer : this.mementoDeployement.rendListeTerritoiresDeployes()) {
-            if(monTerritoireARestaurer.rendNbUnites() < 1) {
+        for (Territoire monTerritoireARestaurer : this.mementoDeployement.rendListeTerritoiresDeployes()) {
+            if (monTerritoireARestaurer.rendNbUnites() < 1) {
                 this.etat.rendJoueurCourant().retirerTerritoire(monTerritoireARestaurer);
             }
             this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(), monTerritoireARestaurer.rendCouleur());
