@@ -1,14 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Controleur;
 
-import Action.ActionAbout;
 import Action.*;
-import Vue.PanelScoreJoueur;
-import Vue.PanneauAttaque;
-import Vue.PanneauEtatDeplacement;
 import Modele.*;
 import Vue.*;
 import java.awt.*;
@@ -19,6 +11,11 @@ import javax.swing.*;
 import modele.Chronometre;
 
 /**
+ * Permet de faire le lien entre le modèle et la vue. S'occupe de : -
+ * Intercèpter les interactions de l'utilisateur, contrôler l'intégrité des
+ * données et les envoyer au modèle. - Mettre à jour les panneaux d'informations
+ * de la vue. - Gèrer le passage entre les différentes étapes du jeu. - Gèrer la
+ * charge/sauvegarde des parties de jeu.
  *
  * @author Karim
  */
@@ -31,8 +28,18 @@ public class Controleur {
     private final int NB_JOUEUR_MAX = 6;
     private MementoDeployement mementoDeployement;
 
+    /**
+     * Constructeur de Controleur, demande le modèle et la vue afin de
+     * fonctionner.
+     *
+     * @param modeleRisk : Le modèle contenant les informations et les
+     * mécaniques du jeu risk.
+     * @param vueRisk : La vue contenant l'interface du jeu Risk.
+     */
     public Controleur(JeuRisk modeleRisk, FenetreRisk vueRisk) {
-        if (modeleRisk == null || vueRisk == null) throw new RuntimeException("Paramètres manquants : Impossible de lancer le programme !");        
+        if (modeleRisk == null || vueRisk == null) {
+            throw new RuntimeException("Paramètres manquants : Impossible de lancer le programme !");
+        }
         this.modele = modeleRisk;
         this.vue = vueRisk;
         this.modele.addObserver(this.vue);
@@ -43,7 +50,11 @@ public class Controleur {
         this.modele.creerJoueur("Joueur 1", this.rendCouleurRandom());
         this.modele.creerJoueur("Joueur 2", this.rendCouleurRandom());
     }
-    
+
+    /**
+     * Lance l'interface de démarrage du jeu permettant au joueur de lancer une
+     * partie ou de charger une sauvegarde.
+     */
     public void lancerEcranDemarrage() {
         JPanel ecranAccueil = this.vue.genereFondDemarrage();
         JLabel titreIntroduction = new JLabel("RISK");
@@ -109,9 +120,13 @@ public class Controleur {
         this.vue.pack();
     }
 
+    /**
+     * Lance l'interface de choix des joueurs après l'écran de démarrage. Permet
+     * de changer de nom, ajouter des joueurs(jusqu'a un maximum de 6) et de
+     * lancer le jeu Risk.
+     */
     public void initialiserChoixJoueur() {
         this.vue.getContentPane().removeAll();
-        //this.vue.initialiserFenetre();
 
         //Réinitialiser de la liste des joueurs
         this.listePanneauJoueurs = new ArrayList<>();
@@ -191,21 +206,42 @@ public class Controleur {
         this.vue.pack();
     }
 
+    /**
+     * Renvois la liste des panneaux de joueurs visible à l'écran de choix des
+     * joueurs.
+     *
+     * @return : Le panneau de tous les joueurs ajoutés en phase de démarrage du
+     * jeu.
+     */
     public ArrayList<PanneauAjoutJoueur> rendlistePanneauJoueur() {
         return this.listePanneauJoueurs;
     }
 
+    /**
+     * Renvois la liste des joueurs du modèle.
+     *
+     * @return : La liste des Joueurs.
+     */
     public ArrayList<Joueur> rendlisteJoueur() {
         return this.modele.rendListeJoueurs();
     }
 
+    /**
+     * Ajoute les informations relatives au Joueur dans le modèle dans le but de
+     * créer un objet Joueur.
+     *
+     * @param nom : Le nom du joueur à créer.
+     * @param couleur : La couleur du jouer à créer.
+     */
     public void ajouterInfosJoueur(String nom, Color couleur) {
         this.modele.creerJoueur(nom, couleur);
     }
 
+    /**
+     * Lance le jeu Risk avec sa carte et son interface de jeu.
+     */
     public void initialiserLancementJeu() {
         this.vue.getContentPane().removeAll();
-        this.vue.pack();
         this.vue.creerPlateauJeu();
         this.creerMenu();
         this.creerMap();
@@ -217,16 +253,16 @@ public class Controleur {
         this.updateUnitesRestantADeployer();
         this.updateVueJoueur();
         this.vue.setEtatDeployementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-        this.vue.setTexteInfo("Chaque joueur clic à tour de rôle sur un pays afin de se l'approprier jusqu'a ce que toutes les unités ont été déployées");
+        this.vue.setTexteInfo("Chaque joueur clic à tour de rôle sur un pays afin de se l'approprier jusqu'a ce que toutes les unités ont été déployées", Color.BLACK);
         this.vue.pack();
     }
 
-    public void updateUnitesRestantADeployer() {
-        this.vue.rendPanneauActionPhase().setNbUniteADeployer(this.etat.rendJoueurCourant().rendUnitesADeployer());
-    }
-
+    /**
+     * Ajoute le menu supérieur dans l'interface du jeu. Permet de
+     * sauvegarder/charger une partie, recommencer, quitter, afficher le tuto du
+     * jeu et les infos "à propos".
+     */
     private void creerMenu() {
-        //MENU/////////////////////////////////////////////////////////////////
         JMenuBar barreMenu = new JMenuBar();
         this.vue.setJMenuBar(barreMenu);
 
@@ -247,6 +283,19 @@ public class Controleur {
         menuEdition.add(new JMenuItem(new ActionAbout("A propos")));
     }
 
+    /**
+     * Met à jour le panneau d'information du jeu avec le nombre d'untités
+     * restant à déployer au Joueur.
+     */
+    public void updateUnitesRestantADeployer() {
+        this.vue.rendPanneauActionPhase().setNbUniteADeployer(this.etat.rendJoueurCourant().rendUnitesADeployer());
+    }
+
+    /**
+     * Lance la création de la carte dans le plateau de jeu de la vue, en
+     * fonction des information des Territoires du modèle. Chaque territoire est
+     * dessiné point par point.
+     */
     private void creerMap() {
         ArrayList<GroupeZone> listeVueContinents = new ArrayList<>();
 
@@ -269,35 +318,71 @@ public class Controleur {
         this.vue.rendPlateauJeu().creerCarte(listeVueContinents);
     }
 
+    /**
+     * Définis le comportement adéquat du clic de l'utilisateur en fonction de
+     * l'état de jeu actuel.
+     *
+     * @param maZone : La Zoen dans laquelle l'utilisateur à cliqué.
+     */
     public void actionEtat(Zone maZone) {
         this.etat.interactionUtilisateur(maZone);
 
     }
 
-    public void actionDeplacement(Zone zoneDepart, Zone zoneArrivee) {
+    /**
+     * Ajoute un panneau dans la partie inférieur de l'interface, permettant au
+     * joueur de définir le nombre d'unités à déplacer et de valider/annuler
+     * l'action.
+     *
+     * @param zoneDepart : La zone duquel partent les unités.
+     * @param zoneArrivee : La zone de destination des unités
+     */
+    public void ajoutPanneauDeplacement(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
-        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee,new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
-        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action");
+        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee, new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
+        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action", Color.BLACK);
         this.vue.pack();
     }
 
-    public void actionAttaque(Zone zoneDepart, Zone zoneArrivee) {
+    /**
+     *
+     * Ajoute un panneau dans la partie inférieur de l'interface, permettant au
+     * joueur de définir le nombre d'unités à envoyer à l'attaque et de
+     * valider/annuler l'action.
+     *
+     * @param zoneDepart : La zone duquel partent les unités.
+     * @param zoneArrivee : La zone ennemie à attaquer.
+     */
+    public void ajoutPanneauAttaque(Zone zoneDepart, Zone zoneArrivee) {
         this.vue.rendPanneauActionPhase().removeAll();
         this.vue.rendPanneauActionPhase().add(new PanneauAttaque(zoneDepart, zoneArrivee, new ActionAttaquer(this), new ActionAnnulerTransfert(this)));
         this.updateBarreForces();
-        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action");
+        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action", Color.BLACK);
         this.vue.pack();
     }
 
+    /**
+     * Réinitialise entièrement la vue.
+     */
     public void effacerVue() {
         this.vue.getContentPane().removeAll();
         this.vue.pack();
     }
 
+    /**
+     * Remet à 0 la liste des Joueurs.
+     */
     public void reinitialiserListeJoueur() {
         this.modele.reinitialiserListeJoueur();
     }
 
+    /**
+     * Renvois le Joueur suivant en fonction du Joueur actuel en suivant l'ordre
+     * de jeu.
+     *
+     * @param joueurCourant : Le joueur terimant actuellement son tour.
+     * @return : Le Joueur suivant selon l'ordre de jeu définis.
+     */
     public Joueur rendJoueurSuivant(Joueur joueurCourant) {
         return this.modele.rendJoueurSuivant(joueurCourant);
 
@@ -331,9 +416,11 @@ public class Controleur {
 
     /**
      * Vérifie sur le territoire envoyé en paramètre appartient au joueur
+     * courant.
      *
-     * @param nomTerritoire
-     * @return
+     * @param nomTerritoire : Le territoire dont on souhaite contrôler
+     * l'apprtenance au Joueur courant.
+     * @return : True si le territoire appartient au Joueur, false sinon.
      */
     public boolean controleAppartenanceTerritoire(String nomTerritoire) {
         boolean appartientAuJoueur = false;
@@ -348,6 +435,14 @@ public class Controleur {
         return appartientAuJoueur;
     }
 
+    /**
+     * Donne au Joueur le contrôle du territoire envoyé en paramètre, ou y
+     * ajoute une unité si le territoire est déjà sous le controle du joueur.
+     *
+     * @param territoireAConquerir : Le territoire à ajouter à la liste des
+     * territoires du joueur.
+     * @param joueurConquerant : Le Joueur prenant le contrôle du territoire.
+     */
     public void annexerTerritoire(Zone territoireAConquerir, Joueur joueurConquerant) {
         this.modele.conquerirTerritoire(territoireAConquerir.rendNom(), joueurConquerant);
         this.updateBarreForces();
@@ -356,10 +451,19 @@ public class Controleur {
         } else {
             this.vue.ajouterOrdre(territoireAConquerir.rendNom() + " capturé");
         }
+        if(this.etat instanceof EtatDeployement) {
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
+        } else if(this.etat instanceof EtatInitialisation) {
+            this.vue.setTexteInfo("Chaque joueur clic à tour de rôle sur un pays afin de se l'approprier jusqu'a ce que toutes les unités ont été déployées", Color.BLACK);
+        }
         this.vue.pack();
 
     }
 
+    /**
+     * Lance l'état de déployement du jeu, en attribuant un nombre d'unités a
+     * chaque joueur et leur permet de déployer leurs unités sur la carte.
+     */
     public void lancerPhaseDeployement() {
         //Affectation des nouvelles unités à déployer
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
@@ -387,14 +491,14 @@ public class Controleur {
         this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
         //On autorise les sauvegardes en phase de déployement : 
         this.vue.autoriserSauvegardes();
-        this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
+        this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
         this.vue.pack();
 
     }
 
     /**
-     * Vérifie si la phase de jeu actuelle est terminée et lance la phase
-     * suivante si besoin est.
+     * Vérifie si la phase de jeu d'initialisation est terminée et lance la
+     * phase suivante si besoin est.
      */
     public boolean checkFinPhaseInitialisation() {
         //Si le dernier joueur à déployer n'as plus rien à déployer -> phase suivante
@@ -410,6 +514,11 @@ public class Controleur {
         return phaseInitialisationFini;
     }
 
+    /**
+     * Met fin au tour de déployement du joueur et donne son tour au Joueur
+     * suivant. Si le dernier joueur met fin à son tour, on lance la phase de
+     * jeu suivante.
+     */
     public void finDeployement() {
         if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
             this.etat.setJoueurCourant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
@@ -417,12 +526,12 @@ public class Controleur {
             this.mementoDeployement = new MementoDeployement();
             this.updateUnitesRestantADeployer();
             this.updateVueJoueur();
-            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
 
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déployement
             this.etat = new EtatTransfert(this);
-            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement", Color.BLACK);
             this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
             this.updateVueJoueur();
             this.vue.rendPanneauActionPhase().removeAll();
@@ -434,30 +543,36 @@ public class Controleur {
         }
     }
 
+    /**
+     * Met fin au tour de déplacement/attaque du joueur et donne son tour au
+     * Joueur suivant. Si le dernier joueur met fin à son tour, on lance la
+     * phase de jeu suivante.
+     */
     public void finDeplacement() {
         //Normalement, on passe au joueur suivant
         if (this.etat.rendJoueurCourant() != this.modele.rendDernierJoueur()) {
+            this.libererUnitesBloquees();
             this.etat.setJoueurCourant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
             this.updateVueJoueur();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
             this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement", Color.BLACK);
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déplacement
+            this.libererUnitesBloquees();
             this.modele.finTour();
             this.etat = new EtatDeployement(this);
             this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.reinitialiserPanneauDeployement();
             this.lancerPhaseDeployement();
-
-            //this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.modele.rendNbUnitesADeployer(this.etat.rendJoueurCourant()));
-//            this.updateUnitesRestantADeployer();
-//            this.updatePanneauFaction();
-//            this.vue.pack();
         }
     }
 
+    /**
+     * Lance l'action de déplacement du nombre d'unité choisis entre les deux
+     * territoires définis.
+     */
     public void deplacerUnites() {
         Component component = this.vue.rendPanneauActionPhase().getComponent(0);
         if (component instanceof PanneauTransfertUnites) {
@@ -469,12 +584,20 @@ public class Controleur {
                 this.etat.setZoneArrivee(null);
                 this.vue.rendPanneauActionPhase().removeAll();
                 this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
-                this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+                this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement", Color.BLACK);
                 this.vue.pack();
             }
         }
     }
 
+    /**
+     * Lance l'action d'attaque entre le territoire contrôlé et le territoire
+     * ennemi avec le nombre d'unité choisis. Si l'attaque est concluante, le
+     * territoire ennemi passe sous le contrôle du joueur attaquant, sinon, les
+     * éventuels unités survivantes retournent au territoire de base. Après
+     * chaque attaque, contrôle si le joueur attaqué a été éliminé, et lancement
+     * du tableau des scores en cas de fin du jeu.
+     */
     public void attaquer() {
         Component component = this.vue.rendPanneauActionPhase().getComponent(0);
         if (component instanceof PanneauAttaque) {
@@ -485,12 +608,14 @@ public class Controleur {
             this.vue.ajouterOrdre("Perte(s) : " + rapport.rendNbUnitesPerdues());
             if (rapport.rendResultatCombat()) {
                 this.vue.ajouterOrdre(rapport.rendTerritoireDefenseur().rendNom() + " capturé");
-
+ 
                 if (this.modele.checkJoueurElimine()) {
                     if (!this.modele.rendListeJoueurs().isEmpty()) {
                         this.vue.ajouterOrdre("Joueur éliminé");
                         this.updateVueJoueur();
                         this.updateBarreForces();
+                        this.etat.rendZoneDepart().setNotClicked();
+                        JOptionPane.showMessageDialog(null, "Joueur éliminé", "Information", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         this.finJeu();
                     }
@@ -506,15 +631,24 @@ public class Controleur {
             this.etat.setZoneArrivee(null);
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
-            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+            this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement", Color.BLACK);
             this.vue.pack();
         }
     }
 
-    public Color rendCouleurRandom() {
+    /**
+     * Renvois une couleur au hasard parmi la liste des couleurs disponible.
+     *
+     * @return : Une couleur prédéfinie au hasard.
+     */
+    public final Color rendCouleurRandom() {
         return this.modele.genereCouleurRandom();
     }
 
+    /**
+     * Met à jour la barre des forces dans la vue, en fonction du nombre
+     * d'unités par joueur sur la carte.
+     */
     public void updateBarreForces() {
         int[] nbUniteParJoueur = new int[this.modele.rendListeJoueurs().size()];
         Color[] couleurParJoueur = new Color[this.modele.rendListeJoueurs().size()];
@@ -530,6 +664,9 @@ public class Controleur {
         this.vue.updateBarrePourcentageForces(nbTotalUnite, nbUniteParJoueur, couleurParJoueur);
     }
 
+    /**
+     * Met à jour les panneaux d'informations de l'interface de jeu.
+     */
     public void updateVueJoueur() {
         boolean estLeJoueurCourant;
         this.vue.rendPanneauFactions().removeAll();
@@ -554,10 +691,21 @@ public class Controleur {
         this.vue.pack(); // Peut foutre la merde -> A déplacer
     }
 
+    /**
+     * Retourne un message d'erreur lorsque le joueur effectue une action
+     * interdite dans la barre latéral d'information.
+     *
+     * @param mssgErreur : Le message expliquant au joueur la raison de
+     * l'incapacité du jeu à traiter son action.
+     */
     public void messageErreur(String mssgErreur) {
-        this.vue.setTexteInfo(mssgErreur);
+        this.vue.setTexteInfo(mssgErreur, Color.RED);
     }
 
+    /**
+     * Annuler un déplacement/attaque et permet au joueur de continuer sa phase
+     * de jeu.
+     */
     public void annulerTransfert() {
         this.vue.rendPanneauActionPhase().removeAll();
         this.etat.rendZoneDepart().setNotClicked();
@@ -565,27 +713,30 @@ public class Controleur {
         this.etat.setZoneArrivee(null);
         this.vue.rendPanneauActionPhase().add(new PanneauEtatDeplacement(new ActionFinDeplacement((this))));
         this.vue.setEtatDeplacementJoueur(this.etat.rendJoueurCourant().rendCouleur());
-        this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement");
+        this.vue.setTexteInfo("Effectuez vos déplacements ou attaques. Cliquez sur un de vos territoire ayant au moins 2 unités, puis cliquez sur un territoire adjaçent pour effectuer un déplacement", Color.BLACK);
         this.vue.rendPlateauJeu().repaint();
         this.vue.pack();
     }
 
+    /**
+     * Lance l'interface de fin de jeu affichant les scores de chaque joueur.
+     */
     private void finJeu() {
         this.vue.getContentPane().removeAll();
         JPanel panel = this.vue.genereFondDemarrage();
         JPanel conteneurEnTete = new JPanel();
-        conteneurEnTete.setPreferredSize(new Dimension(1000, 100));
+        conteneurEnTete.setPreferredSize(new Dimension(1000, 40));
         conteneurEnTete.setVisible(true);
         conteneurEnTete.setLayout(new BorderLayout());
 
         JPanel espaceGaucheEnTete = new JPanel();
-        espaceGaucheEnTete.setPreferredSize(new Dimension(340, 100));
+        espaceGaucheEnTete.setPreferredSize(new Dimension(340, 40));
         espaceGaucheEnTete.setVisible(true);
 
         JPanel panelEnTetes = new JPanel();
         //panelEnTetes.setPreferredSize(new Dimension (700, 100));
         panelEnTetes.setVisible(true);
-        panelEnTetes.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 20));
+        panelEnTetes.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 10));
 
         conteneurEnTete.add(espaceGaucheEnTete, BorderLayout.WEST);
         conteneurEnTete.add(panelEnTetes, BorderLayout.CENTER);
@@ -622,6 +773,14 @@ public class Controleur {
         this.vue.pack();
     }
 
+    /**
+     * Effectue une sauvegarde binaire de la partie en cours. L'utilisateur peut
+     * choisir où enregistrer sur son ordinateur le fichier binaire. La
+     * sauvegarde n'est autorisée qu'en phase de déployement.
+     *
+     * @param chemin : Le chemin vers le dossier où L'utilisateur décide
+     * d'enregistrer le fichier.
+     */
     public void sauvegarderPartie(String chemin) {
 
         try {
@@ -654,19 +813,20 @@ public class Controleur {
             // Le fait de fermer le flot de traitement, ferme automatiquement
             // le flot de communication associé.
             flotTraitementOut.close();
-            JOptionPane infoBox = new JOptionPane();
-            infoBox.showMessageDialog(null, "Partie sauvegardée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Partie sauvegardée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane errorBox = new JOptionPane();
-            errorBox.showMessageDialog(null, "Echec de la sauvegarde de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
-
+        } catch (IOException | HeadlessException e) {
+            JOptionPane.showMessageDialog(null, "Echec de la sauvegarde de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
-
-
     }
 
+    /**
+     * Charge le fichier de sauvegarde binaire de jeu fournis par l'utilisateur
+     * et réinitialise la partie en fonction de la sauvegarde.
+     *
+     * @param chemin : Le chemin sur l'ordinateur où est enregistré le fichier
+     * de sauvegarde.
+     */
     public void chargerPartie(String chemin) {
         if (this.vue.rendPlateauJeu() == null) {
             this.initialiserLancementJeu();
@@ -674,32 +834,23 @@ public class Controleur {
         try {
             // Permet transformer le fichier en un flot de 1100100010010010011001
             FileInputStream flotCommunicationIn = new FileInputStream(chemin);
-            // permet de transformer le flot de 111000110001010100 en objets
-            ObjectInputStream flotTraitementIn = new ObjectInputStream(flotCommunicationIn);
-            // Temps de jeu
-            this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
-            //N° tour
-            this.modele.setNbTour(flotTraitementIn.readInt());
-
-            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-                    Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
-                    monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
-                    monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
+            Joueur joueurCourant;
+            try (ObjectInputStream flotTraitementIn = new ObjectInputStream(flotCommunicationIn)) {
+                this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
+                this.modele.setNbTour(flotTraitementIn.readInt());
+                for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+                    for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                        Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
+                        monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
+                        monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
+                    }
                 }
+                ArrayList<Joueur> mesJoueurs = (ArrayList<Joueur>) flotTraitementIn.readObject();
+                this.modele.chargerJoueurs(mesJoueurs);
+                ArrayList<Joueur> mesJoueursElimine = (ArrayList<Joueur>) flotTraitementIn.readObject();
+                this.modele.chargerJoueursElimines(mesJoueursElimine);
+                joueurCourant = (Joueur) flotTraitementIn.readObject();
             }
-
-
-            ArrayList<Joueur> mesJoueurs = (ArrayList<Joueur>) flotTraitementIn.readObject();
-            this.modele.chargerJoueurs(mesJoueurs);
-            ArrayList<Joueur> mesJoueursElimine = (ArrayList<Joueur>) flotTraitementIn.readObject();
-            this.modele.chargerJoueursElimines(mesJoueursElimine);
-
-            Joueur joueurCourant = (Joueur) flotTraitementIn.readObject();
-
-            // Le fait de fermer le flot de traitement, ferme automatiquement
-            // le flot de communication associé. (Idem écriture)
-            flotTraitementIn.close();
 
 
 
@@ -711,7 +862,7 @@ public class Controleur {
             this.creerMap();
             for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
                 for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-                    this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendCouleur());
+                    this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendNbUniteDeplacable(), monTerritoire.rendCouleur());
                 }
             }
             this.vue.rendPanneauActionPhase().removeAll();
@@ -741,28 +892,30 @@ public class Controleur {
 
             //On autorise les sauvegardes en phase de déployement : 
             this.vue.autoriserSauvegardes();
-            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour");
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
 
             this.vue.pack();
-            JOptionPane errorBox = new JOptionPane();
-            errorBox.showMessageDialog(null, "Partie chargée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Partie chargée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            JOptionPane infoBox = new JOptionPane();
-            infoBox.showMessageDialog(null, "Echec du chargement de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Echec du chargement de la partie", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
 
 
     }
 
+    /**
+     * Annule le déployement du Joueur courant en retirant les territoires
+     * capturés de sa liste des territoires ou en soustrayant le nombre de
+     * troupes déployés dessus.
+     */
     public void restaurerEtatJeu() {
         this.etat.rendJoueurCourant().ajouteUnitesADeployer(this.mementoDeployement.restaurerEtatJeu());
         for (Territoire monTerritoireARestaurer : this.mementoDeployement.rendListeTerritoiresDeployes()) {
             if (monTerritoireARestaurer.rendNbUnites() < 1) {
                 this.etat.rendJoueurCourant().retirerTerritoire(monTerritoireARestaurer);
             }
-            this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(), monTerritoireARestaurer.rendCouleur());
+            this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(),monTerritoireARestaurer.rendNbUniteDeplacable(), monTerritoireARestaurer.rendCouleur());
         }
         this.mementoDeployement = new MementoDeployement();
         this.updateUnitesRestantADeployer();
@@ -771,13 +924,40 @@ public class Controleur {
         this.vue.pack();
     }
 
-    void updateMemento(String nomTerritoire) {
+    /**
+     * Met à jour le memento conservant une trace des territoires sur lesquels
+     * le joueur à déposé ses troupes, afin de lui permettre d'annuler tous ses
+     * déployements.
+     */
+    public void updateMemento(String nomTerritoire) {
         for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
             for (Territoire monTerritoire : monContinent.rendTerritoires()) {
                 if (monTerritoire.rendNom().equals(nomTerritoire)) {
                     this.mementoDeployement.ajouterTerritoire(monTerritoire);
                 }
             }
+        }
+    }
+
+    /**
+     * Remet à jour entièrement toutes les zones du plateau de jeu.
+     */
+    public void restaurerPlateauJeu() {
+        this.modele.restaurerModele();
+        for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+            for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendNbUniteDeplacable(), monTerritoire.rendCouleur());
+            }
+        }
+    }
+
+    /**
+     * Libère toutes les unités dont le mouvement est restreint du joueur courant.
+     */
+    private void libererUnitesBloquees() {
+        for(Territoire monTerritoire : this.etat.rendJoueurCourant().rendListeTerritoire()) {
+            monTerritoire.libererUnitesBloquees();
+            this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendNbUniteDeplacable(), monTerritoire.rendCouleur());
         }
     }
 }

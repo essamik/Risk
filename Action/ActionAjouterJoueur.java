@@ -1,18 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package Action;
 
 import Controleur.Controleur;
-import Modele.Joueur;
 import Vue.PanneauAjoutJoueur;
-import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * Action permettant l'ajout d'un joueur supplémentaire.

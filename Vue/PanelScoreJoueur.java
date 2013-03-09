@@ -35,12 +35,15 @@ public class PanelScoreJoueur extends JPanel{
      */
     public PanelScoreJoueur(int rang, String nom, Color color, int nbUniteEnJeu, int nbTour, String tempsJeu) {
         super();
-        this.setPreferredSize(new Dimension(800, 60));
+        this.setPreferredSize(new Dimension(800, 45));
         this.setVisible(true);
         this.setOpaque(false);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 30, 0));
-        
         Font police = new Font("verdana", Font.PLAIN, 20);
+
+        if(rang == 1) {
+            police = new Font("verdana", Font.BOLD, 20);
+        }
         
         JLabel rangJoueur = new JLabel();
         rangJoueur.setText(rang + ".");
@@ -58,11 +61,11 @@ public class PanelScoreJoueur extends JPanel{
         labelNom.setFont(police);
 
         JLabel labelNbUnite = new JLabel("" +nbUniteEnJeu);
-        labelNbUnite.setPreferredSize(new Dimension(100, 45));
+        labelNbUnite.setPreferredSize(new Dimension(120, 45));
         labelNbUnite.setFont(police);
         
         JLabel labelNbTour = new JLabel("" + nbTour);
-        labelNbTour.setPreferredSize(new Dimension(100, 45));
+        labelNbTour.setPreferredSize(new Dimension(150, 45));
         labelNbTour.setFont(police);
   
         JLabel labelTemps = new JLabel(tempsJeu);

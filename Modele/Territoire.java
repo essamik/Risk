@@ -1,4 +1,3 @@
-
 package Modele;
 
 import java.awt.Color;
@@ -7,28 +6,30 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Représentation d'un territoire du jeu Risk dans le modèle.
- * Chaque territorie est définis par : 
- * - Un nom unique représentant un pays ou une région du monde
- * - Une liste de territoires voisins, qui sont les territoires adjaçents.
- * - Un nombre d'unité occupant le territoire
- * - Une série de points en 2 dimensions formant le contour du territoire.
- * - Une couleur, dépendant du Joueur contrôlant le territoire.
- * - Un point central.
+ * Représentation d'un territoire du jeu Risk dans le modèle. Chaque territorie
+ * est définis par : - Un nom unique représentant un pays ou une région du monde
+ * - Une liste de territoires voisins, qui sont les territoires adjaçents. - Un
+ * nombre d'unité occupant le territoire - Une série de points en 2 dimensions
+ * formant le contour du territoire. - Une couleur, dépendant du Joueur
+ * contrôlant le territoire. - Un point central.
+ *
  * @author Karim
  */
-public class Territoire implements Serializable{
+public class Territoire implements Serializable {
 
     private String nom;
     private ArrayList<Territoire> listeVoisins;
     private int nbUnite;
+    private int nbUniteBloquee;
     private int[] xpoints;
     private int[] ypoints;
     private Color couleur;
     private Point pointCentral;
 
     /**
-     * Constructeur de territoire en fonction de son nom, d'une série de coordonnées x et y et d'un point central.
+     * Constructeur de territoire en fonction de son nom, d'une série de
+     * coordonnées x et y et d'un point central.
+     *
      * @param nomTerritoire : Le nom identifiant le territoire
      * @param coordonneesX : Un tableau des coordonnées X du territoire
      * @param coordonneesY : Un tableau des coordonnées Y du territoire
@@ -37,6 +38,7 @@ public class Territoire implements Serializable{
     public Territoire(String nomTerritoire, int[] coordonneesX, int[] coordonneesY, Point pointCentre) {
         this.nom = nomTerritoire;
         this.nbUnite = 0;
+        this.nbUniteBloquee = 0;
         this.listeVoisins = new ArrayList<>();
         this.xpoints = coordonneesX;
         this.ypoints = coordonneesY;
@@ -44,8 +46,10 @@ public class Territoire implements Serializable{
         this.pointCentral = pointCentre;
 
     }
+
     /**
      * Ajoute un territoire à la liste des territoires voisins du territoire.
+     *
      * @param territoireVoisin : Le territoire adjaçent.
      * @return : true si le territoire a été ajouté, fale sinon.
      */
@@ -60,6 +64,7 @@ public class Territoire implements Serializable{
 
     /**
      * Renvois le nom identifiant le Territoire.
+     *
      * @return : Le nom du territoire.
      */
     public String rendNom() {
@@ -68,6 +73,7 @@ public class Territoire implements Serializable{
 
     /**
      * Renvois la liste des territoires voisins.
+     *
      * @return : La liste des territoires adjaçent.
      */
     public ArrayList<Territoire> rendListeVoisins() {
@@ -77,6 +83,7 @@ public class Territoire implements Serializable{
 
     /**
      * Renvois le nombre d'unité occupant le territoire.
+     *
      * @return : Le nombre d'unités sur le territoire.
      */
     public int rendNbUnites() {
@@ -84,7 +91,19 @@ public class Territoire implements Serializable{
     }
 
     /**
+     * Renvois le nombre d'unité pouvant être déplaçable du territoire. Des
+     * unités ne sont pas déplaçables si elles viennent d'effectuer un mouvement
+     * vers ce territoire
+     *
+     * @return : Le nombre d'unités déplaçable
+     */
+    public int rendNbUniteDeplacable() {
+        return this.nbUnite - nbUniteBloquee;
+    }
+
+    /**
      * Renvois les coordonnées X formant le territoire.
+     *
      * @return : Un tableau de points X.
      */
     public int[] rendCoordonnesX() {
@@ -93,14 +112,17 @@ public class Territoire implements Serializable{
 
     /**
      * Renvois les coordonnées Y formant le territoire.
+     *
      * @return : Un tableau de points Y.
      */
     public int[] rendCoordonnesY() {
         return this.ypoints;
     }
-
+    
     /**
-     * Renvois la couleur actuelle du territoire. Dépend du Joueur contrôlant le territoire.
+     * Renvois la couleur actuelle du territoire. Dépend du Joueur contrôlant le
+     * territoire.
+     *
      * @return : La couleur du territoire.
      */
     public Color rendCouleur() {
@@ -109,6 +131,7 @@ public class Territoire implements Serializable{
 
     /**
      * Définis la nouvelle couleur du territoire.
+     *
      * @param nouvelleCouleur : La couleur à attribuer au territoire.
      */
     public void setCouleur(Color nouvelleCouleur) {
@@ -117,6 +140,7 @@ public class Territoire implements Serializable{
 
     /**
      * Renvois le point central du territoire.
+     *
      * @return : Le Point central du territoire.
      */
     public Point rendPointCentral() {
@@ -125,6 +149,7 @@ public class Territoire implements Serializable{
 
     /**
      * Ajoute une unité sur le territoire.
+     *
      * @return : Le nombre d'unités présent sur le territoire.
      */
     public int ajouterUnite() {
@@ -132,18 +157,19 @@ public class Territoire implements Serializable{
         return this.nbUnite;
 
     }
-    
+
     /**
      * Retire une unité du territoire.
      */
     public void retirerUnite() {
-        if(this.nbUnite > 0) {
+        if (this.nbUnite > 0) {
             this.nbUnite--;
         }
     }
 
     /**
      * Retire le nombre d'unité envoyé en paramètre du territoire.
+     *
      * @param nbUnitesARetirer : Le nombre d'unité à retirer du territoire.
      * @return : True si les unités ont été retirées, false sinon.
      */
@@ -157,8 +183,9 @@ public class Territoire implements Serializable{
     }
 
     /**
-     * Ajoute le nombre d'unités envoyé en paramètre du territoire.
-     * Attention, le nombre d'unité par territoire ne peut pas dépasser 99.
+     * Ajoute le nombre d'unités envoyé en paramètre du territoire. Attention,
+     * le nombre d'unité par territoire ne peut pas dépasser 99.
+     * Dans le même tour de jeu, les unités déplacé sur ce territoire ne pourront plus se déplacer.
      * @param nbUnitesAAjouter : Le nombre d'unités à ajouter sur le territoire.
      * @return : True si l'ajout a réussis, false sinon.
      */
@@ -166,6 +193,7 @@ public class Territoire implements Serializable{
         boolean unitesAjoute = false;
         if (this.nbUnite < 100) {
             this.nbUnite = this.nbUnite + nbUnitesAAjouter;
+            this.nbUniteBloquee = nbUnitesAAjouter; //Ces unités ne peuvent plus se déplacer
             unitesAjoute = true;
         }
         return unitesAjoute;
@@ -197,11 +225,19 @@ public class Territoire implements Serializable{
     }
 
     /**
-     * Fixe le nombre d'unités sur le territoire.
-     * Utilisé lors du chargement d'une sauvegarde.
+     * Fixe le nombre d'unités sur le territoire. Utilisé lors du chargement
+     * d'une sauvegarde.
+     *
      * @param unites : Le nombre d'unités à mettre sur le territoire.
      */
     public void setNbUnites(int unites) {
         this.nbUnite = unites;
+    }
+    
+    /**
+     * Libère les unités s'étant déplacée durant ce tour.
+     */
+    public void libererUnitesBloquees() {
+        this.nbUniteBloquee = 0;
     }
 }

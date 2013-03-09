@@ -18,6 +18,7 @@ public class Zone extends Polygon {
     private ArrayList<Zone> listeVoisins;
     private int nbUnites;
     private Point pointCentral;
+    private int nbUnitesDeplacable;
 
     /**
      * Constructeur de Zone, appartenant à un Groupe de Zone.
@@ -164,5 +165,21 @@ public class Zone extends Polygon {
             }
         }
         return estVoisin;
+    }
+
+    /**
+     * Fixe le nombre d'unité actuellement déplaçable sur la zone.
+     * @param nbUniteActive : Le nombre d'unités active prête à se déplacer.
+     */
+    public void setNbUniteDeplacable(int nbUniteActive) {
+        this.nbUnitesDeplacable = nbUniteActive;
+    }
+    
+    /**
+     * Renvois le nombre d'unitées actuellement active sur la zone.
+     * @return : Le nombre de territoires apte à se déplacer.
+     */
+    public int rendNbUniteDeplacable() {
+        return this.nbUnitesDeplacable;
     }
 }

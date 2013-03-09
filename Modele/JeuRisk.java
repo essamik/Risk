@@ -9,14 +9,11 @@ import modele.Chronometre;
 
 /**
  * Modèle de base du jeu Risk. Gère toute la logique interne ainsi que les
- * mécaniques du jeu. Est responsable de stocker les données du jeu.
- * Le modèle comprends : 
- *  - Une carte de jeu
- *  - Une liste des joueurs
- *  - Une liste des joueurs éliminés
- *  - Un dé servant à simuler les combats
- *  - Une liste de couleurs disponible pour les joueurs
- *  - Un chronomètre pour compter le temps de jeu
+ * mécaniques du jeu. Est responsable de stocker les données du jeu. Le modèle
+ * comprends : - Une carte de jeu - Une liste des joueurs - Une liste des
+ * joueurs éliminés - Un dé servant à simuler les combats - Une liste de
+ * couleurs disponible pour les joueurs - Un chronomètre pour compter le temps
+ * de jeu
  *
  * @author Karim
  */
@@ -34,7 +31,7 @@ public class JeuRisk implements Observable {
     private final int NB_UNITE_INITIALE_3_JOUEURS = 2; //35
     private final int NB_UNITE_INITIALE_4_JOUEURS = 30;
     private final int NB_UNITE_INITIALE_5_JOUEURS = 25;
-    private final int NB_UNITE_INITIALE_6_JOUEURS = 20;
+    private final int NB_UNITE_INITIALE_6_JOUEURS = 2; //20
     private ArrayList<Observeur> listObserver;
 
     /**
@@ -123,7 +120,7 @@ public class JeuRisk implements Observable {
                     monTerritoire.setCouleur(joueurConquerant.rendCouleur());
                     joueurConquerant.addTerritoire(monTerritoire);
                     joueurConquerant.retirerUnite();
-                    this.notifyObserver(nomTerritoire, nbUnites, joueurConquerant.rendCouleur());
+                    this.notifyObserver(nomTerritoire, nbUnites, monTerritoire.rendNbUniteDeplacable(), joueurConquerant.rendCouleur());
                     aEteCapture = true;
                 }
             }
@@ -161,7 +158,8 @@ public class JeuRisk implements Observable {
 
     /**
      * Définis au lancement de la phase d'initialisation, le nombre d'unités
-     * disponbile par joueur en fonction du nombre de joueur.
+     * disponbile par joueur en fonction du nombre de joueur, puis ajoutes les
+     * unités aux joueurs.
      */
     public void initialiserNbUnitesDepart() {
         int nbUnitesInitiale = 0;
@@ -269,8 +267,8 @@ public class JeuRisk implements Observable {
                             //Le joueur annexe le territoire
                             joueurDeplacement.addTerritoire(territoireDestination);
                             //Mise à jour de la vue
-                            this.notifyObserver(territoireDestination.rendNom(), territoireDestination.rendNbUnites(), joueurDeplacement.rendCouleur());
-                            this.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), joueurDeplacement.rendCouleur());
+                            this.notifyObserver(territoireDestination.rendNom(), territoireDestination.rendNbUnites(), territoireDestination.rendNbUniteDeplacable(), joueurDeplacement.rendCouleur());
+                            this.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendNbUniteDeplacable(), joueurDeplacement.rendCouleur());
                             deplacementEffectue = true;
                         }
                     }
@@ -321,13 +319,13 @@ public class JeuRisk implements Observable {
                                     if (rapport.rendResultatCombat()) { //En cas de victoire : 
                                         this.retirerTerritoireAJoueur(territoireDefenseur);
                                         joueurAttaquant.addTerritoire(territoireDefenseur);
-                                        this.notifyObserver(territoireDefenseur.rendNom(), territoireDefenseur.rendNbUnites(), joueurAttaquant.rendCouleur());
-                                        this.notifyObserver(territoireAttaquant.rendNom(), territoireAttaquant.rendNbUnites(), joueurAttaquant.rendCouleur());
+                                        this.notifyObserver(territoireDefenseur.rendNom(), territoireDefenseur.rendNbUnites(),territoireDefenseur.rendNbUniteDeplacable(), joueurAttaquant.rendCouleur());
+                                        this.notifyObserver(territoireAttaquant.rendNom(), territoireAttaquant.rendNbUnites(), territoireAttaquant.rendNbUniteDeplacable(), joueurAttaquant.rendCouleur());
                                     } else {
                                         //En cas de défaite, mise à jour du nombre d'unités par territoire, retour des unités survivantes
                                         territoireAttaquant.ajouterUnites(rapport.rendNbUnitesSurvivant());
-                                        this.notifyObserver(territoireDefenseur.rendNom(), territoireDefenseur.rendNbUnites(), territoireVoisin.rendCouleur());
-                                        this.notifyObserver(territoireAttaquant.rendNom(), territoireAttaquant.rendNbUnites(), joueurAttaquant.rendCouleur());
+                                        this.notifyObserver(territoireDefenseur.rendNom(), territoireDefenseur.rendNbUnites(),territoireDefenseur.rendNbUniteDeplacable(), territoireVoisin.rendCouleur());
+                                        this.notifyObserver(territoireAttaquant.rendNom(), territoireAttaquant.rendNbUnites(),territoireAttaquant.rendNbUniteDeplacable(), joueurAttaquant.rendCouleur());
                                     }
                                 }
                             }
@@ -510,7 +508,8 @@ public class JeuRisk implements Observable {
     }
 
     /**
-     * Ajoute les joueur dans la liste des joueurs. 
+     * Ajoute les joueur dans la liste des joueurs.
+     *
      * @param mesJoueurs : La liste de joueurs résultant d'une sauvegarde.
      */
     public void chargerJoueurs(ArrayList<Joueur> mesJoueurs) {
@@ -518,18 +517,34 @@ public class JeuRisk implements Observable {
             this.listeJoueurs = mesJoueurs;
         }
     }
+
     /**
-     * Ajoute les joueur éliminés dans la liste des joueurs éliminés. 
-     * @param mesJoueursElimine : La liste de joueurs éliminés résultant d'une sauvegarde.
+     * Ajoute les joueur éliminés dans la liste des joueurs éliminés.
+     *
+     * @param mesJoueursElimine : La liste de joueurs éliminés résultant d'une
+     * sauvegarde.
      */
     public void chargerJoueursElimines(ArrayList<Joueur> mesJoueursElimine) {
         if (mesJoueursElimine != null) {
             this.listeJoueursElimines = mesJoueursElimine;
         }
     }
+    
+    /**
+     * Remet à 0 les différentes liste du modèle en vue de recommencer une partie.
+     */
+   public void restaurerModele() {
+        this.carte = new CarteTerre();
+        this.listeJoueurs = new ArrayList<>();
+        this.listeCouleursDispo = new ArrayList<>();
+        this.initialiserCouleursJoueur();
+        this.creerJoueur("Joueur 1", this.genereCouleurRandom());
+        this.creerJoueur("Joueur 2", this.genereCouleurRandom());
 
+    }
     /**
      * Ajoute un observer dans la liste des observers du modèle.
+     *
      * @param obs : L'Observer à ajouter.
      */
     @Override
@@ -538,7 +553,8 @@ public class JeuRisk implements Observable {
     }
 
     /**
-     * Retire les observeur de la liste des observeurs du modèle et la réinitialise.
+     * Retire les observeur de la liste des observeurs du modèle et la
+     * réinitialise.
      */
     @Override
     public void removeObserver() {
@@ -546,16 +562,23 @@ public class JeuRisk implements Observable {
     }
 
     /**
-     * Notifie l'observeur d'un changement dans le modèle du territoire.
-     * La vue est ainsi mise à jour une fois seulement que le modèle a été changé.
+     * Notifie l'observeur d'un changement dans le modèle du territoire. La vue
+     * est ainsi mise à jour une fois seulement que le modèle a été changé.
+     *
      * @param nomTerritoire : Le nom du territoire ayant subi un changement.
-     * @param nbUnites : Le nouveau nombre d'unités du territoire ayant subi un changement.
-     * @param couleur : La nouvelle couleur du territoire ayant subi un changement.
+     * @param nbUnites : Le nouveau nombre d'unités du territoire ayant subi un
+     * changement.
+     * @param nbUnitesDeplacable : Le nombre d'unités actives que l'on peut
+     * déplacer.
+     * @param couleur : La nouvelle couleur du territoire ayant subi un
+     * changement.
      */
     @Override
-    public void notifyObserver(String nomTerritoire, int nbUnites, Color couleur) {
+    public void notifyObserver(String nomTerritoire, int nbUnites, int nbUnitesDeplacable, Color couleur) {
         for (Observeur obs : this.listObserver) {
-            obs.update(nomTerritoire, nbUnites, couleur);
+            obs.update(nomTerritoire, nbUnites, nbUnitesDeplacable, couleur);
         }
     }
+
+ 
 }

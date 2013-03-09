@@ -50,9 +50,9 @@ public class Chronometre implements Serializable {
      * Retourne le nombre de secondes écoulées depuis le lancement du Timer.
      * @return : Le temps en secondes.
      */
-    public String retourneTempsEcoule(){
+    public int retourneTempsEcoule(){
         
-        return ""+nbSecondes;
+        return nbSecondes;
     }
     
     /**

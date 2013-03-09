@@ -103,6 +103,7 @@ public class Joueur implements Serializable {
 
     /**
      * Renvois la liste des territoires contrôlé par le Joueur.
+     *
      * @return : La liste des territoires du Joueur.
      */
     public ArrayList<Territoire> rendListeTerritoire() {
@@ -112,6 +113,7 @@ public class Joueur implements Serializable {
 
     /**
      * Retire le territoire envoyé en paramètre au Joueur.
+     *
      * @param territoirePerdu : Le territoire capturé par l'ennemi à retirer.
      * @return : True si le territoire à été retiré, false sinon.
      */
@@ -128,6 +130,7 @@ public class Joueur implements Serializable {
 
     /**
      * Renvois le nombre d'unités que le joueur possède sur le plateau de jeu.
+     *
      * @return : Le nombre d'unités actuellement déployée sur le plateau de jeu
      * par le joueur.
      */
@@ -140,7 +143,9 @@ public class Joueur implements Serializable {
     }
 
     /**
-     * Renvois le nombre total d'unités que le Joueur a déployé tout au long du jeu.
+     * Renvois le nombre total d'unités que le Joueur a déployé tout au long du
+     * jeu.
+     *
      * @return : Le nombre d'unités déployés en tout par le Joueur.
      */
     public int rendNbUniteTotalEnJeu() {
@@ -148,7 +153,9 @@ public class Joueur implements Serializable {
     }
 
     /**
-     * Fixe le nombre de tour que le Joueur a joué jusqu'a son élimination ou sa victoire.
+     * Fixe le nombre de tour que le Joueur a joué jusqu'a son élimination ou sa
+     * victoire.
+     *
      * @param tourElimination : Le nombre de tour auquel le Joueur a participé.
      */
     public void setNbTourJoue(int tourElimination) {
@@ -157,14 +164,40 @@ public class Joueur implements Serializable {
 
     /**
      * Fixe le temps de jeu du Joueur jusqu'a son élimination ou sa victoire
+     *
      * @param tempsAvantElimination : Le temps effectif de jeu du Joueur.
      */
-    public void setDureeJeu(String tempsAvantElimination) {
-        this.dureeJeu = tempsAvantElimination;
+    public void setDureeJeu(int tempsAvantEliminationEnSeconde) {
+        int secondes = 0, minutes = 0, heures = 0;
+        secondes = tempsAvantEliminationEnSeconde;
+        if (secondes > 10) {
+            this.dureeJeu = "00:00:" + secondes;
+        } else {
+            this.dureeJeu = "00:00:0" + secondes;
+        }
+        if (secondes >= 60) {
+            minutes = secondes / 60;
+            secondes = secondes - (60 * minutes);
+            if (minutes > 10) {
+                this.dureeJeu = "00:" + minutes + ":" + secondes;
+            } else {
+                this.dureeJeu = "00:0" + minutes + ":" + secondes;
+            }
+            if (minutes >= 60) {
+                heures = minutes / 60;
+                minutes = minutes - (60 * heures);
+                if (minutes > 10) {
+                this.dureeJeu = heures + ":" + minutes + ":" + secondes;
+                } else {
+                this.dureeJeu = "0" + heures + ":" + minutes + ":" + secondes;
+                }
+            }
+        }
     }
 
     /**
      * Renvois le temps du Joueur jusqu'a son élimination ou sa victoire
+     *
      * @return : Le temps effectif de jeu du Joueur.
      */
     public String rendTempsJeu() {
@@ -172,7 +205,9 @@ public class Joueur implements Serializable {
     }
 
     /**
-     * Renvois le nombre de tour que le Joueur à joué jusqu'a son élimination ou sa victoire.
+     * Renvois le nombre de tour que le Joueur à joué jusqu'a son élimination ou
+     * sa victoire.
+     *
      * @return : Le nombre de tour auquel le Joueur a participé
      */
     public int rendNbTourJoue() {

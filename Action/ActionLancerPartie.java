@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Action;
 
 import Controleur.Controleur;
@@ -12,17 +8,26 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Action déclenchant le lancement de la phase d'initialisation du jeu.
  * @author Karim
  */
 public class ActionLancerPartie implements ActionListener {
 
     private Controleur controleur;
-
+    /**
+     * Constructeur d'action de lancement de la partie.
+     * @param ctrl : Le controleur du jeu.
+     */
     public ActionLancerPartie(Controleur ctrl) {
         this.controleur = ctrl;
     }
-
+    /**
+     * Déclenche l'action de lancement de la partie. 
+     * Génère la liste des joueurs tout en controlant que deux joueurs n'aient
+     * pas le même nom ou que le nom ne soit pas trop long.
+     * En cas de noms non conforme, retour au panneau de choix des joueurs.
+     * @param e : L'evenement lié à l'action de lancement de la partie.
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         this.controleur.reinitialiserListeJoueur();

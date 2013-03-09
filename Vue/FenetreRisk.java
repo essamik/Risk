@@ -352,7 +352,8 @@ public class FenetreRisk extends JFrame implements Observeur {
      * Met à jour le texte de la barre d'information afin de guider le joueur.
      * @param texteInformation : Le texte à écrire dans la barre d'information.
      */
-    public void setTexteInfo(String texteInformation) {
+    public void setTexteInfo(String texteInformation, Color couleurTxt) {
+        this.infoBarre.setForeground(couleurTxt);
         this.infoBarre.setText(texteInformation);
     }
 
@@ -398,14 +399,16 @@ public class FenetreRisk extends JFrame implements Observeur {
      * Ceci est une implémentation du design pattern Observer.
      * @param nomTerritoire : Le nom de la Zone à mettre à jour.
      * @param nbUnites : Le nouveau nombre d'unité de la Zone.
+     * @param nbUnitesDeplacable  : Le nouveau nombre d'unité actif de la zone.
      * @param couleur : La nouvelle couleur de la Zone.
      */
     @Override
-    public void update(String nomTerritoire, int nbUnites, Color couleur) {
+    public void update(String nomTerritoire, int nbUnites, int nbUnitesDeplacable, Color couleur) {
         for (GroupeZone mesContinents : this.plateauJeu.rendListeGroupeZone()) {
             for (Zone maZone : mesContinents.rendListeZones()) {
                 if (maZone.rendNom().equals(nomTerritoire)) {
                     maZone.setNbUnite(nbUnites);
+                    maZone.setNbUniteDeplacable(nbUnitesDeplacable);
                     if (couleur != null) {
                         maZone.setCouleur(couleur);
                     }
