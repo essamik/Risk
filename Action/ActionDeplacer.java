@@ -16,6 +16,7 @@ public class ActionDeplacer implements ActionListener {
      * @param ctrl : Le controleur du jeu, permettant de déplacer des unités d'un territoire à un autre.
      */
     public ActionDeplacer(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de déplacement !");
         this.controleur = ctrl;
         
     }

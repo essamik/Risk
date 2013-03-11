@@ -1,3 +1,5 @@
+package Main;
+
 import Controleur.Controleur;
 import Vue.FenetreRisk;
 import java.util.logging.Level;

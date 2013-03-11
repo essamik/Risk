@@ -1,22 +1,25 @@
 package Vue;
 
 import Controleur.Controleur;
-import Modele.Continent;
-import Modele.Territoire;
 import Observer.Observeur;
 import java.awt.*;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 
 /**
- * Vue du jeu Risk. Recense tous les éléments visuels permettant de jouer au jeu risk.
- * 
+ * Vue du jeu Risk. Recense tous les éléments visuels permettant de jouer au jeu
+ * risk.
+ *
  * @author Karim
  */
-public class FenetreRisk extends JFrame implements Observeur {
+public class FenetreRisk extends JFrame implements Observeur, WindowListener {
 
     private PlateauJeu plateauJeu;
     private JLabel panneauPhaseJeu;
@@ -32,9 +35,9 @@ public class FenetreRisk extends JFrame implements Observeur {
     private Controleur controleur;
 
     /**
-     * Constructeur de fenêtre de jeu Risk.
-     * Initialise les éléments de la vue indispensable et qui ne changeront pas lors du jeu.
-     * Définis le Look & Fell de type Nimbus afin d'améliorer le visuel des composants swing.
+     * Constructeur de fenêtre de jeu Risk. Initialise les éléments de la vue
+     * indispensable et qui ne changeront pas lors du jeu. Définis le Look &
+     * Fell de type Nimbus afin d'améliorer le visuel des composants swing.
      */
     public FenetreRisk() {
         super("Risk - The Java Game");
@@ -47,9 +50,18 @@ public class FenetreRisk extends JFrame implements Observeur {
                 }
             }
         } catch (Exception e) {
+            System.out.println("Look&Feel non chargé");
         }
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        try {
+            BufferedImage icon = ImageIO.read(new File("ressources/icone_risk.png"));
+            this.setIconImage(icon);
+        } catch (IOException ex) {
+            System.out.println("Icone du jeu non chargé ");
+        }
+        this.addWindowListener(this);
+
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.setLocation(200, 25);
         this.titre = new Font("verdana", Font.PLAIN, 40);
 
@@ -59,8 +71,9 @@ public class FenetreRisk extends JFrame implements Observeur {
     }
 
     /**
-     * Construit la structure du plateau de jeu interactif ainsi que les différents panneaux de contrôle du jeu.
-     * Tous les panneaux créer sont vide , il ne s'agit que de créer les conteneurs pour ces différents éléments.
+     * Construit la structure du plateau de jeu interactif ainsi que les
+     * différents panneaux de contrôle du jeu. Tous les panneaux créer sont vide
+     * , il ne s'agit que de créer les conteneurs pour ces différents éléments.
      */
     public void creerPlateauJeu() {
         this.getContentPane().setLayout(new BorderLayout());
@@ -77,7 +90,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 /////////Conteneur du bas fixe/////////////////////////////////////
         this.conteneurBas = new JPanel();
         this.conteneurBas.setPreferredSize(new Dimension(1280, 200));
-        this.conteneurBas.setBackground(Color.blue);
+        this.conteneurBas.setBackground(Color.WHITE);
         this.conteneurBas.setVisible(true);
         this.conteneurBas.setLayout(new BorderLayout());
         this.add(this.conteneurBas, BorderLayout.SOUTH);
@@ -137,7 +150,7 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.listeOrdre.setLayout(new WrapLayout());
 
         conteneurPanneauOrdres.add(conteneurListeOrdres, BorderLayout.CENTER);
-        
+
         ////Barre de scroll//////////////////////////////////////////////////////////////
         JScrollPane scrollPane = new JScrollPane(this.listeOrdre);
         JScrollBar scrollBarV = new JScrollBar(JScrollBar.VERTICAL);
@@ -199,21 +212,30 @@ public class FenetreRisk extends JFrame implements Observeur {
         conteneurpanneauPhaseJeu.setPreferredSize(new Dimension(1280, 40));
         conteneurpanneauPhaseJeu.setBackground(Color.WHITE);
         conteneurpanneauPhaseJeu.setVisible(true);
-        conteneurpanneauPhaseJeu.setLayout(new FlowLayout());
+        conteneurpanneauPhaseJeu.setLayout(new BorderLayout());
+
         this.conteneurBas.add(conteneurpanneauPhaseJeu, BorderLayout.NORTH);
 
-
         this.panneauPhaseJeu = new JLabel("Déployer armées +");
-        Dimension dimensionPannneau = new Dimension(1260, 30);
         this.panneauPhaseJeu.setHorizontalAlignment(JLabel.CENTER);
 
         Font policePanneauEtat = new Font("Verdana", Font.BOLD, 20);
         this.panneauPhaseJeu.setFont(policePanneauEtat);
         this.panneauPhaseJeu.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY));
 
-        this.panneauPhaseJeu.setPreferredSize(dimensionPannneau);
+        this.panneauPhaseJeu.setPreferredSize(new Dimension(1260, 30));
 
-        conteneurpanneauPhaseJeu.add(this.panneauPhaseJeu);
+        conteneurpanneauPhaseJeu.add(this.panneauPhaseJeu, BorderLayout.CENTER);
+
+        JPanel espaceHaut = new JPanel();
+        espaceHaut.setPreferredSize(new Dimension(1260, 5));
+        espaceHaut.setOpaque(false);
+        JPanel espaceBas = new JPanel();
+        espaceBas.setOpaque(false);
+        espaceBas.setPreferredSize(new Dimension(1260, 5));
+
+        conteneurpanneauPhaseJeu.add(espaceHaut, BorderLayout.NORTH);
+        conteneurpanneauPhaseJeu.add(espaceBas, BorderLayout.SOUTH);
 
         ////Panneau des actions correspondant à la phase de jeu en cours - Amovible ///////////////////////////////////////////////////
         this.panneauActionPhase = new PanneauDeployement();
@@ -221,7 +243,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 
 /////////Conteneur des des informations de jeu fixe/////////////////////////////////////
         JPanel conteneurInfos = new JPanel();
-        conteneurInfos.setPreferredSize(new Dimension(1280, 60));
+        conteneurInfos.setPreferredSize(new Dimension(1260, 60));
         conteneurInfos.setLayout(new BorderLayout());
         this.conteneurBas.add(conteneurInfos, BorderLayout.SOUTH);
 
@@ -245,21 +267,26 @@ public class FenetreRisk extends JFrame implements Observeur {
     }
 
     /**
-     * Permet d'ajouter le controleur à la vue afin de permettre la vue d'informer le controleur d'un clic sur un territoire.
+     * Permet d'ajouter le controleur à la vue afin de permettre la vue
+     * d'informer le controleur d'un clic sur un territoire.
      */
     public void ajouterControleur(Controleur monControleur) {
-        this.controleur = monControleur;
+        if(monControleur!=null)
+            this.controleur = monControleur;
     }
 
     /**
      * Renvois le plateau de jeu avec sa liste de zones.
+     *
      * @return Le plateau de jeu de la vue.
      */
     public PlateauJeu rendPlateauJeu() {
         return this.plateauJeu;
     }
+
     /**
      * Renvois le panneau recensant une interface de la liste des joueurs.
+     *
      * @return Le JPanel contenant la liste des joueurs.
      */
     public JPanel rendPanneauFactions() {
@@ -267,8 +294,10 @@ public class FenetreRisk extends JFrame implements Observeur {
     }
 
     /**
-     * Renvois le panneau d'action dépendant de l'état de jeu en cours. 
-     * @return Le JPanel contenant les actions et informations relatives a la phase de jeu actuelle.
+     * Renvois le panneau d'action dépendant de l'état de jeu en cours.
+     *
+     * @return Le JPanel contenant les actions et informations relatives a la
+     * phase de jeu actuelle.
      */
     public PanneauDeployement rendPanneauActionPhase() {
         return this.panneauActionPhase;
@@ -276,6 +305,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 
     /**
      * Avertis le controleur d'une interaction sur une zone du plateau de jeu.
+     *
      * @param maZone : La zone avec laquelle le joueur a intéragis.
      */
     public void interactionZone(Zone maZone) {
@@ -292,20 +322,20 @@ public class FenetreRisk extends JFrame implements Observeur {
 
     /**
      * Initialise la structure de la vue de démarrage du jeu.
+     *
      * @return Le JPanel central de l'interface de démarrage.
      */
     public JPanel genereFondDemarrage() {
         JPanel fondAccueil = new FondDemarrage();
         fondAccueil.setPreferredSize(new Dimension(1280, 720));
         this.add(fondAccueil);
-        
+
         JPanel espaceHaut = new JPanel();
         espaceHaut.setPreferredSize(new Dimension(1280, 78));
         espaceHaut.setOpaque(false);
         fondAccueil.add(espaceHaut, BorderLayout.NORTH);
 
         JPanel ecranAccueil = new JPanel();
-//      JPanel ecranAccueil = new PanelDemarrage();
         ecranAccueil.setPreferredSize(new Dimension(1000, 485));
         ecranAccueil.setOpaque(true);
         ecranAccueil.setVisible(true);
@@ -313,15 +343,20 @@ public class FenetreRisk extends JFrame implements Observeur {
         ecranAccueil.setBackground(Color.WHITE);
         ecranAccueil.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.black, Color.black));
         fondAccueil.add(ecranAccueil, BorderLayout.CENTER);
-        
+
         return ecranAccueil;
     }
 
     /**
-     * Met à jour la barre des forces du jeu en fonction du nombre d'unité par joueur.
-     * @param nbTotalUniteEnJeu : Le nombre d'unité total actuellement sur le plateau de jeu
-     * @param nbUnitesParJoueur : Tableau contenant le nombre d'unités possedé par joueur.
-     * @param couleurs : Tableau contenant les couleurs correspondante de chaque joueur.
+     * Met à jour la barre des forces du jeu en fonction du nombre d'unité par
+     * joueur.
+     *
+     * @param nbTotalUniteEnJeu : Le nombre d'unité total actuellement sur le
+     * plateau de jeu
+     * @param nbUnitesParJoueur : Tableau contenant le nombre d'unités possedé
+     * par joueur.
+     * @param couleurs : Tableau contenant les couleurs correspondante de chaque
+     * joueur.
      */
     public void updateBarrePourcentageForces(int nbTotalUniteEnJeu, int[] nbUnitesParJoueur, Color[] couleurs) {
         this.barreForceArmees.removeAll();
@@ -329,8 +364,11 @@ public class FenetreRisk extends JFrame implements Observeur {
     }
 
     /**
-     * Définis le titre de l'état de jeu comme étant sous "Déployement" et encadre le texte de la couleur du joueur courant.
-     * @param couleurJoueurCourant : La couleur du joueur à qui c'est actuellement le tour de jouer.
+     * Définis le titre de l'état de jeu comme étant sous "Déployement" et
+     * encadre le texte de la couleur du joueur courant.
+     *
+     * @param couleurJoueurCourant : La couleur du joueur à qui c'est
+     * actuellement le tour de jouer.
      */
     public void setEtatDeployementJoueur(Color couleurJoueurCourant) {
         this.panneauPhaseJeu.setText("Déployer armées +");
@@ -338,9 +376,13 @@ public class FenetreRisk extends JFrame implements Observeur {
 
 
     }
+
     /**
-     * Définis le titre de l'état de jeu comme étant sous "Déplacement / Attaque" et encadre le texte de la couleur du joueur courant.
-     * @param couleurJoueurCourant : Le joueur à qui c'est actuellement le tour de jouer.
+     * Définis le titre de l'état de jeu comme étant sous "Déplacement /
+     * Attaque" et encadre le texte de la couleur du joueur courant.
+     *
+     * @param couleurJoueurCourant : Le joueur à qui c'est actuellement le tour
+     * de jouer.
      */
     public void setEtatDeplacementJoueur(Color couleurJoueurCourant) {
         this.panneauPhaseJeu.setText("Déplacement / Attaque =>");
@@ -350,6 +392,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 
     /**
      * Met à jour le texte de la barre d'information afin de guider le joueur.
+     *
      * @param texteInformation : Le texte à écrire dans la barre d'information.
      */
     public void setTexteInfo(String texteInformation, Color couleurTxt) {
@@ -359,6 +402,7 @@ public class FenetreRisk extends JFrame implements Observeur {
 
     /**
      * Ajoute un ordre en fonction des actions du joueur courant.
+     *
      * @param ordreTextuel : Le texte résumant l'action effectué par le joueur.
      */
     public void ajouterOrdre(String ordreTextuel) {
@@ -370,36 +414,40 @@ public class FenetreRisk extends JFrame implements Observeur {
         this.listeOrdre.repaint();
         //this.pack();
     }
-    
+
     /**
      * Définis l'élément de menu "Sauvegarder Partie"
+     *
      * @param menuSvg : L'objet de menu sauvegarder
      */
     public void setMenuSauvegarder(JMenuItem menuSvg) {
         this.menuSauvegarder = menuSvg;
     }
-    
+
     /**
-     * Rend l'élément de menu "Sauvegarder" clicable afin d'autoriser les sauvegardes.
+     * Rend l'élément de menu "Sauvegarder" clicable afin d'autoriser les
+     * sauvegardes.
      */
     public void autoriserSauvegardes() {
         this.menuSauvegarder.setEnabled(true);
     }
-    
+
     /**
-     * Rend l'élément de menu "Sauvegarder" non clicable afin d'interdire les sauvegardes.
+     * Rend l'élément de menu "Sauvegarder" non clicable afin d'interdire les
+     * sauvegardes.
      */
     public void interdireSauvegardes() {
         this.menuSauvegarder.setEnabled(false);
     }
 
     /**
-     * Met à jour la Zone correspondante sur le plateau de jeu en fonction du nom donné.
-     * Permet au modèle d'informer la vue d'un changement d'un des territoire.
-     * Ceci est une implémentation du design pattern Observer.
+     * Met à jour la Zone correspondante sur le plateau de jeu en fonction du
+     * nom donné. Permet au modèle d'informer la vue d'un changement d'un des
+     * territoire. Ceci est une implémentation du design pattern Observer.
+     *
      * @param nomTerritoire : Le nom de la Zone à mettre à jour.
      * @param nbUnites : Le nouveau nombre d'unité de la Zone.
-     * @param nbUnitesDeplacable  : Le nouveau nombre d'unité actif de la zone.
+     * @param nbUnitesDeplacable : Le nouveau nombre d'unité actif de la zone.
      * @param couleur : La nouvelle couleur de la Zone.
      */
     @Override
@@ -417,5 +465,60 @@ public class FenetreRisk extends JFrame implements Observeur {
         }
         this.plateauJeu.repaint();
     }
- 
+
+    /**
+     * Ouvre une popup de confirmation si le joueur clic sur la croix de la fenêtre
+     * @param e : L'evenement lié à l'action de fermeture de la fenêtre
+     */
+    @Override
+    public void windowClosing(WindowEvent e) {
+        JOptionPane jop = new JOptionPane();
+        int option = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment quitter le jeu sans sauvegarder ?", "Fermeture de la fenêtre", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_NO_OPTION) {
+            System.exit(0);
+        }
+    }    
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowOpened(WindowEvent e) {
+    }
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowClosed(WindowEvent e) {
+    }
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowIconified(WindowEvent e) {
+    }
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+    }
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowActivated(WindowEvent e) {
+    }
+    /**
+     * Action de la fenêtre non exploitée. Ne déclenche aucun action.
+     * @param e : L'evenement lié à l'action
+     */
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+    }
+    
 }

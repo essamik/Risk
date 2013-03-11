@@ -21,5 +21,5 @@ public interface Observeur {
      * déplacer.
      * @param couleur : La nouvelle couleur à fixer pour la zone.
      */
-    public void update(String nomTerritoire, int nbUnites, int nbUniteDeplacable, Color couleur);
+    public void update(String nomTerritoire, int nbUnites, int nbUnitesDeplacable, Color couleur);
 }

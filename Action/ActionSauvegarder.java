@@ -19,6 +19,7 @@ public class ActionSauvegarder extends AbstractAction{
      */
     public ActionSauvegarder(Controleur ctrl, String texte) {
         super(texte);
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de sauvegarde du jeu !");
         this.controleur = ctrl;
         
     }

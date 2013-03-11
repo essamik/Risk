@@ -31,7 +31,7 @@ public class EtatDeployement extends EtatJeu {
     public void interactionUtilisateur(Zone maZone) {
         if (super.rendJoueurCourant().rendUnitesADeployer() > 0) {
             if (!super.rendControleur().controleTerritoireEnnemi(maZone.rendNom())) {
-                if (maZone.rendNbUnite() < 100) {
+                if (maZone.rendNbUnite() < 99) {
                     super.rendControleur().annexerTerritoire(maZone, super.rendJoueurCourant());
                     super.rendControleur().updateMemento(maZone.rendNom());
                     super.rendControleur().updateUnitesRestantADeployer();

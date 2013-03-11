@@ -18,6 +18,7 @@ public class ActionRecommencer extends AbstractAction{
      */
     public ActionRecommencer(Controleur ctrl, String texte) {
         super(texte);
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de reinitialisation du jeu !");
         this.controleur = ctrl;
     }
     /**

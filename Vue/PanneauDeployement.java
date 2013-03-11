@@ -23,7 +23,7 @@ public class PanneauDeployement extends JPanel {
      */
     public PanneauDeployement() {
         super();
-        this.setPreferredSize(new Dimension(960, 100));
+        //this.setPreferredSize(new Dimension(960, 100));
         this.setBackground(Color.WHITE);
         this.setVisible(true);
         this.setLayout(new BorderLayout());

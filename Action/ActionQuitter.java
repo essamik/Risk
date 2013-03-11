@@ -24,9 +24,7 @@ public class ActionQuitter extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         JOptionPane jop = new JOptionPane();
         int option = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment quitter le jeu sans sauvegarder ?", "Fermeture de la fenêtre", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (option != JOptionPane.NO_OPTION
-                && option != JOptionPane.CANCEL_OPTION
-                && option != JOptionPane.CLOSED_OPTION) {
+        if (option == JOptionPane.YES_NO_OPTION) {
             System.exit(0);
         }
     }

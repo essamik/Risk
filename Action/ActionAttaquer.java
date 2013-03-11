@@ -17,6 +17,7 @@ public class ActionAttaquer implements ActionListener {
      * @param ctrl : Le controleur du jeu, permettant de d'attaquer un territoire ennemi.
      */
     public ActionAttaquer(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action d'attaque !");
         this.controleur = ctrl;
     }
 

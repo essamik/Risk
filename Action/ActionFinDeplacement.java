@@ -17,6 +17,7 @@ public class ActionFinDeplacement implements ActionListener {
      * @param ctrl : Le controleur du jeu.
      */
     public ActionFinDeplacement(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de fin de déplacement !");
         this.controleur = ctrl;
     }
 

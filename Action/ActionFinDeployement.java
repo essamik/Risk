@@ -21,6 +21,7 @@ public class ActionFinDeployement implements ActionListener {
      * @param ctrl : Le controleur du jeu.
      */
     public ActionFinDeployement(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de fin de déploiement !");
         this.controleur = ctrl;
     }
 

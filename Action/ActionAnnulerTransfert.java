@@ -21,6 +21,7 @@ public class ActionAnnulerTransfert implements ActionListener {
      * @param ctrl : Le controleur du jeu, permettant de restaurer l'état de déployement.
      */
     public ActionAnnulerTransfert(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action d'annulation du transfert !");
         controleur = ctrl;
         
     }

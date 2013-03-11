@@ -3,6 +3,7 @@ package Vue;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
@@ -41,6 +42,8 @@ public class PlateauJeu extends JPanel implements MouseListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g; //Utilisation de Graphics2D afin d'utiliser la transparence, qui n'est pas dispo sous Graphics
+        
+        
         this.ajouterPonts(g2d);
         for (GroupeZone monGroupeZone : this.listeContinents) {
             for (Zone maZone : monGroupeZone.rendListeZones()) {
@@ -143,7 +146,14 @@ public class PlateauJeu extends JPanel implements MouseListener {
         ArrayList<GroupeZone> mesContinents = this.listeContinents;
         return mesContinents;
     }
-
+    
+    /**
+     * Remet à 0 la liste des continents.
+     */
+    public void reinitialiserListeContinents() {
+        this.listeContinents = new ArrayList<>();
+    }
+    
     /**
      * Gère les interactions du joueur sur la carte. Cherche si le point cliqué
      * correspondant aux coordonnées d'une zone et lance l'action correspondant.
@@ -162,12 +172,7 @@ public class PlateauJeu extends JPanel implements MouseListener {
         this.repaint();
     }
 
-    /**
-     * Remet à 0 la liste des continents.
-     */
-    public void reinitialiserListeContinents() {
-        this.listeContinents = new ArrayList<>();
-    }
+
 
     /**
      * Interaction de la souris non utilisé
@@ -194,6 +199,7 @@ public class PlateauJeu extends JPanel implements MouseListener {
      */
     @Override
     public void mouseEntered(MouseEvent e) {
+        
     }
 
     /**
@@ -203,5 +209,6 @@ public class PlateauJeu extends JPanel implements MouseListener {
      */
     @Override
     public void mouseExited(MouseEvent e) {
+
     }
 }

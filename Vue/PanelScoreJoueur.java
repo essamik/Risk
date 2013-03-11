@@ -65,11 +65,11 @@ public class PanelScoreJoueur extends JPanel{
         labelNbUnite.setFont(police);
         
         JLabel labelNbTour = new JLabel("" + nbTour);
-        labelNbTour.setPreferredSize(new Dimension(150, 45));
+        labelNbTour.setPreferredSize(new Dimension(100, 45));
         labelNbTour.setFont(police);
   
         JLabel labelTemps = new JLabel(tempsJeu);
-        labelTemps.setPreferredSize(new Dimension(100, 45));
+        //labelTemps.setPreferredSize(new Dimension(100, 45));
         labelTemps.setFont(police);
         
         this.add(rangJoueur);

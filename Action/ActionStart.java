@@ -17,6 +17,7 @@ public class ActionStart implements ActionListener {
      * @param ctrl : Le controleur du jeu.
      */
     public ActionStart(Controleur ctrl) {
+        if(ctrl == null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de lancement du choix des joueurs !");
         this.controleur = ctrl;
     }
     /**

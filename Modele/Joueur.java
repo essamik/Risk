@@ -30,6 +30,7 @@ public class Joueur implements Serializable {
      * la carte.
      */
     public Joueur(String nomJoueur, Color couleurJoueur) {
+        if(nomJoueur == null || couleurJoueur == null)    throw new RuntimeException("Paramètres manquants : Impossible de créer le joueur !");
         this.nom = nomJoueur;
         this.couleur = couleurJoueur;
         this.mesTerritoires = new ArrayList<>();
@@ -165,7 +166,7 @@ public class Joueur implements Serializable {
     /**
      * Fixe le temps de jeu du Joueur jusqu'a son élimination ou sa victoire
      *
-     * @param tempsAvantElimination : Le temps effectif de jeu du Joueur.
+     * @param tempsAvantEliminationEnSeconde : Le temps effectif de jeu du Joueur.
      */
     public void setDureeJeu(int tempsAvantEliminationEnSeconde) {
         int secondes = 0, minutes = 0, heures = 0;

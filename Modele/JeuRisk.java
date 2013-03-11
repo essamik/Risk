@@ -76,9 +76,13 @@ public class JeuRisk implements Observable {
      * @param nom : Le nom unique du joueur en format String.
      * @param couleur : La couleur unique permettant d'identifier visuellement
      * le joueur
+     * @return : True si le joueur a bien été créé, false sinon
      */
-    public void creerJoueur(String nom, Color couleur) {
-        this.listeJoueurs.add(new Joueur(nom, couleur));
+    public boolean creerJoueur(String nom, Color couleur) {
+        boolean aEteCree = false;
+        if(nom!=null && couleur!= null)
+            this.listeJoueurs.add(new Joueur(nom, couleur));
+        return aEteCree;
     }
 
     /**
@@ -578,6 +582,15 @@ public class JeuRisk implements Observable {
         for (Observeur obs : this.listObserver) {
             obs.update(nomTerritoire, nbUnites, nbUnitesDeplacable, couleur);
         }
+    }
+
+    /**
+     * Renvois la liste des couleurs actuellement disponible pour les joueurs
+     * @return : Une liste des couleurs restante
+     */
+    public ArrayList<Color> rendListeCouleurDispo() {
+        ArrayList<Color> listeCouleur = this.listeCouleursDispo;
+        return listeCouleur;
     }
 
  

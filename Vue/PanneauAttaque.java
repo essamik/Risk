@@ -67,7 +67,7 @@ public class PanneauAttaque extends JPanel {
         JLabel labelUnites = new JLabel("Nombre d'unités : ");
         labelUnites.setFont(police);
         
-        this.modeleSpinner = new SpinnerNumberModel(zoneDepart.rendNbUnite()-1, 1 , zoneDepart.rendNbUnite()-1, 1);
+        this.modeleSpinner = new SpinnerNumberModel(zoneDepart.rendNbUniteDeplacable()-1, 1 , zoneDepart.rendNbUnite()-1, 1);
         
         JSpinner spinnerNbUnite = new JSpinner(modeleSpinner);
         spinnerNbUnite.setFont(police);

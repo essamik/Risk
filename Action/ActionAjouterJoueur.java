@@ -18,6 +18,8 @@ public class ActionAjouterJoueur implements ActionListener {
      * @param ctrl : Controleur du jeu, utilisé pour lancer les différentes méthodes nécessaire à l'ajout d'un joueur.
      */
     public ActionAjouterJoueur(Controleur ctrl) {
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action d'ajout de joueurs !");
+
         this.controleur = ctrl;
     }
 

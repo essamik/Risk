@@ -36,6 +36,8 @@ public class Territoire implements Serializable {
      * @param pointCentre : Le point central du pays.
      */
     public Territoire(String nomTerritoire, int[] coordonneesX, int[] coordonneesY, Point pointCentre) {
+        if(nomTerritoire==null || coordonneesX.length<0 || coordonneesY.length<0 || pointCentre==null)  throw new RuntimeException("Paramètres manquants : Impossible de lancer le programme !");
+
         this.nom = nomTerritoire;
         this.nbUnite = 0;
         this.nbUniteBloquee = 0;

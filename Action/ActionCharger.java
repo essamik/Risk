@@ -13,12 +13,13 @@ public class ActionCharger extends AbstractAction{
 
     private Controleur controleur;
     /**
-     * Constructeur d'action affichant le tutorial.
+     * Constructeur d'action de chargement
      * @param ctrl : Le controleur du jeu.
      * @param texte Le texte à afficher dans le menu du jeu.
      */
     public ActionCharger(Controleur ctrl, String texte) {
         super(texte);
+        if(ctrl==null) throw new RuntimeException("Paramètre manquant : Impossible de construire l'action de chargement !");
         this.controleur = ctrl;
     }
 

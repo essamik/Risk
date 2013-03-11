@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vue;
 
 import Controleur.Controleur;
@@ -10,6 +6,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 /**
+ * Ouvre une fenêtre permettant au joueur de sélectionner dans quel répértoire
+ * sauvegarder sa partie, ou sélectionner le fichier à charger.
  *
  * @author Karim
  */
@@ -19,6 +17,11 @@ public class ExplorateurFichier extends JFrame {
     private Controleur controleur;
     private String typeExploration;
 
+    /**
+     * Constructeur d'Explorateur de fichier permettant d'intéragir avec les fichiers de l'utilisateur.
+     * @param ctrl : Le controleur du jeu
+     * @param typeExplo : Le type d'exploration de fichier (sauvegarder ou charger)
+     */
     public ExplorateurFichier(Controleur ctrl, String typeExplo) {
         super();
         this.controleur = ctrl;
@@ -33,7 +36,7 @@ public class ExplorateurFichier extends JFrame {
             this.explorateur.setFileSelectionMode(JFileChooser.FILES_ONLY);
             int actionSauvegarder = this.explorateur.showSaveDialog(this);
             if (actionSauvegarder == JFileChooser.APPROVE_OPTION) {
-                this.controleur.sauvegarderPartie(this.explorateur.getSelectedFile().getAbsolutePath()+".data");
+                this.controleur.sauvegarderPartie(this.explorateur.getSelectedFile().getAbsolutePath() + ".data");
             }
 
         } else if (typeExploration.equals("charger")) {

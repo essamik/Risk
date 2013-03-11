@@ -302,7 +302,7 @@ public class CarteTerre implements Serializable{
              100, 96, 98, 101, 98, 101, 99, 93, 89, 87, 91, 96, 97, 102, 102
         };
         
-        Territoire europeNord = new Territoire("Europe du nord", xEuropeNord, yEuropeNord, new Point(498, 111));
+        Territoire europeNord = new Territoire("Europe du nord", xEuropeNord, yEuropeNord, new Point(495, 108));
         
         ///////////EUROPESUD///////////////////////////////////////////////////////////////////////////////////////////////////////
         int xEuropeSud[] = { 478,475, 478,   //EuropeOuestX
@@ -319,7 +319,7 @@ public class CarteTerre implements Serializable{
              138, 143, 147, 148, 150, 150, 154, 157, 155, 151, 145, 144, 143, 139, 136, 134, 134, 
         };
         
-        Territoire europeSud = new Territoire("Europe du sud", xEuropeSud, yEuropeSud, new Point(522, 136));
+        Territoire europeSud = new Territoire("Europe du sud", xEuropeSud, yEuropeSud, new Point(500, 136));
         
         
         ///////////EUROPEEST///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -467,7 +467,7 @@ public class CarteTerre implements Serializable{
         };
 
 
-        Territoire yakutsk = new Territoire("Yakutsk", xYakutsk, yYakutsk, new Point(797, 59));
+        Territoire yakutsk = new Territoire("Yakutsk", xYakutsk, yYakutsk, new Point(797, 70));
         
         ///////////Irkutsk///////////////////////////////////////////////////////////////////////////////////////////////////////
         int xIrkutsk[] = {716, 719, 726, 728, 731, 734, 733, 739, 742, 747, 746, 743, 741, 745, 744, 739, 741, //SiberieX
@@ -482,7 +482,7 @@ public class CarteTerre implements Serializable{
             117, 107, 103, 101, 103, 114, 117, 114, 116, 117, 114, 114, 108, 108, 110, 113, 115, 111, 112, //MongolieY
         };
         
-        Territoire irkutsk = new Territoire("Irkutsk", xIrkutsk, yIrkutsk, new Point(770, 94));
+        Territoire irkutsk = new Territoire("Irkutsk", xIrkutsk, yIrkutsk, new Point(770, 100));
         
         ///////////MONGOLIE///////////////////////////////////////////////////////////////////////////////////////////////////////
         int xMongolie[] = {834, 823, 815, 807, 802, 806, 799, 791, 784, 777, 767, 759, 750, 742, 742, 746, 742, 727, 723,  //IrkutskX
@@ -578,7 +578,7 @@ public class CarteTerre implements Serializable{
         int yJapon[] = {131, 137, 139, 141, 143, 143, 150, 153, 157, 167, 167, 169, 170, 175,
             170, 171, 174, 181, 183, 176, 171, 165, 168, 157, 143, 137};
         
-        Territoire japon = new Territoire("Japon", xJapon, yJapon, new Point(894, 162));
+        Territoire japon = new Territoire("Japon", xJapon, yJapon, new Point(885, 162));
         
         asie.addTerritoire(japon);
         asie.addTerritoire(moyenOrient);
@@ -781,9 +781,7 @@ public class CarteTerre implements Serializable{
         afriqueEst.addVoisin(egypte);
         afriqueEst.addVoisin(congo);
         afriqueEst.addVoisin(afriqueSud);
-//        afriqueEst.addVoisin(madagascar);
         congo.addVoisin(afriqueSud);
-//        afriqueSud.addVoisin(madagascar);
         afriqueEst.addVoisin(moyenOrient);
         
         groenland.addVoisin(quebec);

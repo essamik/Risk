@@ -49,7 +49,7 @@ public class EtatTransfert extends EtatJeu {
                                 this.rendControleur().messageErreur("Vous ne pouvez plus déplacer d'unité de ce territoire, les unités ont déjà subi un déplacement");
                             }
                         } else {
-                            this.rendControleur().messageErreur("Ce territoire ne possède pas assez d'unités pour effectuer un déplacement");
+                            this.rendControleur().messageErreur("Ce territoire ne possède qu'une seule unitée, il en faut minimum deux pour pour effectuer un déplacement");
                         }
                     } else {
                         this.rendControleur().messageErreur("Ce territoire est contrôlé par l'ennemi");

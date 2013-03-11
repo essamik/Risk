@@ -4,6 +4,8 @@ import Action.*;
 import Modele.*;
 import Vue.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -165,9 +167,9 @@ public class Controleur {
         colonneBouton.add(espaceColonneBoutonGauche, BorderLayout.WEST);
         ecranJoueurs.add(colonneJoueur, BorderLayout.WEST);
         ecranJoueurs.add(colonneBouton, BorderLayout.EAST);
+        
 
-
-        //Répétition de tout le code en haut... A centraliser qqpart
+        
         int numeroJoueur = 1;
         for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
             PanneauAjoutJoueur panneauJoueur = new PanneauAjoutJoueur(numeroJoueur, monJoueur.rendNom(), monJoueur.rendCouleur());
@@ -234,7 +236,8 @@ public class Controleur {
      * @param couleur : La couleur du jouer à créer.
      */
     public void ajouterInfosJoueur(String nom, Color couleur) {
-        this.modele.creerJoueur(nom, couleur);
+        if(nom!=null && couleur!=null)
+            this.modele.creerJoueur(nom, couleur);
     }
 
     /**
@@ -275,7 +278,7 @@ public class Controleur {
         menuFile.add(menuSauvegarder);
         menuFile.add(new JMenuItem(new ActionCharger(this, "Charger partie")));
         menuFile.add(new JMenuItem(new ActionRecommencer(this, "Recommencer partie")));
-        menuFile.add(new JMenuItem(new ActionQuitter("Quitter sans sauvegarder")));
+        menuFile.add(new JMenuItem(new ActionQuitter("Quitter la partie")));
 
         JMenu menuEdition = new JMenu("Aide");
         barreMenu.add(menuEdition);
@@ -325,8 +328,8 @@ public class Controleur {
      * @param maZone : La Zoen dans laquelle l'utilisateur à cliqué.
      */
     public void actionEtat(Zone maZone) {
-        this.etat.interactionUtilisateur(maZone);
-
+        if(maZone!=null)
+            this.etat.interactionUtilisateur(maZone);
     }
 
     /**
@@ -338,10 +341,12 @@ public class Controleur {
      * @param zoneArrivee : La zone de destination des unités
      */
     public void ajoutPanneauDeplacement(Zone zoneDepart, Zone zoneArrivee) {
-        this.vue.rendPanneauActionPhase().removeAll();
-        this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee, new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
-        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action", Color.BLACK);
-        this.vue.pack();
+        if(zoneDepart!=null && zoneArrivee!=null) {
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee, new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
+            this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action", Color.BLACK);
+            this.vue.pack();
+        }
     }
 
     /**
@@ -354,11 +359,13 @@ public class Controleur {
      * @param zoneArrivee : La zone ennemie à attaquer.
      */
     public void ajoutPanneauAttaque(Zone zoneDepart, Zone zoneArrivee) {
-        this.vue.rendPanneauActionPhase().removeAll();
-        this.vue.rendPanneauActionPhase().add(new PanneauAttaque(zoneDepart, zoneArrivee, new ActionAttaquer(this), new ActionAnnulerTransfert(this)));
-        this.updateBarreForces();
-        this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action", Color.BLACK);
-        this.vue.pack();
+        if(zoneDepart!=null && zoneArrivee!=null) {
+            this.vue.rendPanneauActionPhase().removeAll();
+            this.vue.rendPanneauActionPhase().add(new PanneauAttaque(zoneDepart, zoneArrivee, new ActionAttaquer(this), new ActionAnnulerTransfert(this)));
+            this.updateBarreForces();
+            this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez envoyer à l'attaque du territoire ennemi, puis cliquez sur le bouton 'Attaquer' pour lancer l'action", Color.BLACK);
+            this.vue.pack();
+        }
     }
 
     /**
@@ -451,9 +458,9 @@ public class Controleur {
         } else {
             this.vue.ajouterOrdre(territoireAConquerir.rendNom() + " capturé");
         }
-        if(this.etat instanceof EtatDeployement) {
-            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
-        } else if(this.etat instanceof EtatInitialisation) {
+        if (this.etat instanceof EtatDeployement) {
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déploiement' pour mettre fin à votre tour", Color.BLACK);
+        } else if (this.etat instanceof EtatInitialisation) {
             this.vue.setTexteInfo("Chaque joueur clic à tour de rôle sur un pays afin de se l'approprier jusqu'a ce que toutes les unités ont été déployées", Color.BLACK);
         }
         this.vue.pack();
@@ -476,10 +483,10 @@ public class Controleur {
         conteneurBoutons.setLayout(new BorderLayout());
         conteneurBoutons.setBackground(Color.WHITE);
         conteneurBoutons.setPreferredSize(new Dimension(320, 100));
-        JButton boutonFinDeployement = new JButton("Terminer déployement");
+        JButton boutonFinDeployement = new JButton("Terminer déploiement");
         boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
         boutonFinDeployement.setPreferredSize(new Dimension(320, 45));
-        JButton boutonAnnulerDeployement = new JButton("Annuler déployement");
+        JButton boutonAnnulerDeployement = new JButton("Annuler déploiement");
         boutonAnnulerDeployement.addActionListener(new ActionAnnulerDeployement(this));
         boutonAnnulerDeployement.setPreferredSize(new Dimension(320, 45));
         conteneurBoutons.add(boutonFinDeployement, BorderLayout.NORTH);
@@ -491,7 +498,7 @@ public class Controleur {
         this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
         //On autorise les sauvegardes en phase de déployement : 
         this.vue.autoriserSauvegardes();
-        this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
+        this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déploiement' pour mettre fin à votre tour", Color.BLACK);
         this.vue.pack();
 
     }
@@ -526,7 +533,7 @@ public class Controleur {
             this.mementoDeployement = new MementoDeployement();
             this.updateUnitesRestantADeployer();
             this.updateVueJoueur();
-            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déploiement' pour mettre fin à votre tour", Color.BLACK);
 
 
         } else { //Si le dernier joueur vient de mettre fin à son tour de déployement
@@ -578,7 +585,7 @@ public class Controleur {
         if (component instanceof PanneauTransfertUnites) {
             int nbUnitesADeplacer = ((PanneauTransfertUnites) component).rendNbUniteDeplacement();
             if (this.modele.deplacerUnites(this.etat.rendZoneDepart().rendNom(), this.etat.rendZoneArrivee().rendNom(), nbUnitesADeplacer, this.etat.rendJoueurCourant())) {
-                this.vue.ajouterOrdre("Déplacement de " + this.etat.rendZoneDepart().rendNom() + " à " + this.etat.rendZoneArrivee().rendNom() + " " + nbUnitesADeplacer + "unités");
+                this.vue.ajouterOrdre("Déplacement de " + this.etat.rendZoneDepart().rendNom() + " à " + this.etat.rendZoneArrivee().rendNom());
                 this.etat.rendZoneDepart().setNotClicked();
                 this.etat.setZoneDepart(null);
                 this.etat.setZoneArrivee(null);
@@ -608,7 +615,7 @@ public class Controleur {
             this.vue.ajouterOrdre("Perte(s) : " + rapport.rendNbUnitesPerdues());
             if (rapport.rendResultatCombat()) {
                 this.vue.ajouterOrdre(rapport.rendTerritoireDefenseur().rendNom() + " capturé");
- 
+
                 if (this.modele.checkJoueurElimine()) {
                     if (!this.modele.rendListeJoueurs().isEmpty()) {
                         this.vue.ajouterOrdre("Joueur éliminé");
@@ -692,13 +699,14 @@ public class Controleur {
     }
 
     /**
-     * Retourne un message d'erreur lorsque le joueur effectue une action
-     * interdite dans la barre latéral d'information.
+     * Retourne une alerte sonore etun message d'erreur dans la barre latéral
+     * d'information lorsque le joueur effectue une action interdite
      *
      * @param mssgErreur : Le message expliquant au joueur la raison de
      * l'incapacité du jeu à traiter son action.
      */
     public void messageErreur(String mssgErreur) {
+        Toolkit.getDefaultToolkit().beep();
         this.vue.setTexteInfo(mssgErreur, Color.RED);
     }
 
@@ -745,6 +753,7 @@ public class Controleur {
 
         JLabel labelUnite = new JLabel("Nb d'unités total");
         JLabel labelTour = new JLabel("Nb de tour");
+        JLabel espace = new JLabel("   ");
         JLabel labelTemps = new JLabel("Temps");
 
         labelUnite.setFont(policeEnTete);
@@ -753,6 +762,7 @@ public class Controleur {
 
         panelEnTetes.add(labelUnite);
         panelEnTetes.add(labelTour);
+        panelEnTetes.add(espace);
         panelEnTetes.add(labelTemps);
 
 
@@ -805,6 +815,7 @@ public class Controleur {
             //Joueurs
             flotTraitementOut.writeObject(this.modele.rendListeJoueurs());
             flotTraitementOut.writeObject(this.modele.rendListeJoueursElimines());
+            
 
             //Joueur courant
             flotTraitementOut.writeObject(this.etat.rendJoueurCourant());
@@ -878,10 +889,10 @@ public class Controleur {
             conteneurBoutons.setLayout(new BorderLayout());
             conteneurBoutons.setBackground(Color.WHITE);
             conteneurBoutons.setPreferredSize(new Dimension(320, 100));
-            JButton boutonFinDeployement = new JButton("Terminer déployement");
+            JButton boutonFinDeployement = new JButton("Terminer déploiement");
             boutonFinDeployement.addActionListener(new ActionFinDeployement(this));
             boutonFinDeployement.setPreferredSize(new Dimension(320, 45));
-            JButton boutonAnnulerDeployement = new JButton("Annuler déployement");
+            JButton boutonAnnulerDeployement = new JButton("Annuler déploiement");
             boutonAnnulerDeployement.addActionListener(new ActionAnnulerDeployement(this));
             boutonAnnulerDeployement.setPreferredSize(new Dimension(320, 45));
             conteneurBoutons.add(boutonFinDeployement, BorderLayout.NORTH);
@@ -892,7 +903,7 @@ public class Controleur {
 
             //On autorise les sauvegardes en phase de déployement : 
             this.vue.autoriserSauvegardes();
-            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déployement' pour mettre fin à votre tour", Color.BLACK);
+            this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déploiement' pour mettre fin à votre tour", Color.BLACK);
 
             this.vue.pack();
             JOptionPane.showMessageDialog(null, "Partie chargée avec succès", "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -915,7 +926,7 @@ public class Controleur {
             if (monTerritoireARestaurer.rendNbUnites() < 1) {
                 this.etat.rendJoueurCourant().retirerTerritoire(monTerritoireARestaurer);
             }
-            this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(),monTerritoireARestaurer.rendNbUniteDeplacable(), monTerritoireARestaurer.rendCouleur());
+            this.modele.notifyObserver(monTerritoireARestaurer.rendNom(), monTerritoireARestaurer.rendNbUnites(), monTerritoireARestaurer.rendNbUniteDeplacable(), monTerritoireARestaurer.rendCouleur());
         }
         this.mementoDeployement = new MementoDeployement();
         this.updateUnitesRestantADeployer();
@@ -952,12 +963,32 @@ public class Controleur {
     }
 
     /**
-     * Libère toutes les unités dont le mouvement est restreint du joueur courant.
+     * Libère toutes les unités dont le mouvement est restreint du joueur
+     * courant.
      */
     private void libererUnitesBloquees() {
-        for(Territoire monTerritoire : this.etat.rendJoueurCourant().rendListeTerritoire()) {
+        for (Territoire monTerritoire : this.etat.rendJoueurCourant().rendListeTerritoire()) {
             monTerritoire.libererUnitesBloquees();
             this.modele.notifyObserver(monTerritoire.rendNom(), monTerritoire.rendNbUnites(), monTerritoire.rendNbUniteDeplacable(), monTerritoire.rendCouleur());
         }
+    }
+
+    /**
+     * Affiche une info box d'information qui se ferme toute seule au bout d'une seconde.
+     * @param texte : Le texte d'information à afficher dans l'info box
+     */
+    public void afficherInfoBox(String texte) {
+        JOptionPane pane = new JOptionPane(texte);
+        final JDialog dialog = pane.createDialog("Information");
+        Timer timer = new Timer(1000, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+                // or maybe you'll need dialog.dispose() instead?
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+        dialog.setVisible(true);
     }
 }

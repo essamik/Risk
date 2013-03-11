@@ -26,6 +26,7 @@ public class Continent implements Serializable{
      * @param unitesSupp  : Le nombre d'unité bonus accordé au joueur contrôlant l'entier du continent.
      */
     public Continent(String nomContinent, int unitesSupp) {
+        if(nomContinent == null || unitesSupp == 0)  throw new RuntimeException("Paramètres manquants : Impossible de lancer le programme !");
         this.nom = nomContinent;
         this.unitesBonusDeployement = unitesSupp;
         this.listeTerritoire = new ArrayList<>();
@@ -59,8 +60,7 @@ public class Continent implements Serializable{
      * @return : Le nom du continenet sous forme de String.
      */
     public String rendNom() {
-        String name = this.nom;
-        return name;
+        return this.nom;
     }
     
     /**
