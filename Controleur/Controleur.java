@@ -3,6 +3,7 @@ package Controleur;
 import Action.*;
 import Modele.*;
 import Vue.*;
+import com.sun.corba.se.spi.monitoring.MonitoredObject;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -167,9 +168,9 @@ public class Controleur {
         colonneBouton.add(espaceColonneBoutonGauche, BorderLayout.WEST);
         ecranJoueurs.add(colonneJoueur, BorderLayout.WEST);
         ecranJoueurs.add(colonneBouton, BorderLayout.EAST);
-        
 
-        
+
+
         int numeroJoueur = 1;
         for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
             PanneauAjoutJoueur panneauJoueur = new PanneauAjoutJoueur(numeroJoueur, monJoueur.rendNom(), monJoueur.rendCouleur());
@@ -236,8 +237,9 @@ public class Controleur {
      * @param couleur : La couleur du jouer à créer.
      */
     public void ajouterInfosJoueur(String nom, Color couleur) {
-        if(nom!=null && couleur!=null)
+        if (nom != null && couleur != null) {
             this.modele.creerJoueur(nom, couleur);
+        }
     }
 
     /**
@@ -280,10 +282,16 @@ public class Controleur {
         menuFile.add(new JMenuItem(new ActionRecommencer(this, "Recommencer partie")));
         menuFile.add(new JMenuItem(new ActionQuitter("Quitter la partie")));
 
-        JMenu menuEdition = new JMenu("Aide");
+        JMenu menuEdition = new JMenu("Edition");
         barreMenu.add(menuEdition);
-        menuEdition.add(new JMenuItem(new ActionAfficherTutorial("Tutorial du jeu")));
-        menuEdition.add(new JMenuItem(new ActionAbout("A propos")));
+        JMenuItem menuRepartitionAuto = new JMenuItem(new ActionRepartitionAleatoire(this, "Répartition aléatoire des unités"));
+        this.vue.setMenuRepartitionAuto(menuRepartitionAuto);
+        menuEdition.add(menuRepartitionAuto);
+
+        JMenu menuAide = new JMenu("Aide");
+        barreMenu.add(menuAide);
+        menuAide.add(new JMenuItem(new ActionAfficherTutorial("Tutorial du jeu")));
+        menuAide.add(new JMenuItem(new ActionAbout("A propos")));
     }
 
     /**
@@ -328,8 +336,9 @@ public class Controleur {
      * @param maZone : La Zoen dans laquelle l'utilisateur à cliqué.
      */
     public void actionEtat(Zone maZone) {
-        if(maZone!=null)
+        if (maZone != null) {
             this.etat.interactionUtilisateur(maZone);
+        }
     }
 
     /**
@@ -341,7 +350,7 @@ public class Controleur {
      * @param zoneArrivee : La zone de destination des unités
      */
     public void ajoutPanneauDeplacement(Zone zoneDepart, Zone zoneArrivee) {
-        if(zoneDepart!=null && zoneArrivee!=null) {
+        if (zoneDepart != null && zoneArrivee != null) {
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauTransfertUnites(zoneDepart, zoneArrivee, new ActionDeplacer(this), new ActionAnnulerTransfert(this)));
             this.vue.setTexteInfo("Sélectionnez le nombre d'unité que vous souhaitez déplacer, puis cliquez sur le bouton 'Déplacer' pour lancer l'action", Color.BLACK);
@@ -359,7 +368,7 @@ public class Controleur {
      * @param zoneArrivee : La zone ennemie à attaquer.
      */
     public void ajoutPanneauAttaque(Zone zoneDepart, Zone zoneArrivee) {
-        if(zoneDepart!=null && zoneArrivee!=null) {
+        if (zoneDepart != null && zoneArrivee != null) {
             this.vue.rendPanneauActionPhase().removeAll();
             this.vue.rendPanneauActionPhase().add(new PanneauAttaque(zoneDepart, zoneArrivee, new ActionAttaquer(this), new ActionAnnulerTransfert(this)));
             this.updateBarreForces();
@@ -513,7 +522,9 @@ public class Controleur {
         int nbJoueur = this.modele.rendListeJoueurs().size();
         if (this.modele.rendDernierJoueur().rendUnitesADeployer() <= 0) {
             this.etat = new EtatDeployement(this);
-            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0)); //A optimiser
+            this.etat.setJoueurCourant(this.modele.rendListeJoueurs().get(0));
+            this.vue.interdireRepartitionAuto(); //On bloque l'onglet du menu car la répartition ne peut se faire qu'au début du jeu
+
             this.lancerPhaseDeployement();
             phaseInitialisationFini = true;
         }
@@ -807,15 +818,16 @@ public class Controleur {
             //flotTraitementOut.writeObject(this.etat);
 
             //Enregistrment de l'état actuel de tous les territoires
-            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-                    flotTraitementOut.writeObject(monTerritoire);
-                }
-            }
+            flotTraitementOut.writeObject(this.modele.rendCarte().rendListeContinents());
+//            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+//                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+//                    flotTraitementOut.writeObject(monTerritoire);
+//                }
+//            }
             //Joueurs
             flotTraitementOut.writeObject(this.modele.rendListeJoueurs());
             flotTraitementOut.writeObject(this.modele.rendListeJoueursElimines());
-            
+
 
             //Joueur courant
             flotTraitementOut.writeObject(this.etat.rendJoueurCourant());
@@ -849,13 +861,14 @@ public class Controleur {
             try (ObjectInputStream flotTraitementIn = new ObjectInputStream(flotCommunicationIn)) {
                 this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
                 this.modele.setNbTour(flotTraitementIn.readInt());
-                for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-                    for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-                        Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
-                        monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
-                        monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
-                    }
-                }
+//                for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
+//                    for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+//                        Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
+//                        monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
+//                        monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
+//                    }
+//                }
+                this.modele.rendCarte().chargerListeContinents( (ArrayList<Continent>) flotTraitementIn.readObject());
                 ArrayList<Joueur> mesJoueurs = (ArrayList<Joueur>) flotTraitementIn.readObject();
                 this.modele.chargerJoueurs(mesJoueurs);
                 ArrayList<Joueur> mesJoueursElimine = (ArrayList<Joueur>) flotTraitementIn.readObject();
@@ -903,6 +916,7 @@ public class Controleur {
 
             //On autorise les sauvegardes en phase de déployement : 
             this.vue.autoriserSauvegardes();
+            this.vue.interdireRepartitionAuto();
             this.vue.setTexteInfo("Déployez vos unités en cliquant sur un territoire libre ou un de vos territoire. Cliquez sur le bouton 'Terminer déploiement' pour mettre fin à votre tour", Color.BLACK);
 
             this.vue.pack();
@@ -974,7 +988,9 @@ public class Controleur {
     }
 
     /**
-     * Affiche une info box d'information qui se ferme toute seule au bout d'une seconde.
+     * Affiche une info box d'information qui se ferme toute seule au bout d'une
+     * seconde.
+     *
      * @param texte : Le texte d'information à afficher dans l'info box
      */
     public void afficherInfoBox(String texte) {
@@ -990,5 +1006,36 @@ public class Controleur {
         timer.setRepeats(false);
         timer.start();
         dialog.setVisible(true);
+    }
+
+    /**
+     * Remplis la carte de manière aléatoire jusqu'a ce que toutes les unités de
+     * la phase d'initialisation aient été déployées
+     */
+    public void lancerRepartitionUnitesAuto() {
+        if (this.etat instanceof EtatInitialisation) {
+            ArrayList<Territoire> listeTerritoiresLibre = this.modele.rendTerritoiresLibre();
+            Collections.shuffle(listeTerritoiresLibre);
+            if (listeTerritoiresLibre.size() > 0) {
+                for (Territoire monTerritoire : listeTerritoiresLibre) {
+                    if(this.etat.rendJoueurCourant().rendUnitesADeployer() > 0) {
+                        this.modele.conquerirTerritoire(monTerritoire.rendNom(), this.etat.rendJoueurCourant());
+                    }
+                    this.etat.setJoueurCourant(this.modele.rendJoueurSuivant(this.etat.rendJoueurCourant()));
+                }
+
+            }
+            //Une fois que tous les territoires libres ont été distribués
+            for (Joueur monJoueur : this.modele.rendListeJoueurs()) {
+                while (monJoueur.rendUnitesADeployer() > 0) {
+                    Collections.shuffle(monJoueur.rendListeTerritoire());
+                    this.modele.conquerirTerritoire(monJoueur.rendListeTerritoire().get(0).rendNom(), monJoueur);
+                }
+            }
+            this.updateVueJoueur();
+            this.updateBarreForces();
+            this.updateUnitesRestantADeployer();
+            this.checkFinPhaseInitialisation();
+        }
     }
 }

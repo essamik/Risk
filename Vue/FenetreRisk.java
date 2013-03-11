@@ -31,6 +31,7 @@ public class FenetreRisk extends JFrame implements Observeur, WindowListener {
     private JPanel barreForceArmees;
     private JLabel infoBarre;
     private JMenuItem menuSauvegarder;
+    private JMenuItem menuRepartitionAuto;
     private Font titre;
     private Controleur controleur;
 
@@ -423,7 +424,19 @@ public class FenetreRisk extends JFrame implements Observeur, WindowListener {
     public void setMenuSauvegarder(JMenuItem menuSvg) {
         this.menuSauvegarder = menuSvg;
     }
-
+    
+    /**
+     * Définis l'élément de menu "Répartition auto"
+     * @param menuItemRepartitionAuto  : L'objet du menu répartition auto
+     */
+    public void setMenuRepartitionAuto(JMenuItem menuItemRepartitionAuto) {
+        this.menuRepartitionAuto = menuItemRepartitionAuto;
+    }
+    
+    public void interdireRepartitionAuto() {
+        this.menuRepartitionAuto.setEnabled(false);
+    }
+    
     /**
      * Rend l'élément de menu "Sauvegarder" clicable afin d'autoriser les
      * sauvegardes.
@@ -520,5 +533,6 @@ public class FenetreRisk extends JFrame implements Observeur, WindowListener {
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
+
     
 }

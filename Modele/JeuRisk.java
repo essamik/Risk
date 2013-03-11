@@ -27,11 +27,11 @@ public class JeuRisk implements Observable {
     private Chronometre tempsJeu;
     private int nbTour;
     private final int NB_UNITES_A_DEPLOYER_MINIMUM = 3;
-    private final int NB_UNITE_INITIALE_2_JOUEURS = 2; // 40
-    private final int NB_UNITE_INITIALE_3_JOUEURS = 2; //35
+    private final int NB_UNITE_INITIALE_2_JOUEURS = 3; 
+    private final int NB_UNITE_INITIALE_3_JOUEURS = 35; //35
     private final int NB_UNITE_INITIALE_4_JOUEURS = 30;
     private final int NB_UNITE_INITIALE_5_JOUEURS = 25;
-    private final int NB_UNITE_INITIALE_6_JOUEURS = 2; //20
+    private final int NB_UNITE_INITIALE_6_JOUEURS = 20; 
     private ArrayList<Observeur> listObserver;
 
     /**
@@ -591,6 +591,22 @@ public class JeuRisk implements Observable {
     public ArrayList<Color> rendListeCouleurDispo() {
         ArrayList<Color> listeCouleur = this.listeCouleursDispo;
         return listeCouleur;
+    }
+
+    /**
+     * Renvois une liste de tous les territoires innocupés
+     * @return : Une ArrayList des territoires libre
+     */
+    public ArrayList<Territoire> rendTerritoiresLibre() {
+        ArrayList<Territoire> listeTerritoireLibre = new ArrayList<>();
+        for (Continent monContinent : this.carte.rendListeContinents()) {
+            for (Territoire monTerritoire : monContinent.rendTerritoires()) {
+                if(monTerritoire.rendNbUnites() == 0) {
+                    listeTerritoireLibre.add(monTerritoire);
+                }
+            }
+        }
+        return listeTerritoireLibre;
     }
 
  

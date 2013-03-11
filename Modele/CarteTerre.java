@@ -793,6 +793,7 @@ public class CarteTerre implements Serializable{
         europeOuest.addVoisin(europeNord);
         europeOuest.addVoisin(europeSud);
         europeNord.addVoisin(europeEst);
+        europeNord.addVoisin(europeSud);
         europeSud.addVoisin(europeEst);
         europeSud.addVoisin(egypte);
         scandinavie.addVoisin(europeEst);
@@ -829,6 +830,11 @@ public class CarteTerre implements Serializable{
         australieEst.addVoisin(newGuinnee);
         australieEst.addVoisin(australieOuest);
  
+    }
+
+    public void chargerListeContinents(ArrayList<Continent> listeContinentsChargee) {
+        this.listeContinent = new ArrayList<>();
+        this.listeContinent = listeContinentsChargee;
     }
 
 }
