@@ -29,6 +29,18 @@ public class CarteTerre implements Serializable{
         return continentsRisk;
     }
     
+
+    /**
+     * Charge la liste des continents avec leur territoires à partir d'une partie sauvegardée
+     * @param listeContinentsChargee : La liste des continents du fichier de sauvegarde.
+     */
+    public void chargerListeContinents(ArrayList<Continent> listeContinentsChargee) {
+        if(listeContinentsChargee !=null) {
+            this.listeContinent = new ArrayList<>();
+            this.listeContinent = listeContinentsChargee;
+        }
+    }
+    
     /**
      * Créer tous les territoires et tous les continents destinées à être utilisés dans le cadre du jeu Risk.
      * Les territoires sont composés d'une série de points correspondant à leur forme.
@@ -210,7 +222,7 @@ public class CarteTerre implements Serializable{
             319, 320, 327, 334, 350, 359, 374, 384, 387, 386, 394, 398, 400, 406, 411, 424, 
         };
         
-        Territoire brasil = new Territoire("Brasil", xBrasil, yBrasil,new Point(277, 340));
+        Territoire brasil = new Territoire("Brésil", xBrasil, yBrasil,new Point(277, 340));
         
         //////////PEROU//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int xPerou[] = {220, 229, 231, 241, 244, 249, 255, 259, 261, 261, 267, 269, 273, 273, //ArgentineX
@@ -832,9 +844,5 @@ public class CarteTerre implements Serializable{
  
     }
 
-    public void chargerListeContinents(ArrayList<Continent> listeContinentsChargee) {
-        this.listeContinent = new ArrayList<>();
-        this.listeContinent = listeContinentsChargee;
-    }
 
 }

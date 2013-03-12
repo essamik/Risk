@@ -7,15 +7,8 @@ import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
+ * Main du jeu Risk. Lance le modèle, la vue et le controleur.
  * @author Karim
  */
 public class MainRisk {

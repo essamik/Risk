@@ -814,16 +814,10 @@ public class Controleur {
             flotTraitementOut.writeObject(this.modele.rendChronometre());
             //N° tour
             flotTraitementOut.writeInt(this.modele.rendNbTour());
-            //Etat
-            //flotTraitementOut.writeObject(this.etat);
 
             //Enregistrment de l'état actuel de tous les territoires
             flotTraitementOut.writeObject(this.modele.rendCarte().rendListeContinents());
-//            for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-//                for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-//                    flotTraitementOut.writeObject(monTerritoire);
-//                }
-//            }
+
             //Joueurs
             flotTraitementOut.writeObject(this.modele.rendListeJoueurs());
             flotTraitementOut.writeObject(this.modele.rendListeJoueursElimines());
@@ -861,13 +855,7 @@ public class Controleur {
             try (ObjectInputStream flotTraitementIn = new ObjectInputStream(flotCommunicationIn)) {
                 this.modele.setTempsJeu((Chronometre) flotTraitementIn.readObject());
                 this.modele.setNbTour(flotTraitementIn.readInt());
-//                for (Continent monContinent : this.modele.rendCarte().rendListeContinents()) {
-//                    for (Territoire monTerritoire : monContinent.rendTerritoires()) {
-//                        Territoire territoireSauvegarde = (Territoire) flotTraitementIn.readObject();
-//                        monTerritoire.setCouleur(territoireSauvegarde.rendCouleur());
-//                        monTerritoire.setNbUnites(territoireSauvegarde.rendNbUnites());
-//                    }
-//                }
+
                 this.modele.rendCarte().chargerListeContinents( (ArrayList<Continent>) flotTraitementIn.readObject());
                 ArrayList<Joueur> mesJoueurs = (ArrayList<Joueur>) flotTraitementIn.readObject();
                 this.modele.chargerJoueurs(mesJoueurs);

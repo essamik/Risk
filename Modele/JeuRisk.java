@@ -27,8 +27,8 @@ public class JeuRisk implements Observable {
     private Chronometre tempsJeu;
     private int nbTour;
     private final int NB_UNITES_A_DEPLOYER_MINIMUM = 3;
-    private final int NB_UNITE_INITIALE_2_JOUEURS = 3; 
-    private final int NB_UNITE_INITIALE_3_JOUEURS = 35; //35
+    private final int NB_UNITE_INITIALE_2_JOUEURS = 3; //40 normalement mais fixé à 3 pour tester une partie rapidement à 2 joueurs
+    private final int NB_UNITE_INITIALE_3_JOUEURS = 35; 
     private final int NB_UNITE_INITIALE_4_JOUEURS = 30;
     private final int NB_UNITE_INITIALE_5_JOUEURS = 25;
     private final int NB_UNITE_INITIALE_6_JOUEURS = 20; 

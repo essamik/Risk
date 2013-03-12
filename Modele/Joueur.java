@@ -164,7 +164,8 @@ public class Joueur implements Serializable {
     }
 
     /**
-     * Fixe le temps de jeu du Joueur jusqu'a son élimination ou sa victoire
+     * Fixe le temps de jeu du Joueur jusqu'a son élimination ou sa victoire.
+     * Format du temps : 00:00:00
      *
      * @param tempsAvantEliminationEnSeconde : Le temps effectif de jeu du Joueur.
      */
